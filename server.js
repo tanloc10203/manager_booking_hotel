@@ -2,7 +2,7 @@ import app from "./src/app";
 import config from "./src/config";
 import DBMysql from "./src/database/init.mysql";
 
-async function startServer() {
+function startServer() {
   try {
     DBMysql.connection();
     console.log("Connected to the database!");
