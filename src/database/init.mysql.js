@@ -3,16 +3,16 @@ import config from "../config";
 
 class DBMysql {
   static connection() {
-    if (this.client) return this.client;
+    if (this.conn) return this.conn;
 
-    this.client = mysql.createConnection({
+    this.conn = mysql.createConnection({
       host: config.db.host,
       user: config.db.username,
       password: config.db.password,
       database: config.db.database,
     });
 
-    return this.client;
+    return this.conn;
   }
 }
 
