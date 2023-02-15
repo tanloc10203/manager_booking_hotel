@@ -1,16 +1,16 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database";
 
-class StatusService {
-  table = "statuses";
-  primaryKey = "status_id";
+class HotelService {
+  table = "hotels";
+  primaryKey = "hotel_id";
 
-  create({ type, desc, key, value }) {
+  create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
         const sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { type, desc, key, value },
+          data,
         ]);
 
         const [result] = await pool.query(sql);
@@ -40,18 +40,6 @@ class StatusService {
     });
   }
 
-  getAll() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const q = SqlString.format("SELECT * FROM ??", [this.table]);
-        const [result] = await pool.query(q);
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
   update(id, data) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -73,6 +61,66 @@ class StatusService {
         }
 
         resolve(await this.getById(id));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getAll(filters) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const page = +filters?.page || 1;
+        const limit = +filters?.limit || 5;
+        const offset = limit * (page - 1);
+        const search = filters?.search;
+        const order = filters?.order; // hotel_name,desc
+
+        let q = SqlString.format("SELECT * FROM ?? LIMIT ? OFFSET ?", [
+          this.table,
+          limit,
+          offset,
+        ]);
+
+        let qTotalRow = SqlString.format(
+          "SELECT count(*) as totalRow FROM ??",
+          [this.table]
+        );
+
+        if (search && !order) {
+          q = SqlString.format(
+            "SELECT * FROM ?? WHERE hotel_name LIKE ? LIMIT ? OFFSET ?",
+            [this.table, `%${search}%`, limit, offset]
+          );
+        } else if (order && !search) {
+          const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
+
+          q = SqlString.format(
+            "SELECT * FROM ?? ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
+            [this.table, limit, offset]
+          );
+        } else if (search && order) {
+          const orderBy = order.split(",").join(" ");
+
+          q = SqlString.format(
+            "SELECT * FROM ?? WHERE hotel_name LIKE ? ORDER BY " +
+              orderBy +
+              " LIMIT ? OFFSET ?",
+            [this.table, `%${search}%`, limit, offset]
+          );
+        }
+
+        const [result] = await pool.query(q);
+        const [totalRow] = await pool.query(qTotalRow);
+
+        resolve({
+          result,
+          paginations: {
+            page,
+            limit,
+            totalPage: Math.ceil(totalRow[0].totalRow / limit),
+          },
+        });
       } catch (error) {
         reject(error);
       }
@@ -108,4 +156,4 @@ class StatusService {
   }
 }
 
-export default new StatusService();
+export default new HotelService();

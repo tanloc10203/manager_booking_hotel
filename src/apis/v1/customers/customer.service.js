@@ -1,16 +1,29 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database";
+import bcrypt from "bcrypt";
+import { APIError } from "../../../utils";
 
-class StatusService {
-  table = "statuses";
-  primaryKey = "status_id";
+class CustomerService {
+  table = "customers";
+  primaryKey = "customer_id";
 
-  create({ type, desc, key, value }) {
+  async hashPassword(password) {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      return await bcrypt.hash(password, salt);
+    } catch (error) {
+      Promise.reject(error);
+    }
+  }
+
+  create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        const password = await this.hashPassword(data.password);
+
         const sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { type, desc, key, value },
+          { ...data, password },
         ]);
 
         const [result] = await pool.query(sql);
@@ -18,34 +31,6 @@ class StatusService {
         const id = result.insertId;
 
         resolve(await this.getById(id));
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  getById(id) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
-          this.table,
-          this.primaryKey,
-          id,
-        ]);
-        const [result] = await pool.query(q);
-        resolve(result[0]);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  getAll() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const q = SqlString.format("SELECT * FROM ??", [this.table]);
-        const [result] = await pool.query(q);
-        resolve(result);
       } catch (error) {
         reject(error);
       }
@@ -73,6 +58,57 @@ class StatusService {
         }
 
         resolve(await this.getById(id));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getById(id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const q = SqlString.format("SELECT ?? FROM ?? WHERE ??=?", [
+          [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "phone",
+            "identity_card",
+            "year_of_brith",
+          ],
+          this.table,
+          this.primaryKey,
+          id,
+        ]);
+        const [result] = await pool.query(q);
+        resolve(result[0]);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getAll() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const q = SqlString.format("SELECT ?? FROM ??", [
+          [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "phone",
+            "identity_card",
+            "year_of_brith",
+          ],
+          this.table,
+        ]);
+
+        const [result] = await pool.query(q);
+        resolve(result);
       } catch (error) {
         reject(error);
       }
@@ -108,4 +144,4 @@ class StatusService {
   }
 }
 
-export default new StatusService();
+export default new CustomerService();

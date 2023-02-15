@@ -6,8 +6,13 @@ const router = Router();
 router
   .route("/")
   .post(StatusController.create)
-  .get((req, res) => {
-    res.send("ok");
-  });
+  .delete(StatusController.delete)
+  .get(StatusController.getAll);
+
+router
+  .route("/:id")
+  .delete(StatusController.deleteById)
+  .get(StatusController.getById)
+  .patch(StatusController.update);
 
 export default router;

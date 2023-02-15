@@ -1,2 +1,2 @@
 export { default as DB } from "./db";
-export { default as DBMysql } from "./init.mysql";
+export { default as pool } from "./init.mysql";
