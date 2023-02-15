@@ -2,23 +2,23 @@ import SqlString from "sqlstring";
 import { pool } from "../../../database";
 import { APIError } from "../../../utils";
 
-class HotelService {
-  table = "hotels";
-  primaryKey = "hotel_id";
+class ConcernService {
+  table = "concerns";
+  primaryKey = "concern_id";
 
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        let sql = SqlString.format("SELECT ?? FROM ?? WHERE hotel_name = ?", [
+        let sql = SqlString.format("SELECT ?? FROM ?? WHERE concern_name = ?", [
           this.primaryKey,
           this.table,
-          data.hotel_name,
+          data.concern_name,
         ]);
 
-        const [findHotelName] = await pool.query(sql);
+        const [findConcernName] = await pool.query(sql);
 
-        if (findHotelName?.length > 0) {
-          return reject(new APIError(400, "Hotel name was exist!"));
+        if (findConcernName?.length > 0) {
+          return reject(new APIError(400, "Concern name was exist!"));
         }
 
         sql = SqlString.format("INSERT INTO ?? SET ?", [this.table, data]);
@@ -166,4 +166,4 @@ class HotelService {
   }
 }
 
-export default new HotelService();
+export default new ConcernService();

@@ -19,9 +19,22 @@ class CustomerService {
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        let sql = SqlString.format(
+          "SELECT ?? FROM ?? WHERE email = ? or phone = ? or username = ?",
+          [this.primaryKey, this.table, data.email, data.phone, data.username]
+        );
+
+        const [findCustomer] = await pool.query(sql);
+
+        if (findCustomer?.length > 0) {
+          return reject(
+            new APIError(400, "Email or phone or username was exist!")
+          );
+        }
+
         const password = await this.hashPassword(data.password);
 
-        const sql = SqlString.format("INSERT INTO ?? SET ?", [
+        sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
           { ...data, password },
         ]);

@@ -1,5 +1,6 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database";
+import { APIError } from "../../../utils";
 
 class StatusService {
   table = "statuses";
@@ -8,7 +9,18 @@ class StatusService {
   create({ type, desc, key, value }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const sql = SqlString.format("INSERT INTO ?? SET ?", [
+        let sql = SqlString.format(
+          "SELECT ?? FROM ?? WHERE `statuses`.key = ? or value = ?",
+          [this.primaryKey, this.table, key, value]
+        );
+
+        const [find] = await pool.query(sql);
+
+        if (find?.length > 0) {
+          return reject(new APIError(400, "Key or value was exist!"));
+        }
+
+        sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
           { type, desc, key, value },
         ]);

@@ -1,19 +1,19 @@
 import { APIError } from "../../../utils";
-import StatusService from "./status.service";
+import concernService from "./concern.service";
 
-class StatusController {
+class ConcernController {
   async create(req, res, next) {
     try {
       const body = req.body;
 
-      if (!body.type || !body.desc || !body.key || !body.value) {
-        return next(new APIError(404, "Missing type, desc, key, value!"));
+      if (!body.concern_name || !body.concern_desc) {
+        return next(new APIError(404, "Missing concern_name, concern_desc!"));
       }
 
-      const response = await StatusService.create({ ...body });
+      const response = await concernService.create(body);
 
       return res.status(201).json({
-        message: "Create status success.",
+        message: "Create success.",
         data: response,
       });
     } catch (error) {
@@ -25,10 +25,10 @@ class StatusController {
     try {
       const id = req.params.id;
 
-      const response = await StatusService.getById(id);
+      const response = await concernService.getById(id);
 
       return res.status(200).json({
-        message: "Get status success.",
+        message: "Get success.",
         data: response,
       });
     } catch (error) {
@@ -38,12 +38,27 @@ class StatusController {
 
   async getAll(req, res, next) {
     try {
-      const id = req.params.id;
+      const filters = req.query;
 
-      const response = await StatusService.getAll();
+      const response = await concernService.getAll(filters);
 
       return res.status(200).json({
-        message: "Get all status success.",
+        message: "Get all success.",
+        data: response,
+      });
+    } catch (error) {
+      return next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
+
+  async deleteById(req, res, next) {
+    try {
+      const id = req.params.id;
+
+      const response = await concernService.deleteById(id);
+
+      return res.status(200).json({
+        message: "Delete success.",
         data: response,
       });
     } catch (error) {
@@ -56,38 +71,10 @@ class StatusController {
       const id = req.params.id;
       const data = req.body;
 
-      const response = await StatusService.update(id, data);
+      const response = await concernService.update(id, data);
 
       return res.status(200).json({
-        message: "Update status success.",
-        data: response,
-      });
-    } catch (error) {
-      return next(new APIError(error.statusCode || 500, error.message));
-    }
-  }
-
-  async deleteById(req, res, next) {
-    try {
-      const id = req.params.id;
-
-      const response = await StatusService.deleteById(id);
-
-      return res.status(200).json({
-        message: "Delete status success.",
-        data: response,
-      });
-    } catch (error) {
-      return next(new APIError(error.statusCode || 500, error.message));
-    }
-  }
-
-  async delete(req, res, next) {
-    try {
-      const response = await StatusService.delete();
-
-      return res.status(200).json({
-        message: "Delete all status success.",
+        message: "Update success.",
         data: response,
       });
     } catch (error) {
@@ -96,4 +83,4 @@ class StatusController {
   }
 }
 
-export default new StatusController();
+export default new ConcernController();
