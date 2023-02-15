@@ -9,6 +9,10 @@ import {
   serviceRouter,
   hotelImageRouter,
   deviceTypeRouter,
+  floorRouter,
+  roomTypeRouter,
+  timeRouter,
+  roomImageRouter,
 } from "../apis/v1";
 
 function initRouteApi(app) {
@@ -22,6 +26,10 @@ function initRouteApi(app) {
   app.use("/api/v1/services", serviceRouter);
   app.use("/api/v1/hotel-images", hotelImageRouter);
   app.use("/api/v1/device-types", deviceTypeRouter);
+  app.use("/api/v1/floors", floorRouter);
+  app.use("/api/v1/room-types", roomTypeRouter);
+  app.use("/api/v1/times", timeRouter);
+  app.use("/api/v1/room-images", roomImageRouter);
 }
 
 export default initRouteApi;

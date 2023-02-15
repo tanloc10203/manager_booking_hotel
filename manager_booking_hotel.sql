@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `hotels` (
 CREATE TABLE IF NOT EXISTS `cooperates` (
   `concern_id` INTEGER NOT NULL,
   `hotel_id` INTEGER NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
   FOREIGN KEY (concern_id) REFERENCES concerns(concern_id),
   PRIMARY KEY (`concern_id`, `hotel_id`)
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `customers` (
   `username` VARCHAR(32) UNIQUE NOT NULL,
   `password` VARCHAR(32) NOT NULL,
   `phone` VARCHAR(10) UNIQUE NOT NULL,
-  `identity_card` VARCHAR(15) UNIQUE NOT NULL,
+  `identity_card` VARCHAR(15) UNIQUE NULL,
   -- CMND/CCCD
   `year_of_brith` VARCHAR(4) DEFAULT '',
   PRIMARY KEY (`customer_id`)
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `customers` (
 CREATE TABLE IF NOT EXISTS `registers` (
   `customer_id` INTEGER NOT NULL,
   `hotel_id` INTEGER NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
   FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
   PRIMARY KEY (`customer_id`, `hotel_id`)
@@ -72,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `employees` (
   `emp_username` VARCHAR(32) UNIQUE NOT NULL,
   `emp_password` VARCHAR(32) NOT NULL,
   `emp_phone` VARCHAR(10) UNIQUE NOT NULL,
-  `emp_identity_card` VARCHAR(15) UNIQUE NOT NULL,
+  `emp_identity_card` VARCHAR(15) UNIQUE NULL,
   `emp_year_of_brith` VARCHAR(4) DEFAULT '',
   `emp_address` VARCHAR(40) DEFAULT '',
   `hotel_id` INTEGER NOT NULL,
@@ -85,8 +87,8 @@ CREATE TABLE IF NOT EXISTS `statuses` (
   `status_id` INTEGER NOT NULL AUTO_INCREMENT,
   `type` VARCHAR(6) NOT NULL,
   `desc` VARCHAR(50) NOT NULL,
-  `key` VARCHAR(5) NOT NULL,
-  `value` VARCHAR(20) NOT NULL,
+  `key` VARCHAR(5) NOT NULL UNIQUE,
+  `value` VARCHAR(20) NOT NULL UNIQUE,
   PRIMARY KEY (`status_id`)
 ) ENGINE = InnoDB;
 
@@ -110,6 +112,7 @@ CREATE TABLE IF NOT EXISTS `services` (
   `service_desc` VARCHAR(50) DEFAULT '',
   `service_price` INTEGER NOT NULL CHECK (service_price > 10),
   `hotel_id` INTEGER NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
   PRIMARY KEY (`service_id`)
 ) ENGINE = InnoDB;
@@ -118,6 +121,7 @@ CREATE TABLE IF NOT EXISTS `services` (
 CREATE TABLE IF NOT EXISTS `floors` (
   `floor_id` INTEGER NOT NULL AUTO_INCREMENT,
   `floor_name` VARCHAR(50) UNIQUE NOT NULL,
+  `floor_type` VARCHAR(5) NOT NULL,
   PRIMARY KEY (`floor_id`)
 ) ENGINE = InnoDB;
 
@@ -134,6 +138,8 @@ CREATE TABLE IF NOT EXISTS `room_types` (
 CREATE TABLE IF NOT EXISTS `room_images` (
   `r_image_id` INTEGER NOT NULL AUTO_INCREMENT,
   `r_image_value` VARCHAR(50) NOT NULL,
+  `hotel_id` INTEGER NOT NULL,
+  FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
   PRIMARY KEY (`r_image_id`)
 ) ENGINE = InnoDB;
 
@@ -152,23 +158,23 @@ CREATE TABLE IF NOT EXISTS `rooms` (
   `rt_id` INTEGER NOT NULL,
   `status_id` INTEGER NOT NULL,
   `hotel_id` INTEGER NOT NULL,
-  `r_image_id` INTEGER NOT NULL,
   `room_name` VARCHAR(50) NOT NULL,
   `room_desc` TEXT DEFAULT "",
   `room_thumb` VARCHAR(50) NOT NULL,
   `avaiable` BOOLEAN DEFAULT TRUE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (floor_id) REFERENCES floors(floor_id),
   FOREIGN KEY (rt_id) REFERENCES room_types(rt_id),
   FOREIGN KEY (status_id) REFERENCES statuses(status_id),
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
-  FOREIGN KEY (r_image_id) REFERENCES room_images(r_image_id),
   PRIMARY KEY (`room_id`, `floor_id`)
 ) ENGINE = InnoDB;
 
 -- TABLE THOI GIAN THOI DIEM THAY DOI GIA.
 CREATE TABLE IF NOT EXISTS `times` (
-  `time_id` INTEGER NOT NULL,
+  `time_id` INTEGER NOT NULL AUTO_INCREMENT,
   `date` DATE,
+  `time_desc` VARCHAR(50) NULL DEFAULT '',
   PRIMARY KEY (`time_id`)
 ) ENGINE = InnoDB;
 

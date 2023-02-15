@@ -8,3 +8,7 @@ export * from "./employees";
 export * from "./services";
 export * from "./hotel-images";
 export * from "./device-types";
+export * from "./floors";
+export * from "./room-types";
+export * from "./times";
+export * from "./room-images";
