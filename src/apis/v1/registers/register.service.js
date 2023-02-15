@@ -2,43 +2,43 @@ import SqlString from "sqlstring";
 import { pool } from "../../../database";
 import { APIError } from "../../../utils";
 
-class CooperatelService {
-  table = "cooperates";
-  primaryKey1 = "concern_id";
-  primaryKey2 = "hotel_id";
+class RegisterService {
+  table = "registers";
+  primaryKey1 = "hotel_id";
+  primaryKey2 = "customer_id";
 
-  create({ concern_id, hotel_id }) {
+  create({ hotel_id, customer_id }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const findCoopereate = await this.getById(concern_id, hotel_id);
+        const find = await this.getById(customer_id, hotel_id);
 
-        if (findCoopereate) {
-          return reject(new APIError(400, "Transaction was exist!"));
+        if (find) {
+          return reject(new APIError(400, "Register was exist!"));
         }
 
         const sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { concern_id, hotel_id },
+          { hotel_id, customer_id },
         ]);
 
         await pool.query(sql);
 
-        resolve(await this.getById(concern_id, hotel_id));
+        resolve(await this.getById(customer_id, hotel_id));
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  getById(concernId, hotelId) {
+  getById(customerId, hotelId) {
     return new Promise(async (resolve, reject) => {
       try {
         const q = SqlString.format("SELECT * FROM ?? WHERE ??=? AND ??=?", [
           this.table,
-          this.primaryKey1, // concern_id
-          concernId,
-          this.primaryKey2, // hotel_id
+          this.primaryKey1, // hotel_id
           hotelId,
+          this.primaryKey2, // customer_id
+          customerId,
         ]);
         const [result] = await pool.query(q);
         resolve(result[0]);
@@ -57,14 +57,12 @@ class CooperatelService {
         const search = filters?.search;
         const order = filters?.order; // hotel_name,desc
 
-        const qJoin =
-          "SELECT h.hotel_name, x.concern_name, created_at FROM ?? c JOIN hotels h ON c.hotel_id = h.hotel_id JOIN concerns x ON c.concern_id = x.concern_id";
+        // SELECT hotel_name, first_name, last_name, created_at as register_at FROM `registers` r JOIN hotels h ON r.hotel_id = h.hotel_id JOIN customers c ON r.customer_id = c.customer_id;
 
-        let q = SqlString.format(qJoin + " LIMIT ? OFFSET ?", [
-          this.table,
-          limit,
-          offset,
-        ]);
+        const qJoin =
+          "SELECT hotel_name, first_name, last_name, created_at as register_at FROM `registers` r JOIN hotels h ON r.hotel_id = h.hotel_id JOIN customers c ON r.customer_id = c.customer_id";
+
+        let q = SqlString.format(qJoin + " LIMIT ? OFFSET ?", [limit, offset]);
 
         let qTotalRow = SqlString.format(
           "SELECT count(*) as totalRow FROM ??",
@@ -74,14 +72,14 @@ class CooperatelService {
         if (search && !order) {
           q = SqlString.format(
             qJoin + " WHERE h.hotel_name LIKE ? LIMIT ? OFFSET ?",
-            [this.table, `%${search}%`, limit, offset]
+            [`%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
             qJoin + " ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
-            [this.table, limit, offset]
+            [limit, offset]
           );
         } else if (search && order) {
           const orderBy = order.split(",").join(" ");
@@ -91,7 +89,7 @@ class CooperatelService {
               " WHERE h.hotel_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
-            [this.table, `%${search}%`, limit, offset]
+            [`%${search}%`, limit, offset]
           );
         }
 
@@ -112,28 +110,16 @@ class CooperatelService {
     });
   }
 
-  deleteById(concernId, hotelId) {
+  deleteById(customerId, hotelId) {
     return new Promise(async (resolve, reject) => {
       try {
         const q = SqlString.format("DELETE FROM ?? WHERE ??=? AND ??=?", [
           this.table,
-          this.primaryKey1, // concern_id
-          concernId,
-          this.primaryKey2, // hotel_id
+          this.primaryKey1, // hotel_id
           hotelId,
+          this.primaryKey2, // customer_id
+          customerId,
         ]);
-        const [result] = await pool.query(q);
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  delete() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const q = SqlString.format("DELETE FROM ??", [this.table]);
         const [result] = await pool.query(q);
         resolve(result);
       } catch (error) {
@@ -143,4 +129,4 @@ class CooperatelService {
   }
 }
 
-export default new CooperatelService();
+export default new RegisterService();

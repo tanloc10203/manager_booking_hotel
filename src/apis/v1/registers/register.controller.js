@@ -1,17 +1,16 @@
 import { APIError } from "../../../utils";
-import cooperateService from "./cooperate.service";
-import _ from "lodash";
+import registerService from "./register.service";
 
-class CooperateController {
+class RegisterController {
   async create(req, res, next) {
     try {
       const body = req.body;
 
-      if (!body.concern_id || !body.hotel_id) {
-        return next(new APIError(404, "Missing concern_id, hotel_id!"));
+      if (!body.customer_id || !body.hotel_id) {
+        return next(new APIError(404, "Missing customer_id, hotel_id!"));
       }
 
-      const response = await cooperateService.create(body);
+      const response = await registerService.create(body);
 
       return res.status(201).json({
         message: "Create success.",
@@ -26,7 +25,7 @@ class CooperateController {
     try {
       const filters = req.query;
 
-      const response = await cooperateService.getAll(filters);
+      const response = await registerService.getAll(filters);
 
       return res.status(200).json({
         message: "Get all success.",
@@ -39,10 +38,10 @@ class CooperateController {
 
   async deleteById(req, res, next) {
     try {
-      const concernId = req.params.concernId;
+      const customerId = req.params.customerId;
       const hotelId = req.params.hotelId;
 
-      const response = await cooperateService.deleteById(concernId, hotelId);
+      const response = await registerService.deleteById(customerId, hotelId);
 
       return res.status(200).json({
         message: "Delete success.",
@@ -52,19 +51,6 @@ class CooperateController {
       return next(new APIError(500, error.message));
     }
   }
-
-  async delete(req, res, next) {
-    try {
-      const response = await cooperateService.delete();
-
-      return res.status(200).json({
-        message: "Delete all success.",
-        data: response,
-      });
-    } catch (error) {
-      return next(new APIError(500, error.message));
-    }
-  }
 }
 
-export default new CooperateController();
+export default new RegisterController();
