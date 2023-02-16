@@ -12,3 +12,4 @@ export * from "./floors";
 export * from "./room-types";
 export * from "./times";
 export * from "./room-images";
+export * from "./rooms";

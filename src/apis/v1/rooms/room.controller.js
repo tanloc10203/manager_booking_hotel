@@ -1,17 +1,32 @@
 import { APIError } from "../../../utils";
-import floorService from "./floor.service";
+import roomService from "./room.service";
+import _ from "lodash";
 
-class HotelController {
+class RoomController {
   async create(req, res, next) {
     try {
       const body = req.body;
+      const roomThumb = req.file;
 
-      if (!body.floor_name || !body.floor_type) {
-        return next(new APIError(404, "Missing floor_name or floor_type!"));
+      if (
+        !body.floor_id ||
+        !body.rt_id ||
+        !body.status_id ||
+        !body.hotel_id ||
+        !body.room_name ||
+        _.isEmpty(roomThumb)
+      ) {
+        return next(
+          new APIError(
+            404,
+            "Missing floor_id, rt_id, status_id, room_name, room_thumb, hotel_id!"
+          )
+        );
       }
 
-      const response = await floorService.create({
+      const response = await roomService.create({
         ...body,
+        room_thumb: roomThumb.filename,
       });
 
       return res.status(201).json({
@@ -19,7 +34,7 @@ class HotelController {
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 
@@ -27,29 +42,29 @@ class HotelController {
     try {
       const id = req.params.id;
 
-      const response = await floorService.getById(id);
+      const response = await roomService.getById(id);
 
       return res.status(200).json({
         message: "Get success.",
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 
   async getAll(req, res, next) {
     try {
       const filters = req.query;
-
-      const response = await floorService.getAll(filters);
+      const response = await roomService.getAll(filters);
 
       return res.status(200).json({
         message: "Get all success.",
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      console.log("error getALL", error);
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 
@@ -57,27 +72,27 @@ class HotelController {
     try {
       const id = req.params.id;
 
-      const response = await floorService.deleteById(id);
+      const response = await roomService.deleteById(id);
 
       return res.status(200).json({
         message: "Delete success.",
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 
   async delete(req, res, next) {
     try {
-      const response = await floorService.delete();
+      const response = await roomService.delete();
 
       return res.status(200).json({
         message: "Delete all success.",
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 
@@ -86,16 +101,16 @@ class HotelController {
       const id = req.params.id;
       const data = req.body;
 
-      const response = await floorService.update(id, data);
+      const response = await roomService.update(id, data);
 
       return res.status(200).json({
         message: "Update success.",
         data: response,
       });
     } catch (error) {
-      return next(new APIError(500, error.message));
+      return next(new APIError(error.statusCode || 500, error.message));
     }
   }
 }
 
-export default new HotelController();
+export default new RoomController();

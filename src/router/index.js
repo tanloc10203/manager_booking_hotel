@@ -13,6 +13,7 @@ import {
   roomTypeRouter,
   timeRouter,
   roomImageRouter,
+  roomRouter,
 } from "../apis/v1";
 
 function initRouteApi(app) {
@@ -30,6 +31,7 @@ function initRouteApi(app) {
   app.use("/api/v1/room-types", roomTypeRouter);
   app.use("/api/v1/times", timeRouter);
   app.use("/api/v1/room-images", roomImageRouter);
+  app.use("/api/v1/rooms", roomRouter);
 }
 
 export default initRouteApi;
