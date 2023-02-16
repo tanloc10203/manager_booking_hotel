@@ -1,19 +1,20 @@
 import {
+  concernRouter,
   cooperateRouter,
   customerRouter,
-  hotelRouter,
-  statusRouter,
-  concernRouter,
-  registerRouter,
-  employeeRouter,
-  serviceRouter,
-  hotelImageRouter,
   deviceTypeRouter,
+  employeeRouter,
   floorRouter,
-  roomTypeRouter,
-  timeRouter,
+  hotelImageRouter,
+  hotelRouter,
+  registerRouter,
   roomImageRouter,
+  roomPriceRouter,
   roomRouter,
+  roomTypeRouter,
+  serviceRouter,
+  statusRouter,
+  timeRouter,
 } from "../apis/v1";
 
 function initRouteApi(app) {
@@ -32,6 +33,7 @@ function initRouteApi(app) {
   app.use("/api/v1/times", timeRouter);
   app.use("/api/v1/room-images", roomImageRouter);
   app.use("/api/v1/rooms", roomRouter);
+  app.use("/api/v1/room-prices", roomPriceRouter);
 }
 
 export default initRouteApi;

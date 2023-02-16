@@ -173,8 +173,18 @@ class RoomService {
           id,
         ]);
         const [result] = await pool.query(q);
+
         resolve(result);
       } catch (error) {
+        if (error?.code && error?.code === "ER_ROW_IS_REFERENCED_2") {
+          reject(
+            new APIError(
+              400,
+              "You cannot delete because id was exist children table."
+            )
+          );
+        }
+
         reject(error);
       }
     });

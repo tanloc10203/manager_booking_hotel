@@ -3,7 +3,7 @@ import { pool } from "../../../database";
 import { APIError } from "../../../utils";
 
 class RoomImageService {
-  table = "rotel_images";
+  table = "room_images";
   primaryKey = "r_image_id";
   select = ["r_image_id", "r_image_value", "room_name"];
 
@@ -74,25 +74,25 @@ class RoomImageService {
         const order = filters?.order; // hotel_name,desc
 
         let q = SqlString.format(
-          "SELECT ?? FROM ?? e JOIN hotels h ON e.room_id = h.room_id LIMIT ? OFFSET ?",
+          "SELECT ?? FROM ?? e JOIN rooms h ON e.room_id = h.room_id LIMIT ? OFFSET ?",
           [this.select, this.table, limit, offset]
         );
 
         let qTotalRow = SqlString.format(
-          "SELECT count(*) as totalRow FROM ?? e JOIN hotels h ON e.room_id = h.room_id",
+          "SELECT count(*) as totalRow FROM ?? e JOIN rooms h ON e.room_id = h.room_id",
           [this.table]
         );
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.room_id = h.room_id WHERE service_name LIKE ? LIMIT ? OFFSET ?",
+            "SELECT ?? FROM ?? e JOIN rooms h ON e.room_id = h.room_id WHERE service_name LIKE ? LIMIT ? OFFSET ?",
             [this.select, this.table, `%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.room_id = h.room_id ORDER BY " +
+            "SELECT ?? FROM ?? e JOIN rooms h ON e.room_id = h.room_id ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
             [this.select, this.table, limit, offset]
@@ -101,7 +101,7 @@ class RoomImageService {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.room_id = h.room_id WHERE service_name LIKE ? ORDER BY " +
+            "SELECT ?? FROM ?? e JOIN rooms h ON e.room_id = h.room_id WHERE service_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
             [this.select, this.table, `%${search}%`, limit, offset]
