@@ -14,3 +14,7 @@ export * from "./times";
 export * from "./room-images";
 export * from "./rooms";
 export * from "./room-prices";
+export * from "./equipments";
+export * from "./bills";
+export * from "./bill-details";
+export * from "./use-services";
