@@ -16,6 +16,12 @@ const config = {
     expiredRefreshToken: process.env.EXPIRED_REFRESHTOKEN || "1w",
     expiredAccessToken: process.env.EXPIRED_ACCESSTOKEN || "30s",
   },
+  google: {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientRedirectURL: process.env.GOOGLE_REDIRECT_URL,
+    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+  },
 };
 
 export default config;

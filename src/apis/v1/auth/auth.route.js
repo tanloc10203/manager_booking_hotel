@@ -7,6 +7,8 @@ const router = Router();
 
 router.route("/sign-up").post(customerController.create);
 
+router.route("/forgot-password").post(authController.forgotPassword);
+
 router
   .route("/refresh-token")
   .get(authMiddleware.verifyRefreshToken, authController.refreshToken);

@@ -1,6 +1,7 @@
 import config from "../../../config";
 import { APIError, signJSWebToken } from "../../../utils";
 import customerService from "../customers/customer.service";
+import EmailService from "../emails/email.service";
 import authService from "./auth.service";
 
 const refreshTokenCookieOptions = {
@@ -70,6 +71,34 @@ class AuthController {
       res
         .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
         .json({ accessToken, message: "Get accessToken new successed." });
+    } catch (error) {
+      next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
+
+  async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return next(new APIError(404, "Missing email!"));
+      }
+
+      // create token
+
+      // create REDIRECT_URL.
+
+      // send email
+      const send = await EmailService.sendEmail({
+        email,
+        html: `<h1>Xin chào, ${email}.<h1>`,
+      });
+
+      if (send) {
+        res.json({
+          message: "Send email successed.",
+        });
+      }
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
     }
