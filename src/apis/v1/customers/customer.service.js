@@ -1,20 +1,10 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database";
-import bcrypt from "bcrypt";
-import { APIError } from "../../../utils";
+import { APIError, hashPassword } from "../../../utils";
 
 class CustomerService {
   table = "customers";
   primaryKey = "customer_id";
-
-  async hashPassword(password) {
-    try {
-      const salt = await bcrypt.genSalt(10);
-      return await bcrypt.hash(password, salt);
-    } catch (error) {
-      Promise.reject(error);
-    }
-  }
 
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
@@ -32,7 +22,7 @@ class CustomerService {
           );
         }
 
-        const password = await this.hashPassword(data.password);
+        const password = await hashPassword(data.password);
 
         sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,

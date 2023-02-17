@@ -15,7 +15,7 @@ app.use(express.static(__dirname + "/assets/upload"));
 app.use(morgan("combined"));
 app.use(helmet());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // init router
 initRouteApi(app);

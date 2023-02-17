@@ -1,4 +1,5 @@
 import {
+  authRouter,
   billDetailRouter,
   billRouter,
   concernRouter,
@@ -42,6 +43,7 @@ function initRouteApi(app) {
   app.use("/api/v1/bills", billRouter);
   app.use("/api/v1/bill-details", billDetailRouter);
   app.use("/api/v1/use-services", useServiceRouter);
+  app.use("/api/v1/auth", authRouter);
 }
 
 export default initRouteApi;
