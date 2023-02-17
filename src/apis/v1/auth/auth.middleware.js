@@ -25,6 +25,27 @@ class AuthMiddleware {
       next(new APIError(error.statusCode || 500, error.message));
     }
   }
+
+  async verifyRefreshToken(req, res, next) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        next(new APIError(401, "Please sign in again!"));
+      }
+
+      const decode = await verifyJSWebToken({
+        token: refreshToken,
+        privateKey: config.jwt.privateKeyRefreshToken,
+      });
+
+      req.customer_id = decode.customer_id;
+
+      next();
+    } catch (error) {
+      next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
 }
 
 export default new AuthMiddleware();

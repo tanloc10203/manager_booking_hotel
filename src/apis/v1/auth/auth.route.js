@@ -6,6 +6,11 @@ import authMiddleware from "./auth.middleware";
 const router = Router();
 
 router.route("/sign-up").post(customerController.create);
+
+router
+  .route("/refresh-token")
+  .get(authMiddleware.verifyRefreshToken, authController.refreshToken);
+
 router
   .route("/sign-in")
   .post(authController.signIn)
