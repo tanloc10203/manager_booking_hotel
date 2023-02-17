@@ -22,13 +22,16 @@ CREATE TABLE IF NOT EXISTS `hotels` (
 ) ENGINE = InnoDB;
 
 -- TABLE DOANH NGHIEP VA KHACH HANG HOP TAC
-CREATE TABLE IF NOT EXISTS `cooperates` (
+CREATE TABLE IF NOT EXISTS `contracts` (
+  `contract_id` INTEGER NOT NULL AUTO_INCREMENT,
   `concern_id` INTEGER NOT NULL,
   `hotel_id` INTEGER NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `date_start` DATE,
+  `date_end` DATE,
+  `signature` BOOLEAN DEFAULT TRUE,
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id),
   FOREIGN KEY (concern_id) REFERENCES concerns(concern_id),
-  PRIMARY KEY (`concern_id`, `hotel_id`)
+  PRIMARY KEY (`concern_id`, `hotel_id`, `contract_id`)
 ) ENGINE = InnoDB;
 
 -- TABLE ANH CUA KHACH SAN

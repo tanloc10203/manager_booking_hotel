@@ -2,23 +2,24 @@ import SqlString from "sqlstring";
 import { pool } from "../../../database";
 import { APIError } from "../../../utils";
 
-class CooperatelService {
-  table = "cooperates";
-  primaryKey1 = "concern_id";
-  primaryKey2 = "hotel_id";
+class ContractService {
+  table = "contracts";
+  primaryKey1 = "contract_id";
+  primaryKey2 = "concern_id";
+  primaryKey3 = "hotel_id";
 
-  create({ concern_id, hotel_id }) {
+  create({ concern_id, hotel_id, date_start, date_end }) {
     return new Promise(async (resolve, reject) => {
       try {
         const findCoopereate = await this.getById(concern_id, hotel_id);
 
         if (findCoopereate) {
-          return reject(new APIError(400, "Transaction was exist!"));
+          return reject(new APIError(400, "Contract was exist!"));
         }
 
         const sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { concern_id, hotel_id },
+          { concern_id, hotel_id, date_start, date_end },
         ]);
 
         await pool.query(sql);
@@ -35,9 +36,9 @@ class CooperatelService {
       try {
         const q = SqlString.format("SELECT * FROM ?? WHERE ??=? AND ??=?", [
           this.table,
-          this.primaryKey1, // concern_id
+          this.primaryKey2, // concern_id
           concernId,
-          this.primaryKey2, // hotel_id
+          this.primaryKey3, // hotel_id
           hotelId,
         ]);
         const [result] = await pool.query(q);
@@ -112,16 +113,21 @@ class CooperatelService {
     });
   }
 
-  deleteById(concernId, hotelId) {
+  deleteById(contractId, concernId, hotelId) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("DELETE FROM ?? WHERE ??=? AND ??=?", [
-          this.table,
-          this.primaryKey1, // concern_id
-          concernId,
-          this.primaryKey2, // hotel_id
-          hotelId,
-        ]);
+        const q = SqlString.format(
+          "DELETE FROM ?? WHERE ??=? AND ??=? AND ??=?",
+          [
+            this.table,
+            this.primaryKey1, // contract_id
+            contractId,
+            this.primaryKey2, // concern_id
+            concernId,
+            this.primaryKey3, // hotel_id
+            hotelId,
+          ]
+        );
         const [result] = await pool.query(q);
         resolve(result);
       } catch (error) {
@@ -143,4 +149,4 @@ class CooperatelService {
   }
 }
 
-export default new CooperatelService();
+export default new ContractService();

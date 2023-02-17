@@ -1,17 +1,26 @@
 import { APIError } from "../../../utils";
-import cooperateService from "./cooperate.service";
-import _ from "lodash";
+import contractService from "./contract.service";
 
-class CooperateController {
+class ContractController {
   async create(req, res, next) {
     try {
       const body = req.body;
 
-      if (!body.concern_id || !body.hotel_id) {
-        return next(new APIError(404, "Missing concern_id, hotel_id!"));
+      if (
+        !body.concern_id ||
+        !body.hotel_id ||
+        !body.date_start ||
+        !body.date_end
+      ) {
+        return next(
+          new APIError(
+            404,
+            "Missing concern_id, hotel_id, date_start, date_end!"
+          )
+        );
       }
 
-      const response = await cooperateService.create(body);
+      const response = await contractService.create(body);
 
       return res.status(201).json({
         message: "Create success.",
@@ -26,7 +35,7 @@ class CooperateController {
     try {
       const filters = req.query;
 
-      const response = await cooperateService.getAll(filters);
+      const response = await contractService.getAll(filters);
 
       return res.status(200).json({
         message: "Get all success.",
@@ -42,7 +51,7 @@ class CooperateController {
       const concernId = req.params.concernId;
       const hotelId = req.params.hotelId;
 
-      const response = await cooperateService.deleteById(concernId, hotelId);
+      const response = await contractService.deleteById(concernId, hotelId);
 
       return res.status(200).json({
         message: "Delete success.",
@@ -55,7 +64,7 @@ class CooperateController {
 
   async delete(req, res, next) {
     try {
-      const response = await cooperateService.delete();
+      const response = await contractService.delete();
 
       return res.status(200).json({
         message: "Delete all success.",
@@ -67,4 +76,4 @@ class CooperateController {
   }
 }
 
-export default new CooperateController();
+export default new ContractController();
