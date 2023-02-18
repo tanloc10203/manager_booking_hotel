@@ -3,12 +3,15 @@ import config from "../../../config";
 import { pool } from "../../../database";
 import {
   APIError,
+  compareOTP,
   comparePassword,
   createOTP,
   hashOTP,
+  hashPassword,
   ressetPassword,
   signJSWebToken,
 } from "../../../utils";
+import customerService from "../customers/customer.service";
 import EmailService from "../emails/email.service";
 
 class AuthService {
@@ -16,7 +19,7 @@ class AuthService {
     return new Promise(async (resovle, reject) => {
       try {
         // Find username
-        const sql = SqlString.format("SELECT * FROM ?? WHERE username = ?", [
+        let sql = SqlString.format("SELECT * FROM ?? WHERE username = ?", [
           "customers",
           username,
         ]);
@@ -49,14 +52,32 @@ class AuthService {
           options: { expiresIn: config.jwt.expiredAccessToken },
         });
 
-        const refreshToken = signJSWebToken({
-          privateKey: config.jwt.privateKeyRefreshToken,
-          data: { user: { customer_id } },
-          options: { expiresIn: config.jwt.expiredRefreshToken },
-        });
+        sql = SqlString.format("SELECT * FROM ?? WHERE customer_id=?", [
+          "seesions",
+          customer_id,
+        ]);
+
+        const [findToken] = await pool.query(sql);
+
+        if (!findToken.length) {
+          const refreshToken = signJSWebToken({
+            privateKey: config.jwt.privateKeyRefreshToken,
+            data: { user: { customer_id } },
+            options: { expiresIn: config.jwt.expiredRefreshToken },
+          });
+
+          sql = SqlString.format("INSERT INTO ?? SET ?", [
+            "seesions",
+            { customer_id, refresh_token: refreshToken },
+          ]);
+
+          await pool.query(sql);
+
+          return resovle({ accessToken, refreshToken });
+        }
 
         // resovle accessToken and refreshToken to authController
-        resovle({ accessToken, refreshToken });
+        resovle({ accessToken });
       } catch (error) {
         reject(error);
       }
@@ -121,6 +142,45 @@ class AuthService {
         if (send) {
           resovle(true);
         }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  handleChangePassword({ customerId, token, password }) {
+    return new Promise(async (resovle, reject) => {
+      try {
+        // find Token
+        let sql = SqlString.format(
+          "SELECT * FROM `tokens` WHERE customer_Id=?",
+          [customerId]
+        );
+
+        const [findToken] = await pool.query(sql);
+
+        if (!findToken.length) {
+          return reject(new APIError(404, "Token not found!"));
+        }
+
+        const { token: hash } = { ...findToken[0] };
+
+        // check isValidToken
+        const isValidToken = await compareOTP(token, hash);
+
+        if (!isValidToken) {
+          return reject(new APIError(400, "Token was not valid!"));
+        }
+
+        // hash password
+        const _hashPassword = await hashPassword(password);
+
+        // update password to table `customers`
+        const response = await customerService.update(customerId, {
+          password: _hashPassword,
+        });
+
+        resovle(response);
       } catch (error) {
         reject(error);
       }

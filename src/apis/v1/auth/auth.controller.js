@@ -20,15 +20,23 @@ class AuthController {
         return next(new APIError(404, "Missing username or password"));
       }
 
-      const { accessToken, refreshToken } = await authService.signIn({
+      const response = await authService.signIn({
         username: body.username,
         password: body.password,
       });
 
       // response accessToken => client and set refreshToken cookies
-      res
-        .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
-        .json({ accessToken });
+      if (response && response.refreshToken) {
+        return res
+          .cookie(
+            "refreshToken",
+            response.refreshToken,
+            refreshTokenCookieOptions
+          )
+          .json({ accessToken: response.accessToken });
+      }
+
+      res.json({ accessToken: response.accessToken });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
     }
@@ -90,6 +98,32 @@ class AuthController {
 
       res.json({
         message: "Send email successed.",
+        response,
+      });
+    } catch (error) {
+      next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
+
+  async changePassword(req, res, next) {
+    try {
+      const { customer_id, token } = req.query;
+      const { password } = req.body;
+
+      if (!customer_id || !token || !password) {
+        return next(
+          new APIError(404, "Missing params customer_id or token or password!")
+        );
+      }
+
+      const response = await authService.handleChangePassword({
+        customerId: customer_id,
+        token,
+        password,
+      });
+
+      res.json({
+        message: "Changed password successed.",
         response,
       });
     } catch (error) {

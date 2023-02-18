@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(__dirname + "/assets/upload"));
 app.use(cookieParser());
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

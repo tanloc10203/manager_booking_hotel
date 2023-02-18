@@ -7,6 +7,8 @@ const router = Router();
 
 router.route("/sign-up").post(customerController.create);
 
+router.route("/change-password").post(authController.changePassword);
+
 router.route("/forgot-password").post(authController.forgotPassword);
 
 router

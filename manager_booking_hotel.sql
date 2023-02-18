@@ -229,10 +229,18 @@ CREATE TABLE IF NOT EXISTS `use_service` (
   PRIMARY KEY (`bill_id`, `room_id`, `floor_id`, `service_id`)
 ) ENGINE = InnoDB;
 
--- TABLE SU DUNG DICH VU
+-- TABLE TOKEN
 CREATE TABLE IF NOT EXISTS `tokens` (
   `customer_id` INTEGER NOT NULL,
   `token` VARCHAR(255) NOT NULL,
+  FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+  PRIMARY KEY (`customer_id`)
+) ENGINE = InnoDB;
+
+-- TABLE SEESIONS
+CREATE TABLE IF NOT EXISTS `seesions` (
+  `customer_id` INTEGER NOT NULL,
+  `refresh_token` VARCHAR(255) NOT NULL,
   FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
   PRIMARY KEY (`customer_id`)
 ) ENGINE = InnoDB;

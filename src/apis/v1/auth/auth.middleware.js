@@ -1,5 +1,7 @@
 import config from "../../../config";
+import { pool } from "../../../database";
 import { APIError, verifyJSWebToken } from "../../../utils";
+import SqlString from "sqlstring";
 
 class AuthMiddleware {
   async verifyAccessToken(req, res, next) {
@@ -8,7 +10,7 @@ class AuthMiddleware {
       const Authorization = req.headers.authorization;
 
       if (!Authorization) {
-        next(new APIError(401, "Please sign in again!"));
+        return next(new APIError(401, "Please sign in again!"));
       }
 
       const accessToken = Authorization.split(" ")[1];
@@ -31,7 +33,19 @@ class AuthMiddleware {
       const refreshToken = req.cookies.refreshToken;
 
       if (!refreshToken) {
-        next(new APIError(401, "Please sign in again!"));
+        return next(new APIError(401, "Please sign in again!"));
+      }
+
+      // find Refresh Token to db
+      const sql = SqlString.format("SELECT * FROM ?? WHERE refresh_token=?", [
+        "seesions",
+        refreshToken,
+      ]);
+
+      const [findToken] = await pool.query(sql);
+
+      if (!findToken.length) {
+        return next(new APIError(404, "Token not found. Please again!"));
       }
 
       const decode = await verifyJSWebToken({
@@ -43,6 +57,22 @@ class AuthMiddleware {
 
       next();
     } catch (error) {
+      if (error.message === "jwt expired") {
+        // delete refresh Token db and send message client sign again.
+        const refreshToken = req.cookies.refreshToken;
+
+        const sql = SqlString.format("DELETE FROM ?? WHERE refresh_token=?", [
+          "seesions",
+          refreshToken,
+        ]);
+
+        await pool.query(sql);
+
+        return next(
+          new APIError(401, "Refresh token expired. Please sign-in again!")
+        );
+      }
+
       next(new APIError(error.statusCode || 500, error.message));
     }
   }
