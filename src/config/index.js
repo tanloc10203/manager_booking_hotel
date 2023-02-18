@@ -1,6 +1,8 @@
 const config = {
   app: {
     port: process.env.PORT || 3000,
+    serverURL: process.env.SERVER_URL,
+    clientURL: process.env.CLIENT_URL,
   },
   db: {
     username: process.env.DB_USERNAME || "root",
