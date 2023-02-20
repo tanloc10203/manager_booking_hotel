@@ -1,30 +1,32 @@
-import { useRef, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useRef, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 // @mui
-import { alpha } from '@mui/material/styles';
-import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
+import { alpha } from "@mui/material/styles";
+import {
+  Box,
+  Divider,
+  Typography,
+  Stack,
+  MenuItem,
+  Avatar,
+  IconButton,
+} from "@mui/material";
 // components
-import MenuPopover from '../../components/MenuPopover';
+import MenuPopover from "../../components/MenuPopover";
 // mocks_
-import account from '../../_mock/account';
+import account from "../../_mock/account";
+import { useDispatch, useSelector } from "react-redux";
+import { authActions, authState } from "~/features/authentication/authSlice";
+import { appActions } from "~/features/app/appSlice";
+import _ from "lodash";
 
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
-    icon: 'eva:home-fill',
-    linkTo: '/',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-    linkTo: '#',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-    linkTo: '#',
+    label: "Profile",
+    icon: "eva:person-fill",
+    linkTo: "#",
   },
 ];
 
@@ -32,6 +34,8 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
+  const { user } = useSelector(authState);
+  const dispatch = useDispatch();
 
   const [open, setOpen] = useState(null);
 
@@ -43,6 +47,20 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
+  const handleSignOut = () => {
+    return new Promise((resolve) => {
+      setOpen(null);
+
+      if (_.isElement(user)) return;
+
+      dispatch(appActions.setOpenOverlay(true));
+      setTimeout(() => {
+        dispatch(authActions.signOutStart({ user_id: user.user_id }));
+        resolve(true);
+      }, 300);
+    });
+  };
+
   return (
     <>
       <IconButton
@@ -51,13 +69,13 @@ export default function AccountPopover() {
         sx={{
           p: 0,
           ...(open && {
-            '&:before': {
+            "&:before": {
               zIndex: 1,
               content: "''",
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              position: 'absolute',
+              width: "100%",
+              height: "100%",
+              borderRadius: "50%",
+              position: "absolute",
               bgcolor: (theme) => alpha(theme.palette.grey[900], 0.8),
             },
           }),
@@ -74,34 +92,41 @@ export default function AccountPopover() {
           p: 0,
           mt: 1.5,
           ml: 0.75,
-          '& .MuiMenuItem-root': {
-            typography: 'body2',
+          "& .MuiMenuItem-root": {
+            typography: "body2",
             borderRadius: 0.75,
           },
         }}
       >
-        <Box sx={{ my: 1.5, px: 2.5 }}>
-          <Typography variant="subtitle2" noWrap>
-            {account.displayName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
-          </Typography>
-        </Box>
+        {user && (
+          <Box sx={{ my: 1.5, px: 2.5 }}>
+            <Typography variant="subtitle2" noWrap>
+              {user.last_name + " " + user.first_name}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
+              {user.email}
+            </Typography>
+          </Box>
+        )}
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} to={option.linkTo} component={RouterLink} onClick={handleClose}>
+            <MenuItem
+              key={option.label}
+              to={option.linkTo}
+              component={RouterLink}
+              onClick={handleClose}
+            >
               {option.label}
             </MenuItem>
           ))}
         </Stack>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleSignOut} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </MenuPopover>

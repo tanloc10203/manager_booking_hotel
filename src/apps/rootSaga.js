@@ -1,5 +1,8 @@
+import { all } from "redux-saga/effects";
+import authSaga from "../features/authentication/authSaga";
+
 function* rootSaga() {
-  console.log("Root saga running...");
+  yield all([authSaga()]);
 }
 
 export default rootSaga;

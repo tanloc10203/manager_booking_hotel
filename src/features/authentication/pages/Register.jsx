@@ -1,12 +1,11 @@
-import { Card, Container, Link, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { styled } from "@mui/material/styles";
-import { Link as RouterLink, Outlet } from "react-router-dom";
-import useResponsive from "../../hooks/useResponsive";
-import Logo from "./../../components/Logo";
-import Page from "./../../components/Page";
-// sections
-
-// ----------------------------------------------------------------------
+import { Card, Link, Container, Typography } from "@mui/material";
+import useResponsive from "~/hooks/useResponsive";
+import Page from "~/components/Page";
+import Logo from "~/components/Logo";
+import AuthSocial from "~/sections/auth/AuthSocial";
+import { RegisterForm } from "~/sections/auth/register";
 
 const RootStyle = styled("div")(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
@@ -51,22 +50,21 @@ const ContentStyle = styled("div")(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-function SignInLayout() {
+export default function Register() {
   const smUp = useResponsive("up", "sm");
 
   const mdUp = useResponsive("up", "md");
 
   return (
-    <Page title="Đăng nhập">
+    <Page title="Đăng ký">
       <RootStyle>
         <HeaderStyle>
           <Logo />
-
           {smUp && (
             <Typography variant="body2" sx={{ mt: { md: -2 } }}>
-              Bạn không có tài khoản? {""}
-              <Link variant="subtitle2" component={RouterLink} to="/sign-up">
-                Đăng ký
+              Bạn đã có tài khoản? {""}
+              <Link variant="subtitle2" component={RouterLink} to="/sign-in">
+                Đăng nhập
               </Link>
             </Typography>
           )}
@@ -75,32 +73,34 @@ function SignInLayout() {
         {mdUp && (
           <SectionStyle>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Quản lý đơn giản với Booking Hotel
+              Đặt phòng khách sạn với Booking Hotel
             </Typography>
             <img
-              src="/static/illustrations/illustration_login.png"
-              alt="login"
+              alt="register"
+              src="/static/illustrations/illustration_register.png"
             />
           </SectionStyle>
         )}
 
-        <Container maxWidth="sm">
+        <Container>
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
-              Đăng nhập vào quản lý khách sạn
+              Bắt đầu hoàn toàn miễn phí.
             </Typography>
 
             <Typography sx={{ color: "text.secondary", mb: 5 }}>
-              Nhập chi tiết thông tin đăng nhập của bạn
+              Điền đầy đủ thông tin của bạn.
             </Typography>
 
-            <Outlet />
+            <AuthSocial />
+
+            <RegisterForm />
 
             {!smUp && (
-              <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-                Bạn không có tài khoản?{" "}
-                <Link variant="subtitle2" component={RouterLink} to="/sign-up">
-                  Đăng ký
+              <Typography variant="body2" sx={{ mt: 3, textAlign: "center" }}>
+                Bạn đã có tài khoản?{" "}
+                <Link variant="subtitle2" to="/sign-in" component={RouterLink}>
+                  Đăng nhập
                 </Link>
               </Typography>
             )}
@@ -110,5 +110,3 @@ function SignInLayout() {
     </Page>
   );
 }
-
-export default SignInLayout;

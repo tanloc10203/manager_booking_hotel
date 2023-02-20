@@ -1,8 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import authManagerReducer from "./../features/authentication/manager/authManagerSlice";
+import appReducer from "~/features/app/appSlice";
+import authReducer from "~/features/authentication/authSlice";
 
 const rootReducers = combineReducers({
-  authManager: authManagerReducer,
+  auth: authReducer,
+  app: appReducer,
 });
 
 export default rootReducers;

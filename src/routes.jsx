@@ -1,28 +1,35 @@
 import { lazy } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import Loadable from "./components/Loadable";
+import PrivateRoutes from "./components/private-routes";
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
 import SignInLayout from "./layouts/signInLayout";
+import PassLogin from "./components/private-routes/PassLogin";
 
 // ----------------------------------------------------------------------
 
 const Blog = Loadable(lazy(() => import("./pages/Blog")));
 const DashboardApp = Loadable(lazy(() => import("./pages/DashboardApp")));
-const Login = Loadable(lazy(() => import("./pages/Login")));
+const Login = Loadable(
+  lazy(() => import("./features/authentication/pages/Login"))
+);
 const NotFound = Loadable(lazy(() => import("./pages/Page404")));
 const Products = Loadable(lazy(() => import("./pages/Products")));
-const Register = Loadable(lazy(() => import("./pages/Register")));
-const User = Loadable(lazy(() => import("./pages/User")));
-const SignIn = Loadable(
-  lazy(() => import("./features/authentication/manager/pages/SignIn"))
+const Register = Loadable(
+  lazy(() => import("./features/authentication/pages/Register"))
 );
+const User = Loadable(lazy(() => import("./pages/User")));
 
 export default function Router() {
   return useRoutes([
     {
       path: "/manager",
-      element: <DashboardLayout />,
+      element: (
+        <PrivateRoutes>
+          <DashboardLayout />
+        </PrivateRoutes>
+      ),
       children: [
         { path: "app", element: <DashboardApp /> },
         { path: "user", element: <User /> },
@@ -47,11 +54,11 @@ export default function Router() {
       children: [
         {
           path: "sign-in",
-          element: <Login />,
-        },
-        {
-          path: "manager/sign-in",
-          element: <SignIn />,
+          element: (
+            <PassLogin>
+              <Login />
+            </PassLogin>
+          ),
         },
       ],
     },

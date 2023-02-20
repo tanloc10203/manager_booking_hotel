@@ -1,44 +1,51 @@
-import * as Yup from "yup";
+import { Form, FormikProvider, useFormik } from "formik";
 import { useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useFormik, Form, FormikProvider } from "formik";
+import { Link as RouterLink } from "react-router-dom";
+import * as Yup from "yup";
 // material
+import { LoadingButton } from "@mui/lab";
 import {
-  Link,
-  Stack,
   Checkbox,
-  TextField,
+  FormControlLabel,
   IconButton,
   InputAdornment,
-  FormControlLabel,
+  Link,
+  Stack,
+  TextField,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-// component
-import Iconify from "../../../components/Iconify";
+import Iconify from "~/components/Iconify";
+import { authActions } from "~/features/authentication/authSlice";
+import { useDispatch } from "react-redux";
+import Overlay from "~/components/Overlay";
+import { appActions } from "~/features/app/appSlice";
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
 
   const LoginSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Email must be a valid email address")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
+    username: Yup.string().required("Tài khoản là trường bắt buộc."),
+    password: Yup.string().required("Mật khẩu là trường  bắt buộc."),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      username: "",
       password: "",
       remember: true,
     },
     validationSchema: LoginSchema,
-    onSubmit: () => {
-      navigate("/dashboard", { replace: true });
+    onSubmit: (values) => {
+      return new Promise((resolve, reject) => {
+        dispatch(appActions.setOpenOverlay(true));
+
+        setTimeout(() => {
+          dispatch(authActions.signInStart(values));
+          resolve(true);
+        }, 1000);
+      });
     },
   });
 
@@ -56,11 +63,11 @@ export default function LoginForm() {
           <TextField
             fullWidth
             autoComplete="username"
-            type="email"
+            type="username"
             label="Tài khoản"
-            {...getFieldProps("email")}
-            error={Boolean(touched.email && errors.email)}
-            helperText={touched.email && errors.email}
+            {...getFieldProps("username")}
+            error={Boolean(touched.username && errors.username)}
+            helperText={touched.username && errors.username}
           />
 
           <TextField
