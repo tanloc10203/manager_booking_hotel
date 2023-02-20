@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { upload } from "../../../utils";
-import HotelController from "./hotel.controller";
+import { upload } from "../../../utils/index.js";
+import HotelController from "./hotel.controller.js";
 
 const router = Router();
 

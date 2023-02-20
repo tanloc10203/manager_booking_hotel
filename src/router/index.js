@@ -19,7 +19,7 @@ import {
   timeRouter,
   userRouter,
   useServiceRouter,
-} from "../apis/v1";
+} from "../apis/v1/index.js";
 
 function initRouteApi(app) {
   app.use("/api/v1/statuses", statusRouter);
@@ -27,7 +27,7 @@ function initRouteApi(app) {
   app.use("/api/v1/concerns", concernRouter);
   app.use("/api/v1/contracts", contractRouter);
   app.use("/api/v1/registers", registerRouter);
-  app.use("/api/v1/users", userRouter);
+  app.use("/api/v1/users/index.js", userRouter);
   app.use("/api/v1/services", serviceRouter);
   app.use("/api/v1/hotel-images", hotelImageRouter);
   app.use("/api/v1/device-types", deviceTypeRouter);

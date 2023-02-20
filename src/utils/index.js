@@ -1,6 +1,6 @@
-export { default as APIError } from "./api-error.util";
-export { default as upload } from "./upload.util";
-export * from "./password";
-export * from "./json-web-token";
-export * from "./otp";
-export * from "./teamplateHTML";
+export { default as APIError } from "./api-error.util.js";
+export { default as upload } from "./upload.util.js";
+export * from "./password.js";
+export * from "./json-web-token.js";
+export * from "./otp.js";
+export * from "./teamplateHTML.js";

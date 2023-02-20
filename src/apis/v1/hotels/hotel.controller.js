@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import hotelService from "./hotel.service";
+import { APIError } from "../../../utils/index.js";
+import hotelService from "./hotel.service.js";
 import _ from "lodash";
 
 class HotelController {

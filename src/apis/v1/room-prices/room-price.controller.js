@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import roomPriceService from "./room-price.service";
+import { APIError } from "../../../utils/index.js";
+import roomPriceService from "./room-price.service.js";
 
 class RoomPriceController {
   async create(req, res, next) {

@@ -1,7 +1,6 @@
 import SqlString from "sqlstring";
-import { pool } from "../../../database";
-import bcrypt from "bcrypt";
-import { APIError } from "../../../utils";
+import { pool } from "../../../database/index.js";
+import { APIError, hashPassword } from "../../../utils/index.js";
 
 class UserService {
   table = "users";
@@ -19,42 +18,30 @@ class UserService {
     "is_admin",
   ];
 
-  async hashPassword(password) {
-    try {
-      const salt = await bcrypt.genSalt(10);
-      return await bcrypt.hash(password, salt);
-    } catch (error) {
-      Promise.reject(error);
-    }
-  }
-
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
         let sql = SqlString.format(
-          "SELECT ?? FROM ?? WHERE emp_email = ? or emp_phone = ? or emp_username = ?",
-          [
-            this.primaryKey,
-            this.table,
-            data.emp_email,
-            data.emp_phone,
-            data.emp_username,
-          ]
+          "SELECT ?? FROM ?? WHERE email = ? or phone = ? or username = ?",
+          [this.primaryKey, this.table, data.email, data.phone, data.username]
         );
 
         const [findEmp] = await pool.query(sql);
 
         if (findEmp?.length > 0) {
           return reject(
-            new APIError(400, "Email or phone or username or was exist!")
+            new APIError(
+              400,
+              "E-mail hoặc tài khoản hoặc số điện thoại đã tồn tại!"
+            )
           );
         }
 
-        const password = await this.hashPassword(data.emp_password);
+        const password = await hashPassword(data.password);
 
         sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { ...data, emp_password: password },
+          { ...data, password },
         ]);
 
         const [result] = await pool.query(sql);

@@ -1,1 +1,1 @@
-export { default as EmailService } from "./email.service";
+export { default as EmailService } from "./email.service.js";

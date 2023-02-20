@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import billDetailService from "./bill-detail.service";
+import { APIError } from "../../../utils/index.js";
+import billDetailService from "./bill-detail.service.js";
 
 class BillDetailController {
   async create(req, res, next) {

@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import userService from "./user.service";
+import { APIError } from "../../../utils/index.js";
+import userService from "./user.service.js";
 
 class UserController {
   async create(req, res, next) {

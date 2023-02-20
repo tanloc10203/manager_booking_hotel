@@ -1,6 +1,6 @@
-import config from "../../../config";
-import { pool } from "../../../database";
-import { APIError, verifyJSWebToken } from "../../../utils";
+import config from "../../../config/index.js";
+import { pool } from "../../../database/index.js";
+import { APIError, verifyJSWebToken } from "../../../utils/index.js";
 import SqlString from "sqlstring";
 
 class AuthMiddleware {
@@ -45,7 +45,7 @@ class AuthMiddleware {
       const [findToken] = await pool.query(sql);
 
       if (!findToken.length) {
-        return next(new APIError(404, "Token not found. Please again!"));
+        return next(new APIError(403, "jwt refreshToken expired"));
       }
 
       const decode = await verifyJSWebToken({
@@ -68,9 +68,7 @@ class AuthMiddleware {
 
         await pool.query(sql);
 
-        return next(
-          new APIError(401, "Refresh token expired. Please sign-in again!")
-        );
+        return next(new APIError(403, "jwt refreshToken expired"));
       }
 
       next(new APIError(error.statusCode || 500, error.message));

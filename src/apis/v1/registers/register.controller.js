@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import registerService from "./register.service";
+import { APIError } from "../../../utils/index.js";
+import registerService from "./register.service.js";
 
 class RegisterController {
   async create(req, res, next) {

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import APIError from "./api-error.util";
+import APIError from "./api-error.util.js";
 
 function signJSWebToken({ privateKey, data, options }) {
   return jwt.sign(data, privateKey, {

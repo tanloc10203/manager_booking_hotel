@@ -1,17 +1,25 @@
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import initRouteApi from "./router";
-import { APIError } from "./utils";
+import initRouteApi from "./router/index.js";
+import { APIError } from "./utils/index.js";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import config from "./config/index.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use(
+  cors({
+    origin: config.app.clientURL,
+    credentials: true,
+  })
+);
 app.use(express.static(__dirname + "/assets/upload"));
 app.use(cookieParser());
 app.use(morgan("dev"));

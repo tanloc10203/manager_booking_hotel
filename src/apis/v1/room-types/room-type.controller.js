@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import roomTypeService from "./room-type.service";
+import { APIError } from "../../../utils/index.js";
+import roomTypeService from "./room-type.service.js";
 
 class RoomTypeController {
   async create(req, res, next) {

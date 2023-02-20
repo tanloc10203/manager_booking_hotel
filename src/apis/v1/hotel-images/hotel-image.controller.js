@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import hotelImageService from "./hotel-image.service";
+import { APIError } from "../../../utils/index.js";
+import hotelImageService from "./hotel-image.service.js";
 
 class HotelImageController {
   async create(req, res, next) {

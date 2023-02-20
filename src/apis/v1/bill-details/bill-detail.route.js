@@ -1,5 +1,5 @@
 import { Router } from "express";
-import billDetailController from "./bill-detail.controller";
+import billDetailController from "./bill-detail.controller.js";
 
 const router = Router();
 

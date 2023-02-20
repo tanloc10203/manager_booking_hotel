@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import equipmentService from "./equipment.service";
+import { APIError } from "../../../utils/index.js";
+import equipmentService from "./equipment.service.js";
 
 class EquipmentController {
   async create(req, res, next) {

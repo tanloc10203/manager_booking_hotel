@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import timeService from "./time.service";
+import { APIError } from "../../../utils/index.js";
+import timeService from "./time.service.js";
 
 class TimeController {
   async create(req, res, next) {

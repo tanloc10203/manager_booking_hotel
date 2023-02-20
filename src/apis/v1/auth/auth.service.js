@@ -1,6 +1,6 @@
 import SqlString from "sqlstring";
-import config from "../../../config";
-import { pool } from "../../../database";
+import config from "../../../config/index.js";
+import { pool } from "../../../database/index.js";
 import {
   APIError,
   compareOTP,
@@ -10,9 +10,9 @@ import {
   hashPassword,
   ressetPassword,
   signJSWebToken,
-} from "../../../utils";
-import EmailService from "../emails/email.service";
-import { userService } from "../users";
+} from "../../../utils/index.js";
+import EmailService from "../emails/email.service.js";
+import { userService } from "../users/index.js";
 
 class AuthService {
   signIn({ username, password }) {
@@ -27,17 +27,22 @@ class AuthService {
         const [result] = await pool.query(sql);
 
         if (!result.length) {
-          return reject(new APIError(404, "User not found. Please sign up."));
+          return reject(new APIError(404, "Sai tài khoản hoặc mật khẩu."));
         }
 
-        const { password: passwordHash, user_id, ...others } = { ...result[0] };
+        const {
+          password: passwordHash,
+          user_id,
+          is_admin,
+          ...others
+        } = { ...result[0] };
 
         // Compare password vs password db.
         const isValidPwd = await comparePassword(password, passwordHash);
 
         if (!isValidPwd) {
           return reject(
-            new APIError(400, "Incorrect password. Please enter again.")
+            new APIError(400, "Mật khẩu không đúng. Vui lòng nhập lại.")
           );
         }
 
@@ -69,11 +74,11 @@ class AuthService {
 
           await pool.query(sql);
 
-          return resovle({ accessToken, refreshToken });
+          return resovle({ accessToken, refreshToken, isHome: !is_admin });
         }
 
         // resovle accessToken and refreshToken to authController
-        resovle({ accessToken });
+        resovle({ accessToken, isHome: !is_admin });
       } catch (error) {
         reject(error);
       }

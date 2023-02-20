@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import deviceTypeService from "./device-type.service";
+import { APIError } from "../../../utils/index.js";
+import deviceTypeService from "./device-type.service.js";
 
 class DeviceTypeController {
   async create(req, res, next) {

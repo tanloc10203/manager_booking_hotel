@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import billService from "./bill.service";
+import { APIError } from "../../../utils/index.js";
+import billService from "./bill.service.js";
 
 class BillController {
   async create(req, res, next) {

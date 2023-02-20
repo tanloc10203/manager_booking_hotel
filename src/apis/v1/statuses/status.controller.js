@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import StatusService from "./status.service";
+import { APIError } from "../../../utils/index.js";
+import StatusService from "./status.service.js";
 
 class StatusController {
   async create(req, res, next) {

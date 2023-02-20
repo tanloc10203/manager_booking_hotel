@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import roomImageService from "./room-image.service";
+import { APIError } from "../../../utils/index.js";
+import roomImageService from "./room-image.service.js";
 
 class RoomImageController {
   async create(req, res, next) {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import timeController from "./time.controller";
+import timeController from "./time.controller.js";
 
 const router = Router();
 

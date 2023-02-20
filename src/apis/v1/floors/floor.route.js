@@ -1,5 +1,5 @@
 import { Router } from "express";
-import floorController from "./floor.controller";
+import floorController from "./floor.controller.js";
 
 const router = Router();
 

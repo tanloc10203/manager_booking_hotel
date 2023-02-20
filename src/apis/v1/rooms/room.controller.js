@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import roomService from "./room.service";
+import { APIError } from "../../../utils/index.js";
+import roomService from "./room.service.js";
 import _ from "lodash";
 
 class RoomController {

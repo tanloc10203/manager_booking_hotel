@@ -1,5 +1,5 @@
-import { APIError } from "../../../utils";
-import contractService from "./contract.service";
+import { APIError } from "../../../utils/index.js";
+import contractService from "./contract.service.js";
 
 class ContractController {
   async create(req, res, next) {

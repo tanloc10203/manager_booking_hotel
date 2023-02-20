@@ -1,6 +1,6 @@
 import SqlString from "sqlstring";
-import { pool } from "../../../database";
-import { APIError } from "../../../utils";
+import { pool } from "../../../database/index.js";
+import { APIError } from "../../../utils/index.js";
 
 class FloorService {
   table = "floors";

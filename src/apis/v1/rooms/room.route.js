@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { upload } from "../../../utils";
-import roomController from "./room.controller";
+import { upload } from "../../../utils/index.js";
+import roomController from "./room.controller.js";
 
 const router = Router();
 

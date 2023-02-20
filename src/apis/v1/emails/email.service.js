@@ -1,4 +1,4 @@
-import config from "../../../config";
+import config from "../../../config/index.js";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import _ from "lodash";

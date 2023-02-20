@@ -1,7 +1,9 @@
-import config from "../../../config";
-import { APIError, signJSWebToken } from "../../../utils";
-import { userService } from "../users";
-import authService from "./auth.service";
+import config from "../../../config/index.js";
+import { APIError, signJSWebToken } from "../../../utils/index.js";
+import { userService } from "../users/index.js";
+import authService from "./auth.service.js";
+import SqlString from "sqlstring";
+import pool from "../../../database/init.mysql.js";
 
 const refreshTokenCookieOptions = {
   httpOnly: true,
@@ -33,10 +35,10 @@ class AuthController {
             response.refreshToken,
             refreshTokenCookieOptions
           )
-          .json({ accessToken: response.accessToken });
+          .json({ accessToken: response.accessToken, isHome: response.isHome });
       }
 
-      res.json({ accessToken: response.accessToken });
+      res.json({ accessToken: response.accessToken, isHome: response.isHome });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
     }
@@ -120,6 +122,26 @@ class AuthController {
       });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
+
+  async signOut(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+
+      const sql = SqlString.format(
+        "DELETE FROM `seesions` WHERE refresh_token=?",
+        [refreshToken]
+      );
+
+      await pool.query(sql);
+
+      res.clearCookie("refreshToken");
+      res.status(200).json({
+        message: "Đăng xuất thành công.",
+      });
+    } catch (error) {
+      next(error);
     }
   }
 }
