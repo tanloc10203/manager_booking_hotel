@@ -20,7 +20,7 @@ class AuthMiddleware {
         privateKey: config.jwt.privateKeyAccessToken,
       });
 
-      req.customer_id = decode.customer_id;
+      req.user_id = decode.user_id;
 
       next();
     } catch (error) {
@@ -53,7 +53,7 @@ class AuthMiddleware {
         privateKey: config.jwt.privateKeyRefreshToken,
       });
 
-      req.customer_id = decode.customer_id;
+      req.user_id = decode.user_id;
 
       next();
     } catch (error) {

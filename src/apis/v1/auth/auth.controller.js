@@ -1,6 +1,6 @@
 import config from "../../../config";
 import { APIError, signJSWebToken } from "../../../utils";
-import customerService from "../customers/customer.service";
+import { userService } from "../users";
 import authService from "./auth.service";
 
 const refreshTokenCookieOptions = {
@@ -44,9 +44,9 @@ class AuthController {
 
   async getCurrentCustomer(req, res, next) {
     try {
-      const customer_id = req.customer_id;
+      const user_id = req.user_id;
 
-      const response = await customerService.getById(customer_id);
+      const response = await userService.getById(user_id);
 
       res.json({
         data: response,
@@ -59,25 +59,17 @@ class AuthController {
 
   async refreshToken(req, res, next) {
     try {
-      const customer_id = req.customer_id;
+      const user_id = req.user_id;
 
       // create accessToken and refreshToken new
       const accessToken = signJSWebToken({
         privateKey: config.jwt.privateKeyAccessToken,
-        data: { user: { customer_id } },
+        data: { user: { user_id } },
         options: { expiresIn: config.jwt.expiredAccessToken },
       });
 
-      const refreshToken = signJSWebToken({
-        privateKey: config.jwt.privateKeyRefreshToken,
-        data: { user: { customer_id } },
-        options: { expiresIn: config.jwt.expiredRefreshToken },
-      });
-
       // setCookies refreshToken and response client.
-      res
-        .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
-        .json({ accessToken, message: "Get accessToken new successed." });
+      res.json({ accessToken, message: "Get accessToken new successed." });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
     }
@@ -107,17 +99,17 @@ class AuthController {
 
   async changePassword(req, res, next) {
     try {
-      const { customer_id, token } = req.query;
+      const { user_id, token } = req.query;
       const { password } = req.body;
 
-      if (!customer_id || !token || !password) {
+      if (!user_id || !token || !password) {
         return next(
-          new APIError(404, "Missing params customer_id or token or password!")
+          new APIError(404, "Missing params user_id or token or password!")
         );
       }
 
       const response = await authService.handleChangePassword({
-        customerId: customer_id,
+        userId: user_id,
         token,
         password,
       });

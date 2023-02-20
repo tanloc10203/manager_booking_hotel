@@ -3,20 +3,20 @@ import { pool } from "../../../database";
 import bcrypt from "bcrypt";
 import { APIError } from "../../../utils";
 
-class EmployeeService {
-  table = "employees";
-  primaryKey = "emp_id";
+class UserService {
+  table = "users";
+  primaryKey = "user_id";
   select = [
-    "emp_id",
-    "emp_first_name",
-    "emp_last_name",
-    "emp_email",
-    "emp_username",
-    "emp_phone",
-    "emp_identity_card",
-    "emp_year_of_brith",
-    "emp_address",
-    "hotel_name",
+    "user_id",
+    "first_name",
+    "last_name",
+    "email",
+    "username",
+    "phone",
+    "identity_card",
+    "year_of_brith",
+    "address",
+    "is_admin",
   ];
 
   async hashPassword(password) {
@@ -32,14 +32,13 @@ class EmployeeService {
     return new Promise(async (resolve, reject) => {
       try {
         let sql = SqlString.format(
-          "SELECT ?? FROM ?? WHERE emp_email = ? or emp_phone = ? or emp_username = ? or hotel_id = ?",
+          "SELECT ?? FROM ?? WHERE emp_email = ? or emp_phone = ? or emp_username = ?",
           [
             this.primaryKey,
             this.table,
             data.emp_email,
             data.emp_phone,
             data.emp_username,
-            data.hotel_id,
           ]
         );
 
@@ -47,10 +46,7 @@ class EmployeeService {
 
         if (findEmp?.length > 0) {
           return reject(
-            new APIError(
-              400,
-              "Email or phone or username or hote id was exist!"
-            )
+            new APIError(400, "Email or phone or username or was exist!")
           );
         }
 
@@ -102,10 +98,12 @@ class EmployeeService {
   getById(id) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format(
-          "SELECT ?? FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id WHERE ??=?",
-          [this.select, this.table, this.primaryKey, id]
-        );
+        const q = SqlString.format("SELECT ?? FROM ?? WHERE ??=?", [
+          this.select,
+          this.table,
+          this.primaryKey,
+          id,
+        ]);
         const [result] = await pool.query(q);
         resolve(result[0]);
       } catch (error) {
@@ -123,35 +121,35 @@ class EmployeeService {
         const search = filters?.search;
         const order = filters?.order; // hotel_name,desc
 
-        let q = SqlString.format(
-          "SELECT ?? FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id LIMIT ? OFFSET ?",
-          [this.select, this.table, limit, offset]
-        );
+        let q = SqlString.format("SELECT ?? FROM ?? LIMIT ? OFFSET ?", [
+          this.select,
+          this.table,
+          limit,
+          offset,
+        ]);
 
         let qTotalRow = SqlString.format(
-          "SELECT count(*) as totalRow FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id",
+          "SELECT count(*) as totalRow FROM ??",
           [this.table]
         );
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id WHERE emp_username LIKE ? LIMIT ? OFFSET ?",
+            "SELECT ?? FROM ?? WHERE emp_username LIKE ? LIMIT ? OFFSET ?",
             [this.select, this.table, `%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id ORDER BY " +
-              orderBy +
-              " LIMIT ? OFFSET ?",
+            "SELECT ?? FROM ?? ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
             [this.select, this.table, limit, offset]
           );
         } else if (search && order) {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? e JOIN hotels h ON e.hotel_id = h.hotel_id WHERE hotel_name LIKE ? ORDER BY " +
+            "SELECT ?? FROM ?? WHERE hotel_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
             [this.select, this.table, `%${search}%`, limit, offset]
@@ -204,4 +202,4 @@ class EmployeeService {
   }
 }
 
-export default new EmployeeService();
+export default new UserService();

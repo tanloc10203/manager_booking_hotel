@@ -1,11 +1,11 @@
 import { Router } from "express";
-import customerController from "../customers/customer.controller";
+import { userController } from "../users";
 import authController from "./auth.controller";
 import authMiddleware from "./auth.middleware";
 
 const router = Router();
 
-router.route("/sign-up").post(customerController.create);
+router.route("/sign-up").post(userController.create);
 
 router.route("/change-password").post(authController.changePassword);
 

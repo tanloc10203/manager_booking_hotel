@@ -1,29 +1,28 @@
 import { APIError } from "../../../utils";
-import employeeService from "./employee.service";
+import userService from "./user.service";
 
-class EmployeeController {
+class UserController {
   async create(req, res, next) {
     try {
       const body = req.body;
 
       if (
-        !body.emp_first_name ||
-        !body.emp_last_name ||
-        !body.emp_email ||
-        !body.emp_username ||
-        !body.emp_password ||
-        !body.emp_phone ||
-        !body.hotel_id
+        !body.first_name ||
+        !body.last_name ||
+        !body.email ||
+        !body.username ||
+        !body.password ||
+        !body.phone
       ) {
         return next(
           new APIError(
             404,
-            "Missing emp_first_name, emp_last_name, emp_email, emp_username, emp_password, emp_phone, hotel_id!"
+            "Missing first_name, last_name, email, username, password, phone!"
           )
         );
       }
 
-      const response = await employeeService.create({ ...body });
+      const response = await userService.create({ ...body });
 
       return res.status(201).json({
         message: "Create success.",
@@ -38,7 +37,7 @@ class EmployeeController {
     try {
       const id = req.params.id;
 
-      const response = await employeeService.getById(id);
+      const response = await userService.getById(id);
 
       return res.status(200).json({
         message: "Get success.",
@@ -52,7 +51,7 @@ class EmployeeController {
   async getAll(req, res, next) {
     try {
       const filters = req.query;
-      const response = await employeeService.getAll(filters);
+      const response = await userService.getAll(filters);
 
       return res.status(200).json({
         message: "Get all success.",
@@ -67,7 +66,7 @@ class EmployeeController {
     try {
       const id = req.params.id;
 
-      const response = await employeeService.deleteById(id);
+      const response = await userService.deleteById(id);
 
       return res.status(200).json({
         message: "Delete success.",
@@ -80,7 +79,7 @@ class EmployeeController {
 
   async delete(req, res, next) {
     try {
-      const response = await employeeService.delete();
+      const response = await userService.delete();
 
       return res.status(200).json({
         message: "Delete all success.",
@@ -96,7 +95,7 @@ class EmployeeController {
       const id = req.params.id;
       const data = req.body;
 
-      const response = await employeeService.update(id, data);
+      const response = await userService.update(id, data);
 
       return res.status(200).json({
         message: "Update success.",
@@ -108,4 +107,4 @@ class EmployeeController {
   }
 }
 
-export default new EmployeeController();
+export default new UserController();

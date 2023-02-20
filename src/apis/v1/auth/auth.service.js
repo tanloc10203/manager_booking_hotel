@@ -11,8 +11,8 @@ import {
   ressetPassword,
   signJSWebToken,
 } from "../../../utils";
-import customerService from "../customers/customer.service";
 import EmailService from "../emails/email.service";
+import { userService } from "../users";
 
 class AuthService {
   signIn({ username, password }) {
@@ -20,7 +20,7 @@ class AuthService {
       try {
         // Find username
         let sql = SqlString.format("SELECT * FROM ?? WHERE username = ?", [
-          "customers",
+          "users",
           username,
         ]);
 
@@ -30,11 +30,7 @@ class AuthService {
           return reject(new APIError(404, "User not found. Please sign up."));
         }
 
-        const {
-          password: passwordHash,
-          customer_id,
-          ...others
-        } = { ...result[0] };
+        const { password: passwordHash, user_id, ...others } = { ...result[0] };
 
         // Compare password vs password db.
         const isValidPwd = await comparePassword(password, passwordHash);
@@ -48,13 +44,13 @@ class AuthService {
         // genarate accessToken and refreshToken
         const accessToken = signJSWebToken({
           privateKey: config.jwt.privateKeyAccessToken,
-          data: { user: { customer_id } },
+          data: { user: { user_id } },
           options: { expiresIn: config.jwt.expiredAccessToken },
         });
 
-        sql = SqlString.format("SELECT * FROM ?? WHERE customer_id=?", [
+        sql = SqlString.format("SELECT * FROM ?? WHERE user_id=?", [
           "seesions",
-          customer_id,
+          user_id,
         ]);
 
         const [findToken] = await pool.query(sql);
@@ -62,13 +58,13 @@ class AuthService {
         if (!findToken.length) {
           const refreshToken = signJSWebToken({
             privateKey: config.jwt.privateKeyRefreshToken,
-            data: { user: { customer_id } },
+            data: { user: { user_id } },
             options: { expiresIn: config.jwt.expiredRefreshToken },
           });
 
           sql = SqlString.format("INSERT INTO ?? SET ?", [
             "seesions",
-            { customer_id, refresh_token: refreshToken },
+            { user_id, refresh_token: refreshToken },
           ]);
 
           await pool.query(sql);
@@ -87,12 +83,11 @@ class AuthService {
   handleForgorPassword({ username, email }) {
     return new Promise(async (resovle, reject) => {
       try {
-        let sql = SqlString.format(
-          "SELECT * from `customers` WHERE username=?",
-          [username]
-        );
+        let sql = SqlString.format("SELECT * from `users` WHERE username=?", [
+          username,
+        ]);
 
-        const [findCustomer] = await pool.query(sql); // [[{customer_id, ....}]]
+        const [findCustomer] = await pool.query(sql); // [[{user_id, ....}]]
 
         if (!findCustomer.length) {
           return reject(
@@ -100,11 +95,11 @@ class AuthService {
           );
         }
 
-        const { customer_id, last_name } = { ...findCustomer[0] };
+        const { user_id, last_name } = { ...findCustomer[0] };
 
-        // check OTP exist with customer_id.
-        sql = SqlString.format("SELECT * FROM `tokens` WHERE customer_id=?", [
-          customer_id,
+        // check OTP exist with user_id.
+        sql = SqlString.format("SELECT * FROM `tokens` WHERE user_id=?", [
+          user_id,
         ]);
 
         const [findOTP] = await pool.query(sql);
@@ -119,16 +114,16 @@ class AuthService {
         const OTP = createOTP();
         const _hashOTP = await hashOTP(OTP);
 
-        // save hash otp to database. Table Tokens (token: hashOTP, customer_id)
+        // save hash otp to database. Table Tokens (token: hashOTP, user_id)
         sql = SqlString.format("INSERT INTO ?? SET ?", [
           "tokens",
-          { customer_id, token: _hashOTP },
+          { user_id, token: _hashOTP },
         ]);
 
         await pool.query(sql);
 
-        // create REDIRECT_URL: [URL_SERVER / URL_CLIENT]/api/v1/auth/change-password?customer_id=customer_id&token=otp [body: password]
-        const REDIRECT_URL_CHANGE_PWD = `${config.app.serverURL}/api/v1/auth/change-password?customer_id=${customer_id}&token=${OTP}`;
+        // create REDIRECT_URL: [URL_SERVER / URL_CLIENT]/api/v1/auth/change-password?user_id=user_id&token=otp [body: password]
+        const REDIRECT_URL_CHANGE_PWD = `${config.app.serverURL}/api/v1/auth/change-password?user_id=${user_id}&token=${OTP}`;
 
         // send email
         const send = await EmailService.sendEmail({
@@ -148,14 +143,13 @@ class AuthService {
     });
   }
 
-  handleChangePassword({ customerId, token, password }) {
+  handleChangePassword({ userId, token, password }) {
     return new Promise(async (resovle, reject) => {
       try {
         // find Token
-        let sql = SqlString.format(
-          "SELECT * FROM `tokens` WHERE customer_Id=?",
-          [customerId]
-        );
+        let sql = SqlString.format("SELECT * FROM `tokens` WHERE user_id=?", [
+          userId,
+        ]);
 
         const [findToken] = await pool.query(sql);
 
@@ -176,9 +170,15 @@ class AuthService {
         const _hashPassword = await hashPassword(password);
 
         // update password to table `customers`
-        const response = await customerService.update(customerId, {
+        const response = await userService.update(userId, {
           password: _hashPassword,
         });
+
+        sql = SqlString.format("DELETE FROM `tokens` WHERE user_id=?", [
+          userId,
+        ]);
+
+        await pool.query(sql);
 
         resovle(response);
       } catch (error) {
