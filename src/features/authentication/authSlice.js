@@ -55,6 +55,11 @@ const authSlice = createSlice({
       toast.error(payload);
     },
 
+    // * getUserSignInWithGoogle
+    getUserSignInWithGoogle(state) {
+      state.isLoading = true;
+    },
+
     // * Sign out
     signOutStart(state) {
       state.isLoading = true;

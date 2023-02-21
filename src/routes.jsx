@@ -20,6 +20,7 @@ const Register = Loadable(
   lazy(() => import("./features/authentication/pages/Register"))
 );
 const User = Loadable(lazy(() => import("./pages/User")));
+const Home = Loadable(lazy(() => import("./pages/Home")));
 
 export default function Router() {
   return useRoutes([
@@ -41,7 +42,7 @@ export default function Router() {
       path: "/",
       element: <LogoOnlyLayout />,
       children: [
-        { path: "/", element: <Navigate to="/manager/app" /> },
+        { path: "/", element: <Home /> },
 
         { path: "sign-up", element: <Register /> },
         { path: "404", element: <NotFound /> },

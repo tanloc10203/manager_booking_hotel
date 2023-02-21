@@ -1,15 +1,29 @@
 // material
 import { Stack, Button, Divider, Typography } from "@mui/material";
+import config from "~/configs";
+import { getOAuth2GoogleURL } from "~/utils";
 // component
 import Iconify from "../../components/Iconify";
 
 // ----------------------------------------------------------------------
 
 export default function AuthSocial() {
+  const handleLoginWithGoole = () => {
+    localStorage.setItem(`${config.localStorage.signInWithGoole}`, true);
+  };
+
   return (
     <>
       <Stack direction="row" spacing={2}>
-        <Button fullWidth size="large" color="inherit" variant="outlined">
+        <Button
+          fullWidth
+          size="large"
+          component="a"
+          href={getOAuth2GoogleURL()}
+          color="inherit"
+          variant="outlined"
+          onClick={handleLoginWithGoole}
+        >
           <Iconify
             icon="eva:google-fill"
             color="#DF3E30"

@@ -19,6 +19,10 @@ const authAPI = {
     return instance.get(url + "/refresh-token");
   },
 
+  getUserSignInWithGoogle() {
+    return instance.get(url + "/get/oauth2/google");
+  },
+
   getCurrentUser(accessToken) {
     return instance.get(url + "/sign-in", {
       headers: {

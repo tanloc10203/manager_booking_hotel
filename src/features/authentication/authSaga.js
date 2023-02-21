@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import { authAPI } from "~/apis";
+import config from "~/configs";
 import { history } from "~/utils";
 import { appActions } from "../app/appSlice";
 import { authActions } from "./authSlice";
@@ -114,12 +115,48 @@ function* watchSignOut() {
   yield takeLatest(authActions.signOutStart.type, fetchSignOut);
 }
 
+// * Get user sign in with google
+function* getUserSignInWithGoogle() {
+  try {
+    const response = yield authAPI.getUserSignInWithGoogle();
+
+    if (response) {
+      localStorage.setItem("accessToken", response.accessToken);
+      localStorage.removeItem(config.localStorage.signInWithGoole);
+      yield put(authActions.getCurrentUserSucceed(response.data));
+      yield put(appActions.setOpenOverlay(false));
+      toast.success("Đăng nhập với google thành công.");
+    }
+  } catch (error) {
+    yield put(appActions.setOpenOverlay(false));
+    if (error.response) {
+      if (error.response.data.message === "jwt refreshToken expired") {
+        toast.info("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+        yield put(authActions.signOutStart());
+        return;
+      }
+
+      yield put(authActions.getCurrentUserFailed(error.response.data.message));
+    } else {
+      yield put(authActions.getCurrentUserFailed(error.message));
+    }
+  }
+}
+
+function* watchFetchGetUserSignInWithGoogle() {
+  yield takeLatest(
+    authActions.getUserSignInWithGoogle.type,
+    getUserSignInWithGoogle
+  );
+}
+
 function* authSaga() {
   yield all([
     watchFetchSignUp(),
     watchFetchSignIn(),
     watchFetchCurentUser(),
     watchSignOut(),
+    watchFetchGetUserSignInWithGoogle(),
   ]);
 }
 
