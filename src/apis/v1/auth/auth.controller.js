@@ -27,19 +27,15 @@ class AuthController {
         password: body.password,
       });
 
-      // response accessToken => client and set refreshToken cookies
-      if (response && response.refreshToken) {
-        return res
-          .cookie(
-            "refreshToken",
-            response.refreshToken,
-            refreshTokenCookieOptions
-          )
-          .json({ accessToken: response.accessToken, isHome: response.isHome });
-      }
-
-      res.json({ accessToken: response.accessToken, isHome: response.isHome });
+      return res
+        .cookie(
+          "refreshToken",
+          response.refreshToken,
+          refreshTokenCookieOptions
+        )
+        .json({ accessToken: response.accessToken, isHome: response.isHome });
     } catch (error) {
+      console.log("errror", error);
       next(new APIError(error.statusCode || 500, error.message));
     }
   }
@@ -52,6 +48,28 @@ class AuthController {
 
       res.json({
         data: response,
+        message: "Get current customer successed.",
+      });
+    } catch (error) {
+      next(new APIError(error.statusCode || 500, error.message));
+    }
+  }
+
+  async getUserSignWithGoogle(req, res, next) {
+    try {
+      const user_id = req.user_id;
+
+      const response = await userService.getById(user_id);
+
+      const accessToken = signJSWebToken({
+        privateKey: config.jwt.privateKeyAccessToken,
+        data: { user: { user_id } },
+        options: { expiresIn: config.jwt.expiredAccessToken },
+      });
+
+      res.json({
+        data: response,
+        accessToken,
         message: "Get current customer successed.",
       });
     } catch (error) {
@@ -142,6 +160,41 @@ class AuthController {
       });
     } catch (error) {
       next(error);
+    }
+  }
+
+  async oAuth2Google(req, res, next) {
+    try {
+      // get the code from qs
+      const code = req.query.code;
+
+      // get the id and access token with the code
+      const { id_token, access_token } = await authService.getGoogleOAuthTokens(
+        { code }
+      );
+
+      // get user with token
+      const googleUser = await authService.getGoogleUser({
+        id_token,
+        access_token,
+      });
+
+      if (!googleUser.verified_email) {
+        return res.status(403).send("Google account is not verified!");
+      }
+
+      console.log(googleUser);
+
+      // upsert the user save db
+      const { refreshToken } = await authService.handleUserSignInWithGoogle(
+        googleUser
+      );
+
+      res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
+
+      res.redirect(config.app.clientURL);
+    } catch (error) {
+      console.log("Failer to authorize Google user :::", error);
     }
   }
 }

@@ -13,6 +13,8 @@ import {
 } from "../../../utils/index.js";
 import EmailService from "../emails/email.service.js";
 import { userService } from "../users/index.js";
+import axios from "axios";
+import qs from "qs";
 
 class AuthService {
   signIn({ username, password }) {
@@ -53,32 +55,10 @@ class AuthService {
           options: { expiresIn: config.jwt.expiredAccessToken },
         });
 
-        sql = SqlString.format("SELECT * FROM ?? WHERE user_id=?", [
-          "seesions",
-          user_id,
-        ]);
-
-        const [findToken] = await pool.query(sql);
-
-        if (!findToken.length) {
-          const refreshToken = signJSWebToken({
-            privateKey: config.jwt.privateKeyRefreshToken,
-            data: { user: { user_id } },
-            options: { expiresIn: config.jwt.expiredRefreshToken },
-          });
-
-          sql = SqlString.format("INSERT INTO ?? SET ?", [
-            "seesions",
-            { user_id, refresh_token: refreshToken },
-          ]);
-
-          await pool.query(sql);
-
-          return resovle({ accessToken, refreshToken, isHome: !is_admin });
-        }
+        const refreshToken = await this.handleRefreshToken(user_id);
 
         // resovle accessToken and refreshToken to authController
-        resovle({ accessToken, isHome: !is_admin });
+        return resovle({ accessToken, refreshToken, isHome: !is_admin });
       } catch (error) {
         reject(error);
       }
@@ -186,6 +166,135 @@ class AuthService {
         await pool.query(sql);
 
         resovle(response);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getGoogleOAuthTokens({ code }) {
+    return new Promise(async (resolve, reject) => {
+      const url = "https://oauth2.googleapis.com/token";
+
+      const values = {
+        code,
+        client_id: config.oauth2.clientID,
+        client_secret: config.oauth2.clientSecret,
+        redirect_uri: config.oauth2.clientRedirectURL,
+        grant_type: "authorization_code",
+      };
+
+      try {
+        const response = await axios.post(url, qs.stringify(values), {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+        resolve(response.data);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getGoogleUser({ id_token, access_token }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await axios.get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${id_token}`,
+            },
+          }
+        );
+
+        resolve(response.data);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async handleRefreshToken(userId) {
+    try {
+      let sql = SqlString.format("SELECT * FROM ?? WHERE user_id=?", [
+        "seesions",
+        userId,
+      ]);
+
+      const [findToken] = await pool.query(sql);
+
+      let refreshToken = "";
+
+      if (!findToken.length) {
+        refreshToken = signJSWebToken({
+          privateKey: config.jwt.privateKeyRefreshToken,
+          data: { user: { user_id: userId } },
+          options: { expiresIn: config.jwt.expiredRefreshToken },
+        });
+
+        sql = SqlString.format("INSERT INTO ?? SET ?", [
+          "seesions",
+          { user_id: userId, refresh_token: refreshToken },
+        ]);
+
+        await pool.query(sql);
+      } else {
+        refreshToken = findToken[0].refresh_token;
+      }
+
+      return refreshToken;
+    } catch (error) {
+      Promise.reject(error);
+    }
+  }
+
+  handleUserSignInWithGoogle(user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let sql = SqlString.format("SELECT * FROM ?? where ??=?", [
+          "users",
+          "email",
+          user.email,
+        ]);
+
+        const [findUser] = await pool.query(sql);
+        let id = -1;
+        let refreshToken = "";
+
+        // * Create user
+        if (!findUser.length) {
+          sql = SqlString.format("INSERT INTO ?? SET ?", [
+            "users",
+            {
+              email: user.email,
+              first_name: user.family_name,
+              last_name: user.given_name,
+              picture: user.picture,
+            },
+          ]);
+
+          const [result] = await pool.query(sql);
+
+          id = result.insertId;
+        } else {
+          // * update user
+          await userService.update(findUser[0].user_id, {
+            email: user.email,
+            first_name: user.family_name,
+            last_name: user.given_name,
+            picture: user.picture,
+          });
+
+          id = findUser[0].user_id;
+        }
+
+        if (id !== -1) {
+          refreshToken = await this.handleRefreshToken(id);
+        }
+
+        resolve({ refreshToken });
       } catch (error) {
         reject(error);
       }

@@ -17,6 +17,12 @@ router
 
 router.route("/sign-out").post(authController.signOut);
 
+router.route("/oauth2/google").get(authController.oAuth2Google);
+
+router
+  .route("/get/oauth2/google")
+  .get(authMiddleware.verifyRefreshToken, authController.getUserSignWithGoogle);
+
 router
   .route("/sign-in")
   .post(authController.signIn)

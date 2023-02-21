@@ -24,6 +24,11 @@ const config = {
     clientRedirectURL: process.env.GOOGLE_REDIRECT_URL,
     refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
   },
+  oauth2: {
+    clientID: process.env.OAUTH2_GOOGLE_CLIENT_ID,
+    clientSecret: process.env.OAUTH2_GOOGLE_CLIENT_SECRET,
+    clientRedirectURL: process.env.OAUTH2_GOOGLE_OAUTH_REDIRECT,
+  },
 };
 
 export default config;
