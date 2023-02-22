@@ -9,6 +9,11 @@ const config = {
   localStorage: {
     signInWithGoole: "signInWithGoole",
   },
+  app: {
+    key: {
+      manageAdmin: "ADMIN",
+    },
+  },
 };
 
 export default config;

@@ -23,6 +23,14 @@ const authAPI = {
     return instance.get(url + "/get/oauth2/google");
   },
 
+  forgotPwd(body) {
+    return instance.post(url + "/forgot-password", body);
+  },
+
+  changePwd({ body, query }) {
+    return instance.post(url + "/change-password" + query, body);
+  },
+
   getCurrentUser(accessToken) {
     return instance.get(url + "/sign-in", {
       headers: {

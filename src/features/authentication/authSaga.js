@@ -67,9 +67,15 @@ function* watchFetchSignIn() {
 // * Get curent user.
 function* getCurrentUser({ payload }) {
   try {
-    const response = yield authAPI.getCurrentUser(payload);
+    const response = yield authAPI.getCurrentUser(payload.accessToken);
 
     if (response) {
+      if (payload.location && payload.location === config.app.key.manageAdmin) {
+        if (!response.data.is_admin) {
+          return history.push("/");
+        }
+      }
+
       yield put(authActions.getCurrentUserSucceed(response.data));
     }
   } catch (error) {

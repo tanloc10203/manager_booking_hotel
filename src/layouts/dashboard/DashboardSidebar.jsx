@@ -22,6 +22,9 @@ import Scrollbar from "../../components/Scrollbar";
 import NavSection from "../../components/NavSection";
 //
 import navConfig from "./NavConfig";
+import { useSelector } from "react-redux";
+import { authState } from "~/features/authentication/authSlice";
+import _ from "lodash";
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +54,7 @@ DashboardSidebar.propTypes = {
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
+  const { user } = useSelector(authState);
 
   const isDesktop = useResponsive("up", "lg");
 
@@ -82,10 +86,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: "text.primary" }}>
-                {account.displayName}
+                {!_.isEmpty(user) && user.last_name + " " + user.first_name}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {account.role}
+                {!_.isEmpty(user) && user.email}
               </Typography>
             </Box>
           </AccountStyle>

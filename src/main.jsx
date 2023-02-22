@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import App from "./App";
 import store from "./apps/store";
 import { history } from "./utils";
+import "./assets/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <HelmetProvider>

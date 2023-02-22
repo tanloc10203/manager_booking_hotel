@@ -19,6 +19,9 @@ const Products = Loadable(lazy(() => import("./pages/Products")));
 const Register = Loadable(
   lazy(() => import("./features/authentication/pages/Register"))
 );
+const ChangePwd = Loadable(
+  lazy(() => import("./features/authentication/pages/ChangePwd"))
+);
 const User = Loadable(lazy(() => import("./pages/User")));
 const Home = Loadable(lazy(() => import("./pages/Home")));
 
@@ -42,8 +45,11 @@ export default function Router() {
       path: "/",
       element: <LogoOnlyLayout />,
       children: [
-        { path: "/", element: <Home /> },
-
+        {
+          path: "/",
+          element: <Home />,
+        },
+        { path: "change-password", element: <ChangePwd /> },
         { path: "sign-up", element: <Register /> },
         { path: "404", element: <NotFound /> },
         { path: "*", element: <Navigate to="/404" /> },

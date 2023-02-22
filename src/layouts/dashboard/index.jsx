@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useMatch, useRoutes } from "react-router-dom";
 // material
 import { styled } from "@mui/material/styles";
 //
@@ -7,6 +7,7 @@ import DashboardNavbar from "./DashboardNavbar";
 import DashboardSidebar from "./DashboardSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions, authState } from "~/features/authentication/authSlice";
+import config from "~/configs";
 
 // ----------------------------------------------------------------------
 
@@ -38,10 +39,19 @@ export default function DashboardLayout() {
   const [open, setOpen] = useState(true);
   const { accessToken } = useSelector(authState);
   const dispatch = useDispatch();
+  const locations = useLocation();
 
   useEffect(() => {
     if (accessToken) {
-      dispatch(authActions.getCurrentUserStart(accessToken));
+      dispatch(
+        authActions.getCurrentUserStart({
+          accessToken,
+          location:
+            locations.pathname.search("manager") !== -1
+              ? config.app.key.manageAdmin
+              : null,
+        })
+      );
     }
   }, [accessToken]);
 

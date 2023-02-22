@@ -1,6 +1,5 @@
 import { Form, FormikProvider, useFormik } from "formik";
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import * as Yup from "yup";
 // material
 import { LoadingButton } from "@mui/lab";
@@ -13,16 +12,17 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import Iconify from "~/components/Iconify";
-import { authActions } from "~/features/authentication/authSlice";
 import { useDispatch } from "react-redux";
-import Overlay from "~/components/Overlay";
+import Iconify from "~/components/Iconify";
 import { appActions } from "~/features/app/appSlice";
+import { authActions } from "~/features/authentication/authSlice";
+import FormDialog from "~/features/authentication/components/FormDialog";
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
 
   const LoginSchema = Yup.object().shape({
@@ -56,78 +56,91 @@ export default function LoginForm() {
     setShowPassword((show) => !show);
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
-    <FormikProvider value={formik}>
-      <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-        <Stack spacing={3}>
-          <TextField
-            fullWidth
-            autoComplete="username"
-            type="username"
-            label="Tài khoản"
-            {...getFieldProps("username")}
-            error={Boolean(touched.username && errors.username)}
-            helperText={touched.username && errors.username}
-          />
+    <>
+      <FormDialog
+        open={open}
+        onClose={handleClose}
+        onOpen={() => setOpen(true)}
+      />
+      <FormikProvider value={formik}>
+        <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
+          <Stack spacing={3}>
+            <TextField
+              fullWidth
+              autoComplete="username"
+              type="text"
+              label="Tài khoản"
+              {...getFieldProps("username")}
+              error={Boolean(touched.username && errors.username)}
+              helperText={touched.username && errors.username}
+            />
 
-          <TextField
-            fullWidth
-            autoComplete="current-password"
-            type={showPassword ? "text" : "password"}
-            label="Mật khẩu"
-            {...getFieldProps("password")}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleShowPassword} edge="end">
-                    <Iconify
-                      icon={showPassword ? "eva:eye-fill" : "eva:eye-off-fill"}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            error={Boolean(touched.password && errors.password)}
-            helperText={touched.password && errors.password}
-          />
-        </Stack>
+            <TextField
+              fullWidth
+              autoComplete="current-password"
+              type={showPassword ? "text" : "password"}
+              label="Mật khẩu"
+              {...getFieldProps("password")}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleShowPassword} edge="end">
+                      <Iconify
+                        icon={
+                          showPassword ? "eva:eye-fill" : "eva:eye-off-fill"
+                        }
+                      />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              error={Boolean(touched.password && errors.password)}
+              helperText={touched.password && errors.password}
+            />
+          </Stack>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ my: 2 }}
-        >
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...getFieldProps("remember")}
-                checked={values.remember}
-              />
-            }
-            label="Ghi nhớ"
-          />
-
-          <Link
-            component={RouterLink}
-            variant="subtitle2"
-            to="#"
-            underline="hover"
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ my: 2 }}
           >
-            Quên mật khẩu?
-          </Link>
-        </Stack>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  {...getFieldProps("remember")}
+                  checked={values.remember}
+                />
+              }
+              label="Ghi nhớ"
+            />
 
-        <LoadingButton
-          fullWidth
-          size="large"
-          type="submit"
-          variant="contained"
-          loading={isSubmitting}
-        >
-          Đăng nhập
-        </LoadingButton>
-      </Form>
-    </FormikProvider>
+            <Link
+              variant="subtitle2"
+              style={{ cursor: "pointer" }}
+              underline="hover"
+              onClick={() => setOpen(true)}
+            >
+              Quên mật khẩu?
+            </Link>
+          </Stack>
+
+          <LoadingButton
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+          >
+            Đăng nhập
+          </LoadingButton>
+        </Form>
+      </FormikProvider>
+    </>
   );
 }
