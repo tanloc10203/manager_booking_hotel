@@ -68,6 +68,8 @@ class AuthService {
   handleForgorPassword({ username, email }) {
     return new Promise(async (resovle, reject) => {
       try {
+        await EmailService.validationEmail(email);
+
         let sql = SqlString.format("SELECT * from `users` WHERE username=?", [
           username,
         ]);
@@ -76,7 +78,7 @@ class AuthService {
 
         if (!findCustomer.length) {
           return reject(
-            new APIError(404, "Username not found. Please enter again!")
+            new APIError(404, "Không tìm thấy tài khoản. Vui lòng nhập đúng!")
           );
         }
 
@@ -91,7 +93,7 @@ class AuthService {
 
         if (findOTP.length > 0) {
           return reject(
-            new APIError(400, "OTP was exist. Please check e-mail.")
+            new APIError(400, "Email đã tồn tại. Vui lòng kiểm tra.")
           );
         }
 
@@ -108,7 +110,7 @@ class AuthService {
         await pool.query(sql);
 
         // create REDIRECT_URL: [URL_SERVER / URL_CLIENT]/api/v1/auth/change-password?user_id=user_id&token=otp [body: password]
-        const REDIRECT_URL_CHANGE_PWD = `${config.app.serverURL}/api/v1/auth/change-password?user_id=${user_id}&token=${OTP}`;
+        const REDIRECT_URL_CHANGE_PWD = `${config.app.clientURL}/change-password?user_id=${user_id}&token=${OTP}`;
 
         // send email
         const send = await EmailService.sendEmail({

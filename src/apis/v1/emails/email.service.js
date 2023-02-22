@@ -2,6 +2,8 @@ import config from "../../../config/index.js";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import _ from "lodash";
+import { validate } from "deep-email-validator";
+import APIError from "../../../utils/api-error.util.js";
 
 class EmailService {
   static sendEmail({ email, html }) {
@@ -48,6 +50,24 @@ class EmailService {
         reject(error);
       }
     });
+  }
+
+  static async validationEmail(email) {
+    try {
+      const response = await validate(email);
+
+      const { valid, reason, validators } = response;
+
+      if (!valid && reason && !validators[reason].valid) {
+        return Promise.reject(
+          new APIError(400, "Vui lòng cung cấp một địa chỉ email hợp lệ")
+        );
+      }
+
+      return valid;
+    } catch (error) {
+      Promise.reject(new APIError(500, error.message));
+    }
   }
 }
 

@@ -35,7 +35,6 @@ class AuthController {
         )
         .json({ accessToken: response.accessToken, isHome: response.isHome });
     } catch (error) {
-      console.log("errror", error);
       next(new APIError(error.statusCode || 500, error.message));
     }
   }
@@ -110,7 +109,7 @@ class AuthController {
 
       res.json({
         message: "Send email successed.",
-        response,
+        isValid: response,
       });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
@@ -128,7 +127,7 @@ class AuthController {
         );
       }
 
-      const response = await authService.handleChangePassword({
+      await authService.handleChangePassword({
         userId: user_id,
         token,
         password,
@@ -136,7 +135,6 @@ class AuthController {
 
       res.json({
         message: "Changed password successed.",
-        response,
       });
     } catch (error) {
       next(new APIError(error.statusCode || 500, error.message));
@@ -182,8 +180,6 @@ class AuthController {
       if (!googleUser.verified_email) {
         return res.status(403).send("Google account is not verified!");
       }
-
-      console.log(googleUser);
 
       // upsert the user save db
       const { refreshToken } = await authService.handleUserSignInWithGoogle(
