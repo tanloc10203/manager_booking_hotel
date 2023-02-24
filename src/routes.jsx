@@ -25,6 +25,14 @@ const ChangePwd = Loadable(
 const User = Loadable(lazy(() => import("./pages/User")));
 const Home = Loadable(lazy(() => import("./pages/Home")));
 
+// Hotels
+const HotelManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/hotels/Hotel"))
+);
+const HotelAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/hotels/HotelAddEdit"))
+);
+
 export default function Router() {
   return useRoutes([
     {
@@ -39,6 +47,18 @@ export default function Router() {
         { path: "user", element: <User /> },
         { path: "products", element: <Products /> },
         { path: "blog", element: <Blog /> },
+        {
+          path: "hotel",
+          element: <HotelManagePage />,
+        },
+        {
+          path: "hotel/add",
+          element: <HotelAddEdit />,
+        },
+        {
+          path: "hotel/update/:hotelId",
+          element: <HotelAddEdit />,
+        },
       ],
     },
     {

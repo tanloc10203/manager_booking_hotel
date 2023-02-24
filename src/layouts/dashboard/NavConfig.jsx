@@ -26,6 +26,11 @@ const navConfig = [
     path: "/manager/blog",
     icon: getIcon("eva:file-text-fill"),
   },
+  {
+    title: "Quản lý khách sạn",
+    path: "/manager/hotel",
+    icon: getIcon("carbon:manage-protection"),
+  },
 ];
 
 export default navConfig;
