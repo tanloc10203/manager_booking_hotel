@@ -60,7 +60,7 @@ function Hotel() {
               <Button
                 component={RouterLink}
                 sx={{ mr: 1 }}
-                to="#"
+                to={`/manager/hotel/update/${row.hotel_id}`}
                 variant="outlined"
               >
                 <EditIcon />

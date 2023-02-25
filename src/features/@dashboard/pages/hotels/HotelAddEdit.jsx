@@ -1,16 +1,44 @@
-import { useParams } from "react-router-dom";
-import { FormAddEditHotel, PageLayoutAddEdit } from "../../components";
-import * as Yup from "yup";
+import _ from "lodash";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import { hotelAPI } from "~/apis";
 import { appActions } from "~/features/app/appSlice";
 import { hotelActions } from "~/features/hotels/hotelSlice";
+import { proviceActions } from "~/features/provices/proviceSlice";
+import { hotetAddSchema } from "~/utils";
+import { FormAddEditHotel, PageLayoutAddEdit } from "../../components";
 
 function HotelAddEdit(props) {
   const { hotelId } = useParams();
 
   const isAddMode = !Boolean(hotelId);
 
+  const [selectedHotel, setSelectedHotel] = useState({});
+
   const dispatch = useDispatch();
+
+  const getHotelById = async (id) => {
+    try {
+      dispatch(appActions.setOpenOverlay(true));
+      const response = await hotelAPI.getById(id);
+      if (response.data) {
+        setSelectedHotel(response.data);
+        dispatch(proviceActions.getDistrictsStart(response.data?.provice_code));
+        dispatch(proviceActions.getWardsStart(response.data?.district_code));
+      }
+      dispatch(appActions.setOpenOverlay(false));
+    } catch (error) {
+      dispatch(appActions.setOpenOverlay(false));
+      console.log("error:::", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!hotelId) return;
+
+    getHotelById(hotelId);
+  }, [hotelId]);
 
   const initialValues = {
     hotel_name: "",
@@ -22,35 +50,19 @@ function HotelAddEdit(props) {
     provice_name: "",
     district_name: "",
     ward_name: "",
+    ...selectedHotel,
   };
-
-  const hotetAddSchema = Yup.object().shape({
-    hotel_name: Yup.string()
-      .min(2, "Quá ngắn!")
-      .max(50, "Quá dài!")
-      .required("Vui lòng không bỏ trống!"),
-    hotel_desc: Yup.string().required("Vui lòng không bỏ trống!"),
-    hotel_address: Yup.string()
-      .min(2, "Quá ngắn!")
-      .max(50, "Quá dài!")
-      .required("Vui lòng không bỏ trống!"),
-    provice_code: Yup.string().required("Vui lòng chọn tỉnh thành!"),
-    district_code: Yup.string().required("Vui lòng chọn quận huyện!"),
-    ward_code: Yup.string().required("Vui lòng chọn xã phường!"),
-    provice_name: Yup.string().required("Vui lòng chọn tỉnh thành!"),
-    district_name: Yup.string().required("Vui lòng chọn quận huyện!"),
-    ward_name: Yup.string().required("Vui lòng chọn xã phường!"),
-  });
 
   const handleSubmit = (values) => {
     if (!values) return;
 
     return new Promise((resolve, reject) => {
       try {
-        dispatch(appActions.setOpenOverlay(true));
+        // dispatch(appActions.setOpenOverlay(true));
 
         setTimeout(() => {
-          dispatch(hotelActions.createStart(values));
+          // dispatch(hotelActions.createStart(values));
+          console.log(values);
           resolve(true);
         }, 1500);
       } catch (error) {
@@ -64,11 +76,13 @@ function HotelAddEdit(props) {
       title={`${isAddMode ? "Thêm" : "Cập nhật"} Khách sạn`}
       backLink="/manager/hotel"
     >
-      <FormAddEditHotel
-        onSubmit={handleSubmit}
-        initialValues={initialValues}
-        schema={hotetAddSchema}
-      />
+      {(isAddMode || (!isAddMode && !_.isEmpty(selectedHotel))) && (
+        <FormAddEditHotel
+          onSubmit={handleSubmit}
+          initialValues={initialValues}
+          schema={hotetAddSchema}
+        />
+      )}
     </PageLayoutAddEdit>
   );
 }

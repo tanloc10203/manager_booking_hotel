@@ -17,7 +17,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Form, FormikProvider, useFormik } from "formik";
 import PropTypes from "prop-types";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getBlobImg, getSlug } from "~/utils";
 import OverviewImg from "../OverviewImg";
@@ -43,22 +43,60 @@ function FormAddEdit(props) {
   const [imgBlob, setImgBlob] = useState({});
   const [imgsBlob, setImgsBlob] = useState([]);
   const [tags, setTags] = useState([]);
+  const [tagDelete, setTagDelete] = useState([]);
   const [file, setFile] = useState([]);
   const [files, setFiles] = useState([]);
+  const [imgsDelete, setImgsDelete] = useState([]);
+
+  useEffect(() => {
+    if (!initialValues?.hotel_id) return;
+
+    if (initialValues?.images) {
+      const newImagesBlob = initialValues?.images.map((img) => ({
+        id: img.h_image_id,
+        hotel_id: img.hotel_id,
+        url: img.h_image_value,
+      }));
+
+      setImgsBlob(newImagesBlob);
+    }
+
+    if (initialValues?.tags) {
+      const newTags = initialValues.tags.map((tag) => ({
+        tag_id: tag.tag_id,
+        title: tag.tag_value,
+        hotel_id: tag.hotel_id,
+      }));
+      setTags(newTags);
+    }
+  }, [initialValues]);
 
   const formik = useFormik({
     initialValues,
     validationSchema: schema,
     onSubmit: (values) => {
-      if (!onSubmit || !file.length || !tags.length || !files.length) return;
+      if (
+        !onSubmit ||
+        (!initialValues?.hotel_id &&
+          (!file.length || !tags.length || !files.length))
+      )
+        return;
 
-      const newValues = {
+      let newValues = {
         ...values,
         hotel_image: file,
         slug: getSlug(values.hotel_name),
         h_image_value: files,
         tags,
       };
+
+      if (initialValues?.hotel_id) {
+        newValues = {
+          ...newValues,
+          imgsDelete,
+          tagDelete,
+        };
+      }
 
       onSubmit(newValues);
     },
@@ -132,11 +170,23 @@ function FormAddEdit(props) {
 
     setFiles(() => newFiles);
     setImgsBlob(() => newImgsBlob);
+
+    if (initialValues?.hotel_id && img.hotel_id) {
+      setImgsDelete((pre) => [...pre, img]);
+    }
   };
 
-  const handleChangeTag = useCallback((event, value) => {
-    setTags((prev) => [...value]);
-  }, []);
+  const handleChangeTag = useCallback(
+    (event, value, reason) => {
+      if (initialValues?.hotel_id) {
+        const deleted = tags.filter((i) => [...value].indexOf(i) === -1);
+        setTagDelete((pre) => [...pre, ...deleted]);
+      }
+
+      setTags((prev) => [...value]);
+    },
+    [tags, initialValues]
+  );
 
   return (
     <FormikProvider value={formik}>
@@ -248,10 +298,10 @@ function FormAddEdit(props) {
                   />
 
                   <ContainedImageStyle>
-                    {imgBlob?.url ? (
+                    {imgBlob?.url || initialValues?.hotel_image ? (
                       <OverviewImg
                         height={200}
-                        src={imgBlob.url}
+                        src={imgBlob.url || initialValues?.hotel_image}
                         onClickImg={handleOpenInputFile}
                         onDeleteImg={handleDeleteImgBlob}
                       />

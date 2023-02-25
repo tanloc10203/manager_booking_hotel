@@ -29,6 +29,10 @@ const hotelAPI = {
   getAll: (filters) => {
     return instance.get(host, filters);
   },
+
+  getById: (id) => {
+    return instance.get(`${host}/${id}`);
+  },
 };
 
 export default hotelAPI;

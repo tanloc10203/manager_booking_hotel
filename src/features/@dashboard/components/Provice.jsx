@@ -1,7 +1,8 @@
 import { MenuItem, TextField } from "@mui/material";
 import PropTypes from "prop-types";
-import { memo, useCallback, useEffect, useState } from "react";
-import { getDistrict, getProvince, getWard } from "~/apis";
+import { memo, useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { proviceActions, proviceState } from "~/features/provices/proviceSlice";
 import SelectForm from "./forms/SelectForm";
 
 function Provice({
@@ -12,19 +13,11 @@ function Provice({
   setFieldValue,
   ...others
 }) {
-  const [state, setState] = useState({
-    provices: [],
-    districts: [],
-    wards: [],
-  });
-
-  const getProvinces = useCallback(async () => {
-    const provices = await getProvince();
-    setState((pre) => ({ ...pre, provices }));
-  }, []);
+  const { provices, districts, wards } = useSelector(proviceState);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    getProvinces();
+    dispatch(proviceActions.getProvicesStart());
   }, []);
 
   const handleChange = useCallback(async (event) => {
@@ -36,31 +29,24 @@ function Provice({
     let nameSelect = "districts";
     let setName = "provice_name";
     let resultName = "";
-    let results = [];
 
     if (name === "provice_code") {
-      resultName = state.provices.filter((i) => i.province_id === value)[0]
+      resultName = provices.filter((i) => i.province_id === value)[0]
         .province_name;
-      const dicritcs = await getDistrict(value);
-      results = [...dicritcs];
+      dispatch(proviceActions.getDistrictsStart(value));
     }
 
     if (name === "district_code") {
       nameSelect = "wards";
       setName = "district_name";
-      resultName = state.districts.filter((i) => i.district_id === value)[0]
+      resultName = districts.filter((i) => i.district_id === value)[0]
         .district_name;
-      const wards = await getWard(value);
-      results = [...wards];
+      dispatch(proviceActions.getWardsStart(value));
     }
 
     if (name === "ward_code") {
       setName = "ward_name";
-      resultName = state.wards.filter((i) => i.ward_id === value)[0].ward_name;
-    }
-
-    if (results.length > 0) {
-      setState((pre) => ({ ...pre, [nameSelect]: results }));
+      resultName = wards.filter((i) => i.ward_id === value)[0].ward_name;
     }
 
     if (resultName) {
@@ -78,8 +64,8 @@ function Provice({
         name="provice_code"
         onChange={handleChange}
       >
-        {state.provices.length > 0 &&
-          state.provices.map((p) => (
+        {provices.length > 0 &&
+          provices.map((p) => (
             <MenuItem value={p.province_id} key={p.province_id}>
               {p.province_name}
             </MenuItem>
@@ -94,8 +80,8 @@ function Provice({
         name="district_code"
         onChange={handleChange}
       >
-        {state.districts.length > 0 &&
-          state.districts.map((p) => (
+        {districts.length > 0 &&
+          districts.map((p) => (
             <MenuItem value={p.district_id} key={p.district_id}>
               {p.district_name}
             </MenuItem>
@@ -110,8 +96,8 @@ function Provice({
         name="ward_code"
         onChange={handleChange}
       >
-        {state.wards.length > 0 &&
-          state.wards.map((p) => (
+        {wards.length > 0 &&
+          wards.map((p) => (
             <MenuItem value={p.ward_id} key={p.ward_id}>
               {p.ward_name}
             </MenuItem>
