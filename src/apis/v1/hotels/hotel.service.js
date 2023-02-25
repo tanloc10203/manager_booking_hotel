@@ -68,13 +68,35 @@ class HotelService {
   getById(id) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+        let q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
           this.table,
           this.primaryKey,
           id,
         ]);
+
         const [result] = await pool.query(q);
-        resolve(result[0]);
+
+        q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+          "hotel_images",
+          "hotel_id",
+          id,
+        ]);
+
+        const [images] = await pool.query(q);
+
+        q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+          "hotel_tags",
+          "hotel_id",
+          id,
+        ]);
+
+        const [tags] = await pool.query(q);
+
+        resolve({
+          ...result[0],
+          images: [...images],
+          tags: [...tags],
+        });
       } catch (error) {
         reject(error);
       }
