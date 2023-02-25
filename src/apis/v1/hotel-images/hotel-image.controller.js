@@ -2,6 +2,13 @@ import { APIError } from "../../../utils/index.js";
 import hotelImageService from "./hotel-image.service.js";
 
 class HotelImageController {
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
   async create(req, res, next) {
     try {
       const body = req.body;
@@ -16,7 +23,11 @@ class HotelImageController {
         );
       }
 
-      const data = HImageValue.map((image) => [+body.hotel_id, image.filename]);
+      const data = HImageValue.map((image) => [
+        +body.hotel_id,
+        image.path,
+        image.filename,
+      ]);
 
       const response = await hotelImageService.create(data);
 

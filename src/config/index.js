@@ -29,6 +29,11 @@ const config = {
     clientSecret: process.env.OAUTH2_GOOGLE_CLIENT_SECRET,
     clientRedirectURL: process.env.OAUTH2_GOOGLE_OAUTH_REDIRECT,
   },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_SECRET,
+  },
 };
 
 export default config;

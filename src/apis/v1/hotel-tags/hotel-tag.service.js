@@ -3,8 +3,8 @@ import { pool } from "../../../database/index.js";
 import { APIError } from "../../../utils/index.js";
 
 class HotelImageService {
-  table = "hotel_images";
-  primaryKey = "h_image_id";
+  table = "hotel_tags";
+  primaryKey = "tag_id";
   select = ["h_image_id", "h_image_value", "hotel_name"];
 
   create(data = []) {
@@ -13,7 +13,7 @@ class HotelImageService {
         const sql =
           "INSERT INTO `" +
           this.table +
-          "` (hotel_id, h_image_value, file_name) VALUES ?";
+          "` (hotel_id, tag_key, tag_value) VALUES ?";
 
         const [result] = await pool.query(sql, [data]);
 

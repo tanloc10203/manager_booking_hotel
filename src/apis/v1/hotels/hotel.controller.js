@@ -1,30 +1,48 @@
 import { APIError } from "../../../utils/index.js";
 import hotelService from "./hotel.service.js";
 import _ from "lodash";
+import { cloudinaryV2 } from "../../../utils/upload.util.js";
 
 class HotelController {
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
   async create(req, res, next) {
-    try {
-      const body = req.body;
-      const file = req.file;
+    const body = req.body;
+    const { hotel_image, h_image_value } = req.files;
 
+    try {
       if (
         !body.hotel_name ||
         !body.hotel_desc ||
         !body.hotel_address ||
-        _.isEmpty(file)
+        !body.slug ||
+        !hotel_image.length ||
+        !h_image_value.length
       ) {
+        Promise.all(
+          hotel_image.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+        );
+        Promise.all(
+          h_image_value.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+        );
         return next(
           new APIError(
             404,
-            "Missing hotel_name, hotel_desc, hotel_address, hotel_image!"
+            "Missing hotel_name, hotel_desc, hotel_address, hotel_image, h_image_value, slug!"
           )
         );
       }
 
       const response = await hotelService.create({
         ...body,
-        hotel_image: file.filename,
+        tags: JSON.parse(body.tags),
+        hotel_image,
+        h_image_value,
       });
 
       return res.status(201).json({
@@ -32,10 +50,23 @@ class HotelController {
         data: response,
       });
     } catch (error) {
+      Promise.all(
+        hotel_image.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+      );
+      Promise.all(
+        h_image_value.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+      );
       return next(new APIError(500, error.message));
     }
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   * @returns
+   */
   async getById(req, res, next) {
     try {
       const id = req.params.id;
@@ -51,6 +82,13 @@ class HotelController {
     }
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   * @returns
+   */
   async getAll(req, res, next) {
     try {
       const filters = req.query;
@@ -66,6 +104,13 @@ class HotelController {
     }
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   * @returns
+   */
   async deleteById(req, res, next) {
     try {
       const id = req.params.id;
@@ -81,6 +126,13 @@ class HotelController {
     }
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   * @returns
+   */
   async delete(req, res, next) {
     try {
       const response = await hotelService.delete();
@@ -94,6 +146,13 @@ class HotelController {
     }
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   * @returns
+   */
   async update(req, res, next) {
     try {
       const id = req.params.id;

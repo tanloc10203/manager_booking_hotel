@@ -1,6 +1,8 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database/index.js";
 import { APIError } from "../../../utils/index.js";
+import hotelImageService from "../hotel-images/hotel-image.service.js";
+import hotelTagService from "../hotel-tags/hotel-tag.service.js";
 
 class HotelService {
   table = "hotels";
@@ -9,10 +11,12 @@ class HotelService {
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        const { h_image_value, hotel_image, tags, ...others } = data;
+
         let sql = SqlString.format("SELECT ?? FROM ?? WHERE hotel_name = ?", [
           this.primaryKey,
           this.table,
-          data.hotel_name,
+          others.hotel_name,
         ]);
 
         const [findHotelName] = await pool.query(sql);
@@ -21,11 +25,38 @@ class HotelService {
           return reject(new APIError(400, "Hotel name was exist!"));
         }
 
-        sql = SqlString.format("INSERT INTO ?? SET ?", [this.table, data]);
+        sql = SqlString.format("INSERT INTO ?? SET ?", [
+          this.table,
+          {
+            ...others,
+            hotel_image: hotel_image[0].path,
+            file_name_img: hotel_image[0].filename,
+          },
+        ]);
 
         const [result] = await pool.query(sql);
 
         const id = result.insertId;
+
+        /**
+         * Sau khi tao thanh cong khách sạn thì tạo danh sách ảnh.
+         * Tạo ra mảng danh sách ảnh.
+         */
+
+        const listImgs = h_image_value.map((img) => [
+          id,
+          img.path,
+          img.filename,
+        ]);
+
+        await hotelImageService.create(listImgs);
+
+        /**
+         * Tiếp tục thêm vào bảng hotel_tags
+         */
+        const listTags = tags.map((tag) => [id, "tag", tag.title]);
+
+        await hotelTagService.create(listTags);
 
         resolve(await this.getById(id));
       } catch (error) {
