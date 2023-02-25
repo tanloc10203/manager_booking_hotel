@@ -1,6 +1,8 @@
 import {
+  Box,
   Button,
   Container,
+  LinearProgress,
   Pagination,
   Paper,
   Stack,
@@ -18,7 +20,7 @@ import { Link as RouterLink } from "react-router-dom";
 import Page from "~/components/Page";
 
 function LayoutPageWithTable(props) {
-  const { children, dataHead, title, linkToAdd, named } = props;
+  const { children, dataHead, title, linkToAdd, named, loading } = props;
 
   return (
     <Page title={title}>
@@ -46,7 +48,15 @@ function LayoutPageWithTable(props) {
 
           <Pagination sx={{ mt: 3 }} count={10} />
 
-          <TableContainer sx={{ mt: 2 }} component={Paper}>
+          <TableContainer
+            sx={{ mt: 2, position: "relative" }}
+            component={Paper}
+          >
+            {loading && (
+              <Box sx={{ width: "100%", position: "absolute" }}>
+                <LinearProgress />
+              </Box>
+            )}
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
@@ -57,7 +67,7 @@ function LayoutPageWithTable(props) {
                         return <TableCell key={index}>{item}</TableCell>;
 
                       return (
-                        <TableCell align="right" key={index}>
+                        <TableCell align="center" key={index}>
                           {item}
                         </TableCell>
                       );
@@ -79,6 +89,7 @@ LayoutPageWithTable.propTypes = {
   title: PropTypes.node.isRequired,
   linkToAdd: PropTypes.node,
   named: PropTypes.node.isRequired,
+  loading: PropTypes.bool,
 };
 
 export default LayoutPageWithTable;

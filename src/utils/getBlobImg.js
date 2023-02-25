@@ -10,7 +10,10 @@ const getBlobImg = (file) => {
       reader.readAsDataURL(file);
 
       reader.onload = () => {
-        return resolve(objURL);
+        return resolve({
+          url: objURL,
+          id: file.lastModified,
+        });
       };
     } catch (error) {
       reject(error);

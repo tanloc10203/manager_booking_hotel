@@ -1,14 +1,7 @@
-import {
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { MenuItem, TextField } from "@mui/material";
+import PropTypes from "prop-types";
 import { memo, useCallback, useEffect, useState } from "react";
 import { getDistrict, getProvince, getWard } from "~/apis";
-import PropTypes from "prop-types";
 import SelectForm from "./forms/SelectForm";
 
 function Provice({
@@ -38,35 +31,51 @@ function Provice({
     const name = event.target.name;
     const value = event.target.value;
 
-    setFieldValue(name, value);
+    await setFieldValue(name, value);
 
     let nameSelect = "districts";
+    let setName = "provice_name";
+    let resultName = "";
     let results = [];
 
-    if (name === "proviceCode") {
+    if (name === "provice_code") {
+      resultName = state.provices.filter((i) => i.province_id === value)[0]
+        .province_name;
       const dicritcs = await getDistrict(value);
       results = [...dicritcs];
     }
 
-    if (name === "distirctCode") {
+    if (name === "district_code") {
       nameSelect = "wards";
+      setName = "district_name";
+      resultName = state.districts.filter((i) => i.district_id === value)[0]
+        .district_name;
       const wards = await getWard(value);
       results = [...wards];
     }
 
+    if (name === "ward_code") {
+      setName = "ward_name";
+      resultName = state.wards.filter((i) => i.ward_id === value)[0].ward_name;
+    }
+
     if (results.length > 0) {
       setState((pre) => ({ ...pre, [nameSelect]: results }));
+    }
+
+    if (resultName) {
+      await setFieldValue(setName, resultName);
     }
   });
 
   return (
     <>
       <SelectForm
-        value={values.proviceCode}
-        error={Boolean(touched.proviceCode && errors.proviceCode)}
-        helperText={touched.proviceCode && errors.proviceCode}
+        value={values.provice_code}
+        error={Boolean(touched.provice_code && errors.provice_code)}
+        helperText={touched.provice_code && errors.provice_code}
         label="Tỉnh thành"
-        name="proviceCode"
+        name="provice_code"
         onChange={handleChange}
       >
         {state.provices.length > 0 &&
@@ -78,11 +87,11 @@ function Provice({
       </SelectForm>
 
       <SelectForm
-        value={values.distirctCode}
-        error={Boolean(touched.distirctCode && errors.distirctCode)}
-        helperText={touched.distirctCode && errors.distirctCode}
+        value={values.district_code}
+        error={Boolean(touched.district_code && errors.district_code)}
+        helperText={touched.district_code && errors.district_code}
         label="Quận, huyện"
-        name="distirctCode"
+        name="district_code"
         onChange={handleChange}
       >
         {state.districts.length > 0 &&
@@ -94,11 +103,11 @@ function Provice({
       </SelectForm>
 
       <SelectForm
-        value={values.wardCode}
-        error={Boolean(touched.wardCode && errors.wardCode)}
-        helperText={touched.wardCode && errors.wardCode}
+        value={values.ward_code}
+        error={Boolean(touched.ward_code && errors.ward_code)}
+        helperText={touched.ward_code && errors.ward_code}
         label="Xã, phường"
-        name="wardCode"
+        name="ward_code"
         onChange={handleChange}
       >
         {state.wards.length > 0 &&
