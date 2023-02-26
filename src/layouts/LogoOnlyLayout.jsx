@@ -40,9 +40,9 @@ export default function LogoOnlyLayout() {
 
   return (
     <>
-      <HeaderStyle>
+      {/* <HeaderStyle>
         <Logo />
-      </HeaderStyle>
+      </HeaderStyle> */}
       <Outlet />
     </>
   );
