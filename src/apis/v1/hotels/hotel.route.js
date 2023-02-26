@@ -20,6 +20,12 @@ router
   .route("/:id")
   .delete(HotelController.deleteById)
   .get(HotelController.getById)
-  .patch(HotelController.update);
+  .patch(
+    upload.fields([
+      { name: "hotel_image", maxCount: 1 },
+      { name: "h_image_value", maxCount: 50 },
+    ]),
+    HotelController.update
+  );
 
 export default router;

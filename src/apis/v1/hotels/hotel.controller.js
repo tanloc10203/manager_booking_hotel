@@ -148,15 +148,24 @@ class HotelController {
 
   /**
    *
-   * @param {Request} req
-   * @param {Response} res
-   * @param {NextFunction} next
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
    * @returns
    */
   async update(req, res, next) {
+    const id = req.params.id;
+    let data = req.body;
+    const { hotel_image, h_image_value } = req.files;
     try {
-      const id = req.params.id;
-      const data = req.body;
+      data = {
+        ...data,
+        hotel_image: hotel_image || null,
+        h_image_value: h_image_value || null,
+        tag_delete: data?.tag_delete ? JSON.parse(data?.tag_delete) : null,
+        tag_news: data?.tag_news ? JSON.parse(data?.tag_news) : null,
+        img_delete: data?.img_delete ? JSON.parse(data?.img_delete) : null,
+      };
 
       const response = await hotelService.update(id, data);
 
@@ -165,6 +174,13 @@ class HotelController {
         data: response,
       });
     } catch (error) {
+      console.log("error:::", error);
+      Promise.all(
+        hotel_image.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+      );
+      Promise.all(
+        h_image_value.map((h) => cloudinaryV2.uploader.destroy(h.filename))
+      );
       return next(new APIError(500, error.message));
     }
   }

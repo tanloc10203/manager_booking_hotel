@@ -1,6 +1,7 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database/index.js";
 import { APIError } from "../../../utils/index.js";
+import { cloudinaryV2 } from "../../../utils/upload.util.js";
 import hotelImageService from "../hotel-images/hotel-image.service.js";
 import hotelTagService from "../hotel-tags/hotel-tag.service.js";
 
@@ -106,12 +107,46 @@ class HotelService {
   update(id, data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("UPDATE ?? SET ? WHERE ?? = ?", [
+        // return resolve(data);
+
+        let {
+          img_delete,
+          tag_delete,
+          hotel_image,
+          h_image_value,
+          tag_news,
+          ...others
+        } = data;
+
+        /**
+         * Nếu tồn tại hotel_image
+         * Thì xoá ảnh cũ trên cloudinary.
+         * Xong rồi cập nhật lại ảnh mới vào database => table hotels
+         * chỉnh sửa data update
+         * => chỉnh sửa orthers[]
+         */
+
+        if (hotel_image && hotel_image.length > 0) {
+          await cloudinaryV2.uploader.destroy(others.file_name_img);
+
+          const hotelData = {
+            hotel_image: hotel_image[0].path,
+            file_name_img: hotel_image[0].filename,
+          };
+
+          others = {
+            ...others,
+            ...hotelData,
+          };
+        }
+
+        let q = SqlString.format("UPDATE ?? SET ? WHERE ?? = ?", [
           this.table,
-          data,
+          others,
           this.primaryKey,
           id,
         ]);
+
         const [result] = await pool.query(q);
 
         if (result.affectedRows === 0) {
@@ -121,6 +156,67 @@ class HotelService {
               "Cannot update because customer id was not found!"
             )
           );
+        }
+
+        /**
+         * Nếu tồn tại img_delete[] thì
+         * Xoá ảnh trong database => table hotel_images
+         * Xoá ảnh cloudinary.
+         */
+        if (img_delete && img_delete.length > 0) {
+          const imgs_id = [...img_delete].map((i) => i.id);
+
+          await Promise.all(
+            img_delete.map((i) => cloudinaryV2.uploader.destroy(i.file_name))
+          );
+
+          q = SqlString.format(
+            "DELETE FROM `hotel_images` WHERE h_image_id IN (?)",
+            [imgs_id]
+          );
+
+          await pool.query(q);
+        }
+
+        /**
+         * Nếu tồn tại tag_delete[] thì
+         * Xoá tag database => hotel_tags
+         */
+        if (tag_delete && tag_delete.length > 0) {
+          const tags_id = [...tag_delete].map((i) => i.tag_id);
+
+          q = SqlString.format("DELETE FROM `hotel_tags` WHERE tag_id IN (?)", [
+            tags_id,
+          ]);
+
+          await pool.query(q);
+        }
+
+        /**
+         * Nếu tồn tại h_image_value[] thì
+         * Đây là mảng được thêm vào.
+         * Trường h_image_value cũng được thêm vào khi tạo hotels
+         * Thêm mới ảnh vào database => table hotel_images.
+         * tạo ra 1 mảng listImgs[] = [ {'hotel_id', 'h_image_value', 'file_name'} ]
+         */
+        if (h_image_value && h_image_value.length > 0) {
+          const listImgs = h_image_value.map((img) => [
+            id,
+            img.path,
+            img.filename,
+          ]);
+
+          await hotelImageService.create(listImgs);
+        }
+
+        /**
+         * Nếu tồn tại tag_news thì
+         * Thêm mới tag vào database => table hotel_tags.
+         */
+        if (tag_news && tag_news.length > 0) {
+          const listTags = tag_news.map((tag) => [id, "tag", tag.title]);
+
+          await hotelTagService.create(listTags);
         }
 
         resolve(await this.getById(id));
@@ -193,12 +289,34 @@ class HotelService {
   deleteById(id) {
     return new Promise(async (resolve, reject) => {
       try {
+        /**
+         * - Trước khi xoá hotel thì phải select by id
+         * - Để có thể lấy danh sách ảnh của hotel này
+         * và để xoá ảnh trên cloudinary.
+         * - Vì để xoá được ảnh trên cloudinary thì
+         * bắt buộc phải có filename.
+         */
+        const response = await this.getById(id);
+
+        await Promise.all(
+          response.images.map((i) => cloudinaryV2.uploader.destroy(i.file_name))
+        );
+
+        /**
+         * Sau đó mình sẽ xoá ảnh tiêu đề của khách sạn
+         * trên cloudinary.
+         */
+
+        await cloudinaryV2.uploader.destroy(response.file_name_img);
+
         const q = SqlString.format("DELETE FROM ?? WHERE ??=?", [
           this.table,
           this.primaryKey,
           id,
         ]);
+
         const [result] = await pool.query(q);
+
         resolve(result);
       } catch (error) {
         reject(error);

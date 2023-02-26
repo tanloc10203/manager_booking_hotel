@@ -7,6 +7,11 @@ class HotelImageService {
   primaryKey = "h_image_id";
   select = ["h_image_id", "h_image_value", "hotel_name"];
 
+  /**
+   *
+   * @param {[{ hotel_id: number, h_image_value: string, file_name: string  }]} data
+   * @returns
+   */
   create(data = []) {
     return new Promise(async (resolve, reject) => {
       try {
