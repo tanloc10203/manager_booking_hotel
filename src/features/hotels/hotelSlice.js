@@ -46,6 +46,24 @@ const hotelSlice = createSlice({
         ...payload.paginations,
       };
     },
+
+    // * UPDATE HOTELE.
+    updateStart: (state, actions) => {
+      state.isLoading = true;
+    },
+    updateSucceed: (state) => {
+      toast.success("Cập nhật khách sạn thành công.");
+      state.isLoading = false;
+    },
+
+    // * DELETE HOTELE.
+    deleteStart: (state, actions) => {
+      state.isLoading = true;
+    },
+    deleteSucceed: (state) => {
+      toast.success("Xoá khách sạn thành công.");
+      state.isLoading = false;
+    },
   },
 });
 

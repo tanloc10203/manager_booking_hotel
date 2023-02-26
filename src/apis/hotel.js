@@ -33,6 +33,39 @@ const hotelAPI = {
   getById: (id) => {
     return instance.get(`${host}/${id}`);
   },
+
+  update: ({ id, data }) => {
+    const formData = new FormData();
+
+    Object.keys(data).forEach((key) => {
+      if (
+        (Array.isArray(data[key]) && key === "hotel_image") ||
+        (Array.isArray(data[key]) && key === "h_image_value")
+      ) {
+        data[key].map((newData) => {
+          formData.append(key, newData);
+        });
+      } else if (
+        key === "img_delete" ||
+        key === "tag_delete" ||
+        key === "tag_news"
+      ) {
+        formData.append(key, JSON.stringify(data[key]));
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
+
+    return instance.patch(`${host}/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  deleteById: (id) => {
+    return instance.delete(`${host}/${id}`);
+  },
 };
 
 export default hotelAPI;

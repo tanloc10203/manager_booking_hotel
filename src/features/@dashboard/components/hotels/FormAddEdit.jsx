@@ -18,6 +18,7 @@ import { styled } from "@mui/material/styles";
 import { Form, FormikProvider, useFormik } from "formik";
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 import { getBlobImg, getSlug } from "~/utils";
 import OverviewImg from "../OverviewImg";
@@ -56,6 +57,7 @@ function FormAddEdit(props) {
         id: img.h_image_id,
         hotel_id: img.hotel_id,
         url: img.h_image_value,
+        file_name: img.file_name,
       }));
 
       setImgsBlob(newImagesBlob);
@@ -91,10 +93,22 @@ function FormAddEdit(props) {
       };
 
       if (initialValues?.hotel_id) {
+        const { tags, images, ...others } = newValues;
+
+        if (!imgsBlob.length || !tags.length)
+          return toast.error("Vui lòng điền và chọn ảnh và tags.");
+
+        // if(img)
+
+        const tagsNews = tags.filter((t) => !t?.tag_id);
+
         newValues = {
-          ...newValues,
-          imgsDelete,
-          tagDelete,
+          ...others,
+          img_delete: imgsDelete.length ? imgsDelete : null,
+          tag_delete: tagDelete.length ? tagDelete : null,
+          hotel_image: file.length ? file : null,
+          h_image_value: files.length ? files : null,
+          tag_news: tagsNews.length ? tagsNews : null,
         };
       }
 
@@ -178,12 +192,14 @@ function FormAddEdit(props) {
 
   const handleChangeTag = useCallback(
     (event, value, reason) => {
-      if (initialValues?.hotel_id) {
+      if (value && value.length && value[value.length - 1].tag_id) {
         const deleted = tags.filter((i) => [...value].indexOf(i) === -1);
         setTagDelete((pre) => [...pre, ...deleted]);
+      } else if (initialValues.hotel_id && !value.length) {
+        setTagDelete((pre) => [...pre, ...initialValues.tags]);
       }
 
-      setTags((prev) => [...value]);
+      setTags(value);
     },
     [tags, initialValues]
   );
@@ -372,7 +388,7 @@ function FormAddEdit(props) {
                   fullWidth
                   variant="contained"
                 >
-                  Tạo
+                  {initialValues.hotel_id ? "Lưu thay đổi" : "Tạo khách sạn"}
                 </LoadingButton>
               </CardContent>
             </Card>

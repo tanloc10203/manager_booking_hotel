@@ -56,13 +56,20 @@ function HotelAddEdit(props) {
   const handleSubmit = (values) => {
     if (!values) return;
 
+    Object.keys(values).map(
+      (key) => values[key] === null && delete values[key]
+    );
+
     return new Promise((resolve, reject) => {
       try {
-        // dispatch(appActions.setOpenOverlay(true));
+        dispatch(appActions.setOpenOverlay(true));
 
         setTimeout(() => {
-          // dispatch(hotelActions.createStart(values));
-          console.log(values);
+          if (isAddMode) {
+            dispatch(hotelActions.createStart(values));
+          } else {
+            dispatch(hotelActions.updateStart({ id: hotelId, data: values }));
+          }
           resolve(true);
         }, 1500);
       } catch (error) {
