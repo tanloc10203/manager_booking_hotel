@@ -14,6 +14,13 @@ const config = {
       manageAdmin: "ADMIN",
     },
   },
+  user: {
+    role: {
+      ADMIN: "ADMIN",
+      USER: "USER",
+      HOTEL: "HOTEL",
+    },
+  },
 };
 
 export default config;

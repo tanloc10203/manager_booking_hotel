@@ -11,11 +11,10 @@ function* fetchSignUp({ payload }) {
   try {
     const response = yield call(authAPI.signUp, payload);
 
-    if (response.data) {
+    if (response) {
       yield put(authActions.signUpSucceed());
-
-      // history.push("/sign-in");
       yield put(appActions.setOpenOverlay(false));
+      history.push("/sign-in");
     }
   } catch (error) {
     yield put(appActions.setOpenOverlay(false));
@@ -71,7 +70,7 @@ function* getCurrentUser({ payload }) {
 
     if (response) {
       if (payload.location && payload.location === config.app.key.manageAdmin) {
-        if (!response.data.is_admin) {
+        if (response.data.role !== config.user.role.ADMIN) {
           return history.push("/");
         }
       }

@@ -4,18 +4,7 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import HotTubIcon from "@mui/icons-material/HotTub";
 import LocalTaxiIcon from "@mui/icons-material/LocalTaxi";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  Tab,
-  Tabs,
-  Toolbar,
-  Typography,
-  tabsClasses,
-} from "@mui/material";
-import DatePicker from "../date-picker/DatePicker";
+import { Box, Container, Tab, Tabs, tabsClasses, Toolbar } from "@mui/material";
 
 function Header(props) {
   const tabs = [
@@ -54,17 +43,6 @@ function Header(props) {
             ))}
           </Tabs>
         </Toolbar>
-
-        <Toolbar sx={{ color: "#fff", p: 8 }}>
-          <Stack spacing={1}>
-            <Typography variant="h2">Tìm chỗ nghỉ tiếp theo</Typography>
-            <Typography variant="h4" fontWeight={500}>
-              Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà và nhiều hơn nữa...
-            </Typography>
-          </Stack>
-        </Toolbar>
-
-        <DatePicker />
       </Container>
     </Box>
   );

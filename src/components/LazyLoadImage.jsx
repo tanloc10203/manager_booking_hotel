@@ -24,10 +24,17 @@ const BoxStyle = styled(Box)(({ theme }) => ({
   background: "rgba(0,0,0,0.2)",
   width: "100%",
   height: "100%",
+  textDecoration: "none",
+  color: "inherit",
+
+  "&.active": {
+    background: "unset",
+  },
 }));
 
-function LazyLoadImage({ src, alt, sx, ...others }) {
+function LazyLoadImage({ src, alt, component, sx, children, ...others }) {
   const imgRef = useRef();
+  const boxRef = useRef();
 
   useEffect(() => {
     const img = imgRef.current;
@@ -36,6 +43,8 @@ function LazyLoadImage({ src, alt, sx, ...others }) {
       if (entries[0].isIntersecting) {
         img && img.setAttribute("src", src);
         img && img.classList.add("active");
+        img && img.classList.add("active");
+        img && boxRef.current.classList.add("active");
       }
     });
 
@@ -49,14 +58,25 @@ function LazyLoadImage({ src, alt, sx, ...others }) {
   }, [src]);
 
   return (
-    <BoxStyle sx={sx}>
+    <BoxStyle component={component} ref={boxRef} sx={sx} {...others}>
       <ImageStyle sx={sx} ref={imgRef} alt={alt} {...others} />
+
+      {children}
     </BoxStyle>
   );
 }
 
 LazyLoadImage.propTypes = {
   alt: PropTypes.string,
+  component: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.string,
+    PropTypes.any,
+  ]),
+};
+
+LazyLoadImage.defaultProps = {
+  component: "div",
 };
 
 export default LazyLoadImage;

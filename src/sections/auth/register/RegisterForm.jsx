@@ -45,7 +45,7 @@ export default function RegisterForm() {
 
   const formik = useFormik({
     initialValues: {
-      firstName: "hehehhe",
+      firstName: "",
       lastName: "",
       email: "",
       password: "",

@@ -79,7 +79,7 @@ function Hotel() {
                 <LazyLoadImage
                   alt=""
                   src={row.hotel_image}
-                  sx={{ width: 100 }}
+                  sx={{ width: 150, height: 100, borderRadius: "2px" }}
                 />
               </TableCell>
               <TableCell align="right">{row.hotel_name}</TableCell>
