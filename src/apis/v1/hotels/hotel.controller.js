@@ -2,6 +2,7 @@ import { APIError } from "../../../utils/index.js";
 import hotelService from "./hotel.service.js";
 import _ from "lodash";
 import { cloudinaryV2 } from "../../../utils/upload.util.js";
+import createUUID from "../../../utils/genaralUuid.js";
 
 class HotelController {
   /**
@@ -43,6 +44,7 @@ class HotelController {
         tags: JSON.parse(body.tags),
         hotel_image,
         h_image_value,
+        hotel_id: createUUID(),
       });
 
       return res.status(201).json({

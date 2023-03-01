@@ -15,6 +15,13 @@ import EmailService from "../emails/email.service.js";
 import { userService } from "../users/index.js";
 import axios from "axios";
 import qs from "qs";
+import createUUID from "../../../utils/genaralUuid.js";
+
+const roles = {
+  ADMIN: "ADMIN",
+  USER: "USER",
+  HOTEL: "HOTEL",
+};
 
 class AuthService {
   signIn({ username, password }) {
@@ -35,7 +42,7 @@ class AuthService {
         const {
           password: passwordHash,
           user_id,
-          is_admin,
+          role,
           ...others
         } = { ...result[0] };
 
@@ -58,7 +65,11 @@ class AuthService {
         const refreshToken = await this.handleRefreshToken(user_id);
 
         // resovle accessToken and refreshToken to authController
-        return resovle({ accessToken, refreshToken, isHome: !is_admin });
+        return resovle({
+          accessToken,
+          refreshToken,
+          isHome: role !== roles.ADMIN,
+        });
       } catch (error) {
         reject(error);
       }
@@ -270,6 +281,7 @@ class AuthService {
           sql = SqlString.format("INSERT INTO ?? SET ?", [
             "users",
             {
+              user_id: createUUID(),
               email: user.email,
               first_name: user.family_name,
               last_name: user.given_name,

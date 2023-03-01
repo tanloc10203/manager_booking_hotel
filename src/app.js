@@ -1,14 +1,14 @@
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import initRouteApi from "./router/index.js";
-import { APIError } from "./utils/index.js";
-import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import cookieParser from "cookie-parser";
-import cors from "cors";
 import config from "./config/index.js";
+import initRouteApi from "./router/index.js";
+import { APIError } from "./utils/index.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +40,7 @@ app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
   return res.status(statusCode).json({
+    status: "ERROR",
     message,
   });
 });

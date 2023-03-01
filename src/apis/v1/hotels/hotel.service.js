@@ -1,5 +1,6 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database/index.js";
+import createUUID from "../../../utils/genaralUuid.js";
 import { APIError } from "../../../utils/index.js";
 import { cloudinaryV2 } from "../../../utils/upload.util.js";
 import hotelImageService from "../hotel-images/hotel-image.service.js";
@@ -37,7 +38,7 @@ class HotelService {
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
+        const id = others.hotel_id;
 
         /**
          * Sau khi tao thanh cong khách sạn thì tạo danh sách ảnh.
@@ -45,6 +46,7 @@ class HotelService {
          */
 
         const listImgs = h_image_value.map((img) => [
+          createUUID(),
           id,
           img.path,
           img.filename,
@@ -55,7 +57,12 @@ class HotelService {
         /**
          * Tiếp tục thêm vào bảng hotel_tags
          */
-        const listTags = tags.map((tag) => [id, "tag", tag.title]);
+        const listTags = tags.map((tag) => [
+          createUUID(),
+          id,
+          "tag",
+          tag.title,
+        ]);
 
         await hotelTagService.create(listTags);
 

@@ -13,7 +13,7 @@ class HotelImageService {
         const sql =
           "INSERT INTO `" +
           this.table +
-          "` (hotel_id, tag_key, tag_value) VALUES ?";
+          "` (tag_id, hotel_id, tag_key, tag_value) VALUES ?";
 
         const [result] = await pool.query(sql, [data]);
 

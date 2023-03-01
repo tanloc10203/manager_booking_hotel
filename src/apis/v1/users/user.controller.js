@@ -1,5 +1,6 @@
 import { APIError } from "../../../utils/index.js";
 import userService from "./user.service.js";
+import createUUID from "../../../utils/genaralUuid.js";
 
 class UserController {
   async create(req, res, next) {
@@ -22,7 +23,10 @@ class UserController {
         );
       }
 
-      const response = await userService.create({ ...body });
+      const response = await userService.create({
+        ...body,
+        user_id: createUUID(),
+      });
 
       return res.status(201).json({
         message: "Create success.",

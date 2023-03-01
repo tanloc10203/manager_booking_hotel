@@ -14,8 +14,8 @@ class UserService {
     "phone",
     "identity_card",
     "year_of_brith",
+    "role",
     "address",
-    "is_admin",
   ];
 
   create(data = {}) {
@@ -46,9 +46,7 @@ class UserService {
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
-
-        resolve(await this.getById(id));
+        resolve(await this.getById(data.user_id));
       } catch (error) {
         reject(error);
       }
