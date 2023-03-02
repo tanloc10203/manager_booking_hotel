@@ -16,6 +16,8 @@ router
   .delete(HotelController.delete)
   .get(HotelController.getAll);
 
+router.route("/options").get(HotelController.getOptions);
+
 router
   .route("/:id")
   .delete(HotelController.deleteById)

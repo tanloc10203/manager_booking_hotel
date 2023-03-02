@@ -9,25 +9,22 @@ class FloorService {
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        let sql = SqlString.format("SELECT ?? FROM ?? WHERE floor_name = ?", [
-          this.primaryKey,
-          this.table,
-          data.floor_name,
-        ]);
+        let sql = SqlString.format(
+          "SELECT ?? FROM ?? WHERE floor_name = ? AND hotel_id=?",
+          [this.primaryKey, this.table, data.floor_name, data.hotel_id]
+        );
 
         const [find] = await pool.query(sql);
 
         if (find?.length > 0) {
-          return reject(new APIError(400, "Floor name was exist!"));
+          return reject(new APIError(400, "Floor name was exist in Hotel!"));
         }
 
         sql = SqlString.format("INSERT INTO ?? SET ?", [this.table, data]);
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
-
-        resolve(await this.getById(id));
+        resolve(await this.getById(data.floor_id));
       } catch (error) {
         reject(error);
       }
@@ -37,11 +34,10 @@ class FloorService {
   getById(id) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
-          this.table,
-          this.primaryKey,
-          id,
-        ]);
+        const q = SqlString.format(
+          "SELECT f.*, hotel_name FROM `floors` f JOIN hotels h ON f.hotel_id = h.hotel_id WHERE ??=?",
+          [this.primaryKey, id]
+        );
         const [result] = await pool.query(q);
         resolve(result[0]);
       } catch (error) {
@@ -86,11 +82,10 @@ class FloorService {
         const search = filters?.search;
         const order = filters?.order; // hotel_name,desc
 
-        let q = SqlString.format("SELECT * FROM ?? LIMIT ? OFFSET ?", [
-          this.table,
-          limit,
-          offset,
-        ]);
+        let q = SqlString.format(
+          "SELECT f.*, hotel_name FROM `floors` f JOIN hotels h ON f.hotel_id = h.hotel_id LIMIT ? OFFSET ?",
+          [limit, offset]
+        );
 
         let qTotalRow = SqlString.format(
           "SELECT count(*) as totalRow FROM ??",
@@ -99,24 +94,26 @@ class FloorService {
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT * FROM ?? WHERE hotel_name LIKE ? LIMIT ? OFFSET ?",
-            [this.table, `%${search}%`, limit, offset]
+            "SELECT f.*, hotel_name FROM `floors` f JOIN hotels h ON f.hotel_id = h.hotel_id WHERE floor_name LIKE ? LIMIT ? OFFSET ?",
+            [`%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
-            "SELECT * FROM ?? ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
-            [this.table, limit, offset]
+            "SELECT f.*, hotel_name FROM `floors` f JOIN hotels h ON f.hotel_id = h.hotel_id ORDER BY " +
+              orderBy +
+              " LIMIT ? OFFSET ?",
+            [limit, offset]
           );
         } else if (search && order) {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT * FROM ?? WHERE hotel_name LIKE ? ORDER BY " +
+            "SELECT f.*, hotel_name FROM `floors` f JOIN hotels h ON f.hotel_id = h.hotel_id WHERE floor_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
-            [this.table, `%${search}%`, limit, offset]
+            [`%${search}%`, limit, offset]
           );
         }
 

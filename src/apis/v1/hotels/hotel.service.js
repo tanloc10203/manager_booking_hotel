@@ -342,6 +342,22 @@ class HotelService {
       }
     });
   }
+
+  getOptions() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let q = SqlString.format("SELECT hotel_name, hotel_id FROM ??", [
+          this.table,
+        ]);
+
+        const [result] = await pool.query(q);
+
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }
 
 export default new HotelService();

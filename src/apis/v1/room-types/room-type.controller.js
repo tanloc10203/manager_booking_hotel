@@ -1,5 +1,6 @@
 import { APIError } from "../../../utils/index.js";
 import roomTypeService from "./room-type.service.js";
+import createUUID from "../../../utils/genaralUuid.js";
 
 class RoomTypeController {
   async create(req, res, next) {
@@ -12,6 +13,7 @@ class RoomTypeController {
 
       const response = await roomTypeService.create({
         ...body,
+        rt_id: createUUID(),
       });
 
       return res.status(201).json({

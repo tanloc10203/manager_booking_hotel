@@ -1,3 +1,4 @@
+import createUUID from "../../../utils/genaralUuid.js";
 import { APIError } from "../../../utils/index.js";
 import floorService from "./floor.service.js";
 
@@ -6,12 +7,15 @@ class HotelController {
     try {
       const body = req.body;
 
-      if (!body.floor_name || !body.floor_type) {
-        return next(new APIError(404, "Missing floor_name or floor_type!"));
+      if (!body.floor_name || !body.floor_type || !body.hotel_id) {
+        return next(
+          new APIError(404, "Missing floor_name or floor_type or hotel_id!")
+        );
       }
 
       const response = await floorService.create({
         ...body,
+        floor_id: createUUID(),
       });
 
       return res.status(201).json({

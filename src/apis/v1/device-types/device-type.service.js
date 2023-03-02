@@ -26,9 +26,7 @@ class DeviceTypeService {
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
-
-        resolve(await this.getById(id));
+        resolve(await this.getById(data.dt_id));
       } catch (error) {
         reject(error);
       }
@@ -88,12 +86,10 @@ class DeviceTypeService {
         const search = filters?.search;
         const order = filters?.order; // hotel_name,desc
 
-        let q = SqlString.format("SELECT ?? FROM ?? LIMIT ? OFFSET ?", [
-          this.select,
-          this.table,
-          limit,
-          offset,
-        ]);
+        let q = SqlString.format(
+          "SELECT d.*, first_name, last_name FROM `device_types` d JOIN users u ON d.user_id = u.user_id LIMIT ? OFFSET ?",
+          [limit, offset]
+        );
 
         let qTotalRow = SqlString.format(
           "SELECT count(*) as totalRow FROM ??",
@@ -102,24 +98,26 @@ class DeviceTypeService {
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT ?? FROM ?? WHERE service_name LIKE ? LIMIT ? OFFSET ?",
-            [this.select, this.table, `%${search}%`, limit, offset]
+            "SELECT d.*, first_name, last_name FROM `device_types` d JOIN users u ON d.user_id = u.user_id WHERE dt_name LIKE ? LIMIT ? OFFSET ?",
+            [`%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
-            [this.select, this.table, limit, offset]
+            "SELECT d.*, first_name, last_name FROM `device_types` d JOIN users u ON d.user_id = u.user_id ORDER BY " +
+              orderBy +
+              " LIMIT ? OFFSET ?",
+            [limit, offset]
           );
         } else if (search && order) {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT ?? FROM ?? WHERE service_name LIKE ? ORDER BY " +
+            "SELECT d.*, first_name, last_name FROM `device_types` d JOIN users u ON d.user_id = u.user_id WHERE dt_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
-            [this.select, this.table, `%${search}%`, limit, offset]
+            [`%${search}%`, limit, offset]
           );
         }
 

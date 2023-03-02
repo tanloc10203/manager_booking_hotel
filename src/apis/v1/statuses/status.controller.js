@@ -1,5 +1,6 @@
 import { APIError } from "../../../utils/index.js";
 import StatusService from "./status.service.js";
+import createUUID from "../../../utils/genaralUuid.js";
 
 class StatusController {
   async create(req, res, next) {
@@ -10,7 +11,10 @@ class StatusController {
         return next(new APIError(404, "Missing type, desc, key, value!"));
       }
 
-      const response = await StatusService.create({ ...body });
+      const response = await StatusService.create({
+        ...body,
+        status_id: createUUID(),
+      });
 
       return res.status(201).json({
         message: "Create status success.",
@@ -38,9 +42,7 @@ class StatusController {
 
   async getAll(req, res, next) {
     try {
-      const id = req.params.id;
-
-      const response = await StatusService.getAll();
+      const response = await StatusService.getAll(req.query);
 
       return res.status(200).json({
         message: "Get all status success.",

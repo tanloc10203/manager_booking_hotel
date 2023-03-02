@@ -24,9 +24,7 @@ class RoomTypeService {
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
-
-        resolve(await this.getById(id));
+        resolve(await this.getById(data.rt_id));
       } catch (error) {
         reject(error);
       }
@@ -98,7 +96,7 @@ class RoomTypeService {
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT * FROM ?? WHERE hotel_name LIKE ? LIMIT ? OFFSET ?",
+            "SELECT * FROM ?? WHERE rt_name LIKE ? LIMIT ? OFFSET ?",
             [this.table, `%${search}%`, limit, offset]
           );
         } else if (order && !search) {
@@ -112,7 +110,7 @@ class RoomTypeService {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT * FROM ?? WHERE hotel_name LIKE ? ORDER BY " +
+            "SELECT * FROM ?? WHERE rt_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
             [this.table, `%${search}%`, limit, offset]

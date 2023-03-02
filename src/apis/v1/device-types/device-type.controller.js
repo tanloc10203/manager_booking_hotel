@@ -1,16 +1,22 @@
 import { APIError } from "../../../utils/index.js";
 import deviceTypeService from "./device-type.service.js";
+import createUUID from "../../../utils/genaralUuid.js";
 
 class DeviceTypeController {
   async create(req, res, next) {
     try {
       const body = req.body;
 
-      if (!body.dt_name || !body.dt_desc) {
-        return next(new APIError(404, "Missing dt_desc or dt_name!"));
+      if (!body.dt_name || !body.dt_desc || !body.user_id) {
+        return next(
+          new APIError(404, "Missing dt_desc or dt_name or user_id!")
+        );
       }
 
-      const response = await deviceTypeService.create(body);
+      const response = await deviceTypeService.create({
+        ...body,
+        dt_id: createUUID(),
+      });
 
       return res.status(201).json({
         message: "Create success.",

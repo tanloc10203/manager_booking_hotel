@@ -6,7 +6,7 @@ class StatusService {
   table = "statuses";
   primaryKey = "status_id";
 
-  create({ type, desc, key, value }) {
+  create({ type, desc, key, value, status_id }) {
     return new Promise(async (resolve, reject) => {
       try {
         let sql = SqlString.format(
@@ -17,19 +17,19 @@ class StatusService {
         const [find] = await pool.query(sql);
 
         if (find?.length > 0) {
-          return reject(new APIError(400, "Key or value was exist!"));
+          return reject(
+            new APIError(400, "Tên hoặc giá trị của trạng thái đã tồn tại!")
+          );
         }
 
         sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { type, desc, key, value },
+          { type, desc, key, value, status_id },
         ]);
 
         const [result] = await pool.query(sql);
 
-        const id = result.insertId;
-
-        resolve(await this.getById(id));
+        resolve(await this.getById(status_id));
       } catch (error) {
         reject(error);
       }
@@ -52,12 +52,61 @@ class StatusService {
     });
   }
 
-  getAll() {
+  getAll(filters) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("SELECT * FROM ??", [this.table]);
+        const page = +filters?.page || 1;
+        const limit = +filters?.limit || 5;
+        const offset = limit * (page - 1);
+        const search = filters?.search;
+        const order = filters?.order; // hotel_name,desc
+
+        let q = SqlString.format("SELECT * FROM `statuses` LIMIT ? OFFSET ?", [
+          limit,
+          offset,
+        ]);
+
+        let qTotalRow = SqlString.format(
+          "SELECT count(*) as totalRow FROM ??",
+          [this.table]
+        );
+
+        if (search && !order) {
+          q = SqlString.format(
+            "SELECT * FROM `statuses` WHERE value LIKE ? LIMIT ? OFFSET ?",
+            [`%${search}%`, limit, offset]
+          );
+        } else if (order && !search) {
+          const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
+
+          q = SqlString.format(
+            "SELECT * FROM `statuses` ORDER BY " +
+              orderBy +
+              " LIMIT ? OFFSET ?",
+            [limit, offset]
+          );
+        } else if (search && order) {
+          const orderBy = order.split(",").join(" ");
+
+          q = SqlString.format(
+            "SELECT * FROM `statuses` WHERE value LIKE ? ORDER BY " +
+              orderBy +
+              " LIMIT ? OFFSET ?",
+            [`%${search}%`, limit, offset]
+          );
+        }
+
         const [result] = await pool.query(q);
-        resolve(result);
+        const [totalRow] = await pool.query(qTotalRow);
+
+        resolve({
+          result,
+          paginations: {
+            page,
+            limit,
+            totalPage: Math.ceil(totalRow[0].totalRow / limit),
+          },
+        });
       } catch (error) {
         reject(error);
       }

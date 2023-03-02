@@ -186,6 +186,24 @@ class HotelController {
       return next(new APIError(500, error.message));
     }
   }
+
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
+  async getOptions(req, res, next) {
+    try {
+      res.json({
+        message: "Get options success.",
+        data: await hotelService.getOptions(),
+      });
+    } catch (error) {
+      return next(new APIError(500, error.message));
+    }
+  }
 }
 
 export default new HotelController();
