@@ -4,21 +4,20 @@ import { toast } from "react-toastify";
 const initialState = {
   isLoading: false,
   data: [],
-  dataOptions: [],
   error: "",
   filters: {
-    page: 1,
-    limit: 10,
+    page: 0,
+    limit: 5,
   },
   paginations: {
     page: 1,
-    limit: 10,
+    limit: 5,
     totalPage: 5,
   },
 };
 
-const hotelSlice = createSlice({
-  name: "hotel",
+const floorSlice = createSlice({
+  name: "floor",
   initialState,
   reducers: {
     // * Create
@@ -26,7 +25,7 @@ const hotelSlice = createSlice({
       state.isLoading = true;
     },
     createSucceed: (state) => {
-      toast.success("Thêm khách sạn thành công.");
+      toast.success("Thêm tầng thành công.");
       state.isLoading = false;
     },
     failed: (state, { payload }) => {
@@ -57,31 +56,42 @@ const hotelSlice = createSlice({
       state.dataOptions = payload;
     },
 
-    // * UPDATE HOTELE.
+    // * UPDATE floorE.
     updateStart: (state, actions) => {
       state.isLoading = true;
     },
     updateSucceed: (state) => {
-      toast.success("Cập nhật khách sạn thành công.");
+      toast.success("Cập nhật tầng thành công.");
       state.isLoading = false;
     },
 
-    // * DELETE HOTELE.
+    // * DELETE floorE.
     deleteStart: (state, actions) => {
       state.isLoading = true;
     },
     deleteSucceed: (state) => {
-      toast.success("Xoá khách sạn thành công.");
+      toast.success("Xoá tầng thành công.");
       state.isLoading = false;
     },
+
+    // * SET FILTER
+    setFilter: (state, { payload }) => {
+      state.filters = {
+        ...state.filters,
+        ...payload,
+      };
+    },
+
+    // * Use debounce search name
+    setDebounceName: (state, actions) => {},
   },
 });
 
-const hotelState = (state) => state.hotel;
+const floorState = (state) => state.floor;
 
-const hotelActions = hotelSlice.actions;
+const floorActions = floorSlice.actions;
 
-const hotelReducer = hotelSlice.reducer;
+const floorReducer = floorSlice.reducer;
 
-export { hotelActions, hotelState };
-export default hotelReducer;
+export { floorActions, floorState };
+export default floorReducer;

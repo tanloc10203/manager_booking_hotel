@@ -5,44 +5,61 @@ import _ from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
-import LazyLoadImage from "~/components/LazyLoadImage";
-import TextTrucate from "~/components/TextTrucate";
 import { appActions } from "~/features/app/appSlice";
-import { hotelActions, hotelState } from "~/features/hotels/hotelSlice";
+import {
+  roomTypeActions,
+  roomTypeState,
+} from "~/features/room-types/roomTypeSlice";
 import { PageLayoutWithTable } from "../../components";
 import DialogConfirm from "../../components/DialogConfim";
 
-function Hotel() {
-  const { paginations, filters, data, isLoading } = useSelector(hotelState);
-  const dispatch = useDispatch();
+function RoomType(props) {
+  const { paginations, filters, data, isLoading } = useSelector(roomTypeState);
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
   const [selectedDelete, setSelectedDelete] = useState({});
 
-  useEffect(() => {
-    dispatch(hotelActions.getAllStart({ ...filters }));
-  }, [filters]);
-
   const dataHead = [
-    "Mã khách sạn",
-    "Tên khách sạn",
-    "Địa chỉ",
-    "Đánh giá",
-    "Giới thiệu",
+    "Mã loại phòng",
+    "Tên loại phòng",
+    "Kí hiệu",
+    "Mô tả",
     "Hành động",
   ];
 
-  const handleOpenDialogConfirm = useCallback((hotel) => {
-    setSelectedDelete(hotel);
+  useEffect(() => {
+    dispatch(roomTypeActions.getAllStart({ ...filters, order: "rt_name" }));
+  }, [filters]);
+
+  const handleOpenDialogConfirm = useCallback((roomType) => {
+    setSelectedDelete(roomType);
     setOpen(true);
   }, []);
 
-  const handleDeleteHotel = useCallback((hotel) => {
-    if (!hotel) return;
+  const handleDeleteFloor = useCallback((roomType) => {
+    if (!roomType) return;
     dispatch(appActions.setOpenOverlay(true));
-    dispatch(hotelActions.deleteStart(hotel.hotel_id));
+    dispatch(roomTypeActions.deleteStart(roomType.rt_id));
     setSelectedDelete({});
     setOpen(false);
   }, []);
+
+  const handleOnPageChange = useCallback(
+    (page) => {
+      dispatch(roomTypeActions.setFilter({ ...filters, page }));
+    },
+    [filters]
+  );
+
+  const handleSearchNameFloor = (value) => {
+    dispatch(
+      roomTypeActions.setDebounceName({
+        ...filters,
+        search: value,
+        page: 1,
+      })
+    );
+  };
 
   return (
     <>
@@ -50,17 +67,21 @@ function Hotel() {
         <DialogConfirm
           open={open}
           data={selectedDelete}
-          name={selectedDelete.hotel_name}
+          name={selectedDelete.floor_name}
           onClose={() => setOpen(false)}
-          onConfirm={handleDeleteHotel}
+          onConfirm={handleDeleteFloor}
         />
       )}
+
       <PageLayoutWithTable
         dataHead={dataHead}
-        title="Quản lý khách sạn"
-        named="Khách sạn"
-        linkToAdd="/manager/hotel/add"
+        title="Quản lý loại phòng"
+        named="Loại phòng"
+        linkToAdd="/manager/room-type/add"
         loading={isLoading}
+        pagination={paginations}
+        onPageChange={handleOnPageChange}
+        onInputSearchChange={handleSearchNameFloor}
       >
         {data && data.length ? (
           data.map((row, index) => (
@@ -69,31 +90,25 @@ function Hotel() {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                <LazyLoadImage
-                  alt=""
-                  src={row.hotel_image}
-                  sx={{ width: 150, height: 100, borderRadius: "2px" }}
-                />
+                {row.rt_id}
               </TableCell>
-              <TableCell align="right">{row.hotel_name}</TableCell>
-              <TableCell align="right">{row.provice_name}</TableCell>
-              <TableCell align="center">{row.hotel_rating}</TableCell>
-              <TableCell align="right">
-                <TextTrucate text={row.hotel_desc} width={300} />
-              </TableCell>
+              <TableCell align="right">{row.rt_name}</TableCell>
+              <TableCell align="right">{row.rt_type}</TableCell>
+              <TableCell align="center">{row.rt_desc}</TableCell>
               <TableCell align="right">
                 <Button
-                  size="small"
                   component={RouterLink}
-                  to={`/manager/hotel/update/${row.hotel_id}`}
+                  sx={{ mr: 1 }}
+                  to={`/manager/room-type/update/${row.rt_id}`}
+                  size="small"
                 >
                   <EditIcon />
                 </Button>
                 <Button
-                  size="small"
                   component={RouterLink}
                   to="#"
                   color="error"
+                  size="small"
                   onClick={() => handleOpenDialogConfirm(row)}
                 >
                   <DeleteIcon />
@@ -103,7 +118,7 @@ function Hotel() {
           ))
         ) : (
           <TableRow>
-            <TableCell>Đang tải ...</TableCell>
+            <TableCell>Không có dữ liệu!</TableCell>
           </TableRow>
         )}
       </PageLayoutWithTable>
@@ -111,4 +126,6 @@ function Hotel() {
   );
 }
 
-export default Hotel;
+RoomType.propTypes = {};
+
+export default RoomType;

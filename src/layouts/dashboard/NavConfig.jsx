@@ -12,24 +12,49 @@ const navConfig = [
     icon: getIcon("eva:pie-chart-2-fill"),
   },
   {
-    title: "user",
+    title: "Quản lý trạng thái",
+    path: "/manager/status",
+    icon: getIcon("material-symbols:detector-status"),
+  },
+  {
+    title: "Quản lý người dùng",
     path: "/manager/user",
     icon: getIcon("eva:people-fill"),
   },
   {
-    title: "product",
-    path: "/manager/products",
-    icon: getIcon("eva:shopping-bag-fill"),
-  },
-  {
-    title: "blog",
-    path: "/manager/blog",
-    icon: getIcon("eva:file-text-fill"),
+    title: "Quản lý đặt phòng",
+    path: "/manager/booking",
+    icon: getIcon("tabler:brand-booking"),
   },
   {
     title: "Quản lý khách sạn",
     path: "/manager/hotel",
     icon: getIcon("carbon:manage-protection"),
+  },
+  {
+    title: "Quản lý tầng",
+    path: "/manager/floor",
+    icon: getIcon("material-symbols:floor"),
+  },
+  {
+    title: "Quản lý thiết bị",
+    path: "/manager/device",
+    icon: getIcon("material-symbols:device-hub"),
+  },
+  {
+    title: "Quản lý loại phòng",
+    path: "/manager/room-type",
+    icon: getIcon("ic:round-room-preferences"),
+  },
+  {
+    title: "Quản lý phòng",
+    path: "/manager/room",
+    icon: getIcon("material-symbols:auto-meeting-room"),
+  },
+  {
+    title: "Quản lý doanh nghiệp",
+    path: "/manager/concern",
+    icon: getIcon("icon-park-outline:concern"),
   },
 ];
 

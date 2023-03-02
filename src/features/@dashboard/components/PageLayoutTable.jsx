@@ -16,11 +16,38 @@ import {
   Typography,
 } from "@mui/material";
 import PropTypes from "prop-types";
+import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import Page from "~/components/Page";
+import Scrollbar from "~/components/Scrollbar";
 
 function LayoutPageWithTable(props) {
-  const { children, dataHead, title, linkToAdd, named, loading } = props;
+  const {
+    children,
+    dataHead,
+    title,
+    linkToAdd,
+    named,
+    loading,
+    pagination,
+    onPageChange,
+    onInputSearchChange,
+  } = props;
+
+  const [search, setSearch] = useState("");
+
+  const handleOnChange = (event) => {
+    setSearch(event.target.value);
+
+    if (!onInputSearchChange) return;
+
+    onInputSearchChange(event.target.value);
+  };
+
+  const handleChangePage = (event, page) => {
+    if (!onPageChange) return;
+    onPageChange(page);
+  };
 
   return (
     <Page title={title}>
@@ -39,14 +66,26 @@ function LayoutPageWithTable(props) {
               id="standard-basic"
               label={`Tìm kiếm ${named}`}
               variant="standard"
+              value={search}
+              onChange={handleOnChange}
             />
 
-            <Button component={RouterLink} to={linkToAdd} variant="outlined">
+            <Button
+              component={RouterLink}
+              to={linkToAdd}
+              variant="outlined"
+              size="small"
+            >
               {`Thêm ${named}`}
             </Button>
           </Stack>
 
-          <Pagination sx={{ mt: 3 }} count={10} />
+          <Pagination
+            sx={{ mt: 3 }}
+            count={pagination?.totalPage || 10}
+            page={pagination?.page || 1}
+            onChange={handleChangePage}
+          />
 
           <TableContainer
             sx={{ mt: 2, position: "relative" }}
@@ -90,6 +129,9 @@ LayoutPageWithTable.propTypes = {
   linkToAdd: PropTypes.node,
   named: PropTypes.node.isRequired,
   loading: PropTypes.bool,
+  pagination: PropTypes.object,
+  onPageChange: PropTypes.func,
+  onInputSearchChange: PropTypes.func,
 };
 
 export default LayoutPageWithTable;

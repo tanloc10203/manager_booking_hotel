@@ -4,21 +4,20 @@ import { toast } from "react-toastify";
 const initialState = {
   isLoading: false,
   data: [],
-  dataOptions: [],
   error: "",
   filters: {
-    page: 1,
-    limit: 10,
+    page: 0,
+    limit: 5,
   },
   paginations: {
     page: 1,
-    limit: 10,
+    limit: 5,
     totalPage: 5,
   },
 };
 
-const hotelSlice = createSlice({
-  name: "hotel",
+const statusSlice = createSlice({
+  name: "status",
   initialState,
   reducers: {
     // * Create
@@ -26,7 +25,7 @@ const hotelSlice = createSlice({
       state.isLoading = true;
     },
     createSucceed: (state) => {
-      toast.success("Thêm khách sạn thành công.");
+      toast.success("Thêm trạng thái thành công.");
       state.isLoading = false;
     },
     failed: (state, { payload }) => {
@@ -57,31 +56,42 @@ const hotelSlice = createSlice({
       state.dataOptions = payload;
     },
 
-    // * UPDATE HOTELE.
+    // * UPDATE statusE.
     updateStart: (state, actions) => {
       state.isLoading = true;
     },
     updateSucceed: (state) => {
-      toast.success("Cập nhật khách sạn thành công.");
+      toast.success("Cập nhật trạng thái thành công.");
       state.isLoading = false;
     },
 
-    // * DELETE HOTELE.
+    // * DELETE statusE.
     deleteStart: (state, actions) => {
       state.isLoading = true;
     },
     deleteSucceed: (state) => {
-      toast.success("Xoá khách sạn thành công.");
+      toast.success("Xoá trạng thái thành công.");
       state.isLoading = false;
     },
+
+    // * SET FILTER
+    setFilter: (state, { payload }) => {
+      state.filters = {
+        ...state.filters,
+        ...payload,
+      };
+    },
+
+    // * Use debounce search name
+    setDebounceName: (state, actions) => {},
   },
 });
 
-const hotelState = (state) => state.hotel;
+const statusState = (state) => state.status;
 
-const hotelActions = hotelSlice.actions;
+const statusActions = statusSlice.actions;
 
-const hotelReducer = hotelSlice.reducer;
+const statusReducer = statusSlice.reducer;
 
-export { hotelActions, hotelState };
-export default hotelReducer;
+export { statusActions, statusState };
+export default statusReducer;

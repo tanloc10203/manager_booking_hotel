@@ -9,13 +9,11 @@ import PassLogin from "./components/private-routes/PassLogin";
 
 // ----------------------------------------------------------------------
 
-const Blog = Loadable(lazy(() => import("./pages/Blog")));
 const DashboardApp = Loadable(lazy(() => import("./pages/DashboardApp")));
 const Login = Loadable(
   lazy(() => import("./features/authentication/pages/Login"))
 );
 const NotFound = Loadable(lazy(() => import("./pages/Page404")));
-const Products = Loadable(lazy(() => import("./pages/Products")));
 const Register = Loadable(
   lazy(() => import("./features/authentication/pages/Register"))
 );
@@ -25,12 +23,62 @@ const ChangePwd = Loadable(
 const User = Loadable(lazy(() => import("./pages/User")));
 const Home = Loadable(lazy(() => import("./pages/Home")));
 
-// Hotels
+// Manager hotel
 const HotelManagePage = Loadable(
   lazy(() => import("./features/@dashboard/pages/hotels/Hotel"))
 );
 const HotelAddEdit = Loadable(
   lazy(() => import("./features/@dashboard/pages/hotels/HotelAddEdit"))
+);
+
+// Manager floor
+const FloorManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/floors/Floor"))
+);
+
+const FloorAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/floors/FloorAddEdit"))
+);
+
+// Manager device
+const DeviceManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/devices/Device"))
+);
+
+const DeviceAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/devices/DeviceAddEdit"))
+);
+
+// Manager room
+const RoomManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/rooms/Room"))
+);
+
+const RoomTypeManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/rooms/RoomType"))
+);
+
+const RoomTypeAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/rooms/RoomTypeAddEdit"))
+);
+
+// Manager concern
+const ConcernManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/concerns/Concern"))
+);
+
+// Manage booking
+const BookingManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/booking/Booking"))
+);
+
+// Manage Status
+const StatusManagePage = Loadable(
+  lazy(() => import("./features/@dashboard/pages/status/Status"))
+);
+
+const StatusAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/status/StatusAddEdit"))
 );
 
 export default function Router() {
@@ -45,8 +93,6 @@ export default function Router() {
       children: [
         { path: "app", element: <DashboardApp /> },
         { path: "user", element: <User /> },
-        { path: "products", element: <Products /> },
-        { path: "blog", element: <Blog /> },
         {
           path: "hotel",
           element: <HotelManagePage />,
@@ -58,6 +104,66 @@ export default function Router() {
         {
           path: "hotel/update/:hotelId",
           element: <HotelAddEdit />,
+        },
+        {
+          path: "floor",
+          element: <FloorManagePage />,
+        },
+        {
+          path: "floor/add",
+          element: <FloorAddEdit />,
+        },
+        {
+          path: "floor/update/:floorId",
+          element: <FloorAddEdit />,
+        },
+        {
+          path: "device",
+          element: <DeviceManagePage />,
+        },
+        {
+          path: "device/add",
+          element: <DeviceAddEdit />,
+        },
+        {
+          path: "device/update/:deviceId",
+          element: <DeviceAddEdit />,
+        },
+        {
+          path: "room",
+          element: <RoomManagePage />,
+        },
+        {
+          path: "room-type",
+          element: <RoomTypeManagePage />,
+        },
+        {
+          path: "room-type/add",
+          element: <RoomTypeAddEdit />,
+        },
+        {
+          path: "room-type/update/:roomTypeId",
+          element: <RoomTypeAddEdit />,
+        },
+        {
+          path: "status",
+          element: <StatusManagePage />,
+        },
+        {
+          path: "status/add",
+          element: <StatusAddEdit />,
+        },
+        {
+          path: "status/update/:statusId",
+          element: <StatusAddEdit />,
+        },
+        {
+          path: "concern",
+          element: <ConcernManagePage />,
+        },
+        {
+          path: "booking",
+          element: <BookingManagePage />,
         },
       ],
     },

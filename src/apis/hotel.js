@@ -30,6 +30,10 @@ const hotelAPI = {
     return instance.get(host, filters);
   },
 
+  getAllOptions: () => {
+    return instance.get(host + "/options");
+  },
+
   getById: (id) => {
     return instance.get(`${host}/${id}`);
   },

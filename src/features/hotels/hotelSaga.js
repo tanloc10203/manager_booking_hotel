@@ -49,6 +49,27 @@ function* watchFetchGetAll() {
   yield takeLatest(hotelActions.getAllStart.type, fetchgetAll);
 }
 
+// * GET ALL Options
+function* fetchgetAllOptions() {
+  try {
+    const response = yield call(hotelAPI.getAllOptions);
+
+    if (response) {
+      yield put(hotelActions.getAllOptionsSucceed(response.data));
+    }
+  } catch (error) {
+    if (error.response) {
+      yield put(hotelActions.failed(error.response.data.message));
+    } else {
+      yield put(hotelActions.failed(error.message));
+    }
+  }
+}
+
+function* watchFetchGetAllOptions() {
+  yield takeLatest(hotelActions.getAllOptionsStart.type, fetchgetAllOptions);
+}
+
 // * Update
 function* fetchUpdate({ payload }) {
   try {
@@ -103,6 +124,7 @@ function* hotelSaga() {
     watchFetchCreate(),
     watchFetchUpdate(),
     watchFetchDelete(),
+    watchFetchGetAllOptions(),
   ]);
 }
 
