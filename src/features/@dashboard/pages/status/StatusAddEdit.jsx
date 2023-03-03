@@ -7,7 +7,7 @@ import { appActions } from "~/features/app/appSlice";
 import { statusActions } from "~/features/status/statusSlice";
 import { getFieldOfObject, statusAddSchema } from "~/utils";
 import { PageLayoutAddEdit } from "../../components";
-import FormAddEditDevice from "../../components/device/FormAddEditDevice";
+import FormAddEditStatus from "../../components/status/FormAddEditStatus";
 
 function StatusAddEdit(props) {
   const { statusId } = useParams();
@@ -81,7 +81,7 @@ function StatusAddEdit(props) {
       backLink="/manager/device"
     >
       {(isAddMode || (!isAddMode && !_.isEmpty(selected))) && (
-        <FormAddEditDevice
+        <FormAddEditStatus
           onSubmit={handleSubmit}
           initialValues={initialValues}
           schema={statusAddSchema}

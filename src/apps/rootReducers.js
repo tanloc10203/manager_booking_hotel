@@ -6,6 +6,7 @@ import floorReducer from "~/features/floors/floorSlice";
 import hotelReducer from "~/features/hotels/hotelSlice";
 import proviceReducer from "~/features/provices/proviceSlice";
 import roomTypeReducer from "~/features/room-types/roomTypeSlice";
+import roomReducer from "~/features/rooms/roomSlice";
 import statusReducer from "~/features/status/statusSlice";
 
 const rootReducers = combineReducers({
@@ -17,6 +18,7 @@ const rootReducers = combineReducers({
   device: deviceReducer,
   roomType: roomTypeReducer,
   status: statusReducer,
+  room: roomReducer,
 });
 
 export default rootReducers;

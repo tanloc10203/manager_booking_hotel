@@ -1,19 +1,16 @@
 import instance from "./axios";
-import FormData from "form-data";
 
-const host = "/hotels";
+const host = "/rooms";
 
-const hotelAPI = {
+const roomAPI = {
   create: (data) => {
     const formData = new FormData();
 
     Object.keys(data).forEach((key) => {
-      if (Array.isArray(data[key]) && key !== "tags") {
+      if (Array.isArray(data[key])) {
         data[key].map((newData) => {
           formData.append(key, newData);
         });
-      } else if (key === "tags") {
-        formData.append(key, JSON.stringify(data[key]));
       } else {
         formData.append(key, data[key]);
       }
@@ -25,37 +22,23 @@ const hotelAPI = {
       },
     });
   },
-
   getAll: (filters) => {
     return instance.get(host, {
       params: { ...filters },
     });
   },
-
-  getAllOptions: () => {
-    return instance.get(host + "/options");
-  },
-
-  getById: (id) => {
-    return instance.get(`${host}/${id}`);
-  },
-
   update: ({ id, data }) => {
     const formData = new FormData();
 
     Object.keys(data).forEach((key) => {
       if (
-        (Array.isArray(data[key]) && key === "hotel_image") ||
-        (Array.isArray(data[key]) && key === "h_image_value")
+        (Array.isArray(data[key]) && key === "room_thumb") ||
+        (Array.isArray(data[key]) && key === "r_image_value")
       ) {
         data[key].map((newData) => {
           formData.append(key, newData);
         });
-      } else if (
-        key === "img_delete" ||
-        key === "tag_delete" ||
-        key === "tag_news"
-      ) {
+      } else if (key === "img_delete") {
         formData.append(key, JSON.stringify(data[key]));
       } else {
         formData.append(key, data[key]);
@@ -68,10 +51,12 @@ const hotelAPI = {
       },
     });
   },
-
-  deleteById: (id) => {
+  delete: (id) => {
     return instance.delete(`${host}/${id}`);
+  },
+  getById: (id) => {
+    return instance.get(`${host}/${id}`);
   },
 };
 
-export default hotelAPI;
+export default roomAPI;

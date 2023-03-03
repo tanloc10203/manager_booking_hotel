@@ -59,3 +59,32 @@ export const statusAddSchema = Yup.object().shape({
     .max(20, "Nhiều nhất 20 kí tự!")
     .required("Vui lòng không bỏ trống!"),
 });
+
+export const roomAddSchema = Yup.object().shape({
+  room_name: Yup.string()
+    .min(2, "Ít nhất 2 kí tự!")
+    .max(50, "Nhiều nhất 50 kí tự!")
+    .required("Vui lòng không bỏ trống!"),
+  room_desc: Yup.string().required("Vui lòng không bỏ trống!"),
+  max_people: Yup.number()
+    .min(1, "Ít nhất 1 người!")
+    .max(6, "Nhiều nhất 6 người!")
+    .required("Vui lòng không bỏ trống!"),
+  hotel_id: Yup.string().required("Vui lòng không bỏ trống!"),
+  floor_id: Yup.string().required("Vui lòng không bỏ trống!"),
+  rt_id: Yup.string().required("Vui lòng không bỏ trống!"),
+  status_id: Yup.string().required("Vui lòng không bỏ trống!"),
+  price: Yup.number()
+    .min(200000, "Giá thấp nhất là 200,000 vnđ")
+    .required("Vui lòng nhập giá"),
+  discount: Yup.boolean(),
+  percent_discount: Yup.number().when("discount", {
+    is: true,
+    then: (schema) =>
+      schema
+        .min(0.1, "Ít nhất 0,1 phầm trăm")
+        .max(100, "Nhiều nhất 100% phần trắm")
+        .required("Vui lòng nhập phần trăm giảm giá"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+});

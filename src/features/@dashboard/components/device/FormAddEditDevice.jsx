@@ -22,6 +22,8 @@ function FormAddEditDevice(props) {
     },
   });
 
+  console.log(initialValues);
+
   const {
     errors,
     touched,
@@ -42,57 +44,25 @@ function FormAddEditDevice(props) {
           <Grid item xs={12} sm={12} md={8}>
             <Card>
               <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={12} md={6}>
-                    <SelectForm
-                      value={values.type}
-                      error={Boolean(touched.type && errors.type)}
-                      helperText={touched.type && errors.type}
-                      label="Loại trạng thái"
-                      name="type"
-                      fullWidth
-                      onChange={handleChange}
-                    >
-                      {types.length > 0 &&
-                        types.map((p, index) => (
-                          <MenuItem value={p.value} key={index}>
-                            {p.label}
-                          </MenuItem>
-                        ))}
-                    </SelectForm>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Mô tả"
-                      {...getFieldProps("desc")}
-                      error={Boolean(touched.desc && errors.desc)}
-                      helperText={touched.desc && errors.desc}
-                      margin="normal"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Key trạng thái"
-                      {...getFieldProps("key")}
-                      error={Boolean(touched.key && errors.key)}
-                      helperText={touched.key && errors.key}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Giá trị trạng thái"
-                      {...getFieldProps("value")}
-                      error={Boolean(touched.value && errors.value)}
-                      helperText={touched.value && errors.value}
-                    />
-                  </Grid>
-                </Grid>
+                <TextField
+                  fullWidth
+                  row={4}
+                  label="Tên thiết bị"
+                  {...getFieldProps("dt_name")}
+                  error={Boolean(touched.dt_name && errors.dt_name)}
+                  helperText={touched.dt_name && errors.dt_name}
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Mô tả"
+                  {...getFieldProps("dt_desc")}
+                  error={Boolean(touched.dt_desc && errors.dt_desc)}
+                  helperText={touched.dt_desc && errors.dt_desc}
+                  margin="normal"
+                />
               </CardContent>
             </Card>
           </Grid>
@@ -106,7 +76,7 @@ function FormAddEditDevice(props) {
                   fullWidth
                   variant="contained"
                 >
-                  {initialValues.floor_id ? "Lưu thay đổi" : "Hoàn thành"}
+                  {initialValues.dt_id ? "Lưu thay đổi" : "Hoàn thành"}
                 </LoadingButton>
               </CardContent>
             </Card>

@@ -12,7 +12,7 @@ function TextTrucate({ text, lineShow, width }) {
         overflow: "hidden",
         textOverflow: "ellipsis",
         wordBreak: "break-word",
-        width: 300,
+        width: width || 300,
       }}
     >
       {text}

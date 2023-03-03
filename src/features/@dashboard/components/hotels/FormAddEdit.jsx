@@ -8,8 +8,6 @@ import {
   CardContent,
   Chip,
   Grid,
-  ImageList,
-  ImageListItem,
   Stack,
   TextField,
   Typography,

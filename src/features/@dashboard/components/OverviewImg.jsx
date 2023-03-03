@@ -26,13 +26,12 @@ const IconDeleteStyle = styled(HighlightOffIcon)(({ theme }) => ({
 
 function OverviewImg({ src, onClickImg, onDeleteImg, ...others }) {
   return (
-    <DivStyle>
+    <DivStyle onClick={onClickImg}>
       <LazyLoadImage
         src={src}
         alt=""
         loading="lazy"
         sx={{ borderRadius: "7px", ...others }}
-        onClick={onClickImg}
       />
       <IconDeleteStyle onClick={onDeleteImg} />
     </DivStyle>

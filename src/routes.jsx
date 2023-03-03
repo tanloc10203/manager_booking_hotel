@@ -62,6 +62,10 @@ const RoomTypeAddEdit = Loadable(
   lazy(() => import("./features/@dashboard/pages/rooms/RoomTypeAddEdit"))
 );
 
+const RoomAddEdit = Loadable(
+  lazy(() => import("./features/@dashboard/pages/rooms/RoomAddEdit"))
+);
+
 // Manager concern
 const ConcernManagePage = Loadable(
   lazy(() => import("./features/@dashboard/pages/concerns/Concern"))
@@ -132,6 +136,14 @@ export default function Router() {
         {
           path: "room",
           element: <RoomManagePage />,
+        },
+        {
+          path: "room/add",
+          element: <RoomAddEdit />,
+        },
+        {
+          path: "room/update/:roomId",
+          element: <RoomAddEdit />,
         },
         {
           path: "room-type",
