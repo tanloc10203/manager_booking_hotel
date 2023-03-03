@@ -131,6 +131,7 @@ class HotelService {
          * Xong rồi cập nhật lại ảnh mới vào database => table hotels
          * chỉnh sửa data update
          * => chỉnh sửa orthers[]
+         * file_name_img là data được truyền lên
          */
 
         if (hotel_image && hotel_image.length > 0) {
@@ -204,7 +205,7 @@ class HotelService {
          * Đây là mảng được thêm vào.
          * Trường h_image_value cũng được thêm vào khi tạo hotels
          * Thêm mới ảnh vào database => table hotel_images.
-         * tạo ra 1 mảng listImgs[] = [ {'hotel_id', 'h_image_value', 'file_name'} ]
+         * tạo ra 1 mảng listImgs[] = [ ['hotel_id', 'h_image_value', 'file_name'] ]
          */
         if (h_image_value && h_image_value.length > 0) {
           const listImgs = h_image_value.map((img) => [

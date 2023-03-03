@@ -3,7 +3,7 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import config from "../config/index.js";
 
-export const cloudinaryV2 = cloudinary.v2;
+export let cloudinaryV2 = cloudinary.v2;
 
 cloudinaryV2.config({
   cloud_name: config.cloudinary.cloudName,

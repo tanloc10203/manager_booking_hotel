@@ -6,7 +6,13 @@ const router = Router();
 
 router
   .route("/")
-  .post(upload.single("room_thumb"), roomController.create)
+  .post(
+    upload.fields([
+      { name: "room_thumb", maxCount: 1 },
+      { name: "r_image_value", maxCount: 50 },
+    ]),
+    roomController.create
+  )
   .delete(roomController.delete)
   .get(roomController.getAll);
 
@@ -14,6 +20,12 @@ router
   .route("/:id")
   .delete(roomController.deleteById)
   .get(roomController.getById)
-  .patch(roomController.update);
+  .patch(
+    upload.fields([
+      { name: "room_thumb", maxCount: 1 },
+      { name: "r_image_value", maxCount: 50 },
+    ]),
+    roomController.update
+  );
 
 export default router;

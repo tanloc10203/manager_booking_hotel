@@ -25,10 +25,10 @@ class HotelController {
         !hotel_image.length ||
         !h_image_value.length
       ) {
-        Promise.all(
+        await Promise.all(
           hotel_image.map((h) => cloudinaryV2.uploader.destroy(h.filename))
         );
-        Promise.all(
+        await Promise.all(
           h_image_value.map((h) => cloudinaryV2.uploader.destroy(h.filename))
         );
         return next(
@@ -156,9 +156,10 @@ class HotelController {
    * @returns
    */
   async update(req, res, next) {
-    const id = req.params.id;
     let data = req.body;
+    const id = req.params.id;
     const { hotel_image, h_image_value } = req.files;
+
     try {
       data = {
         ...data,

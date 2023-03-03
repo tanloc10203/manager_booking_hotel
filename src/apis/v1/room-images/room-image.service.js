@@ -11,7 +11,9 @@ class RoomImageService {
     return new Promise(async (resolve, reject) => {
       try {
         const sql =
-          "INSERT INTO `" + this.table + "` (room_id, r_image_value) VALUES ?";
+          "INSERT INTO `" +
+          this.table +
+          "` (r_image_id, room_id, r_image_value, file_name) VALUES ?";
 
         const [result] = await pool.query(sql, [data]);
 

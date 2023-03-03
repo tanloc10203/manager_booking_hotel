@@ -1,6 +1,10 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database/index.js";
+import createUUID from "../../../utils/genaralUuid.js";
 import { APIError } from "../../../utils/index.js";
+import { cloudinaryV2 } from "../../../utils/upload.util.js";
+import roomImageService from "../room-images/room-image.service.js";
+import roomPriceService from "../room-prices/room-price.service.js";
 
 class RoomService {
   table = "rooms";
@@ -20,14 +24,22 @@ class RoomService {
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        let {
+          room_thumb,
+          r_image_value,
+          price,
+          discount,
+          percent_discount,
+          ...others
+        } = data;
         let sql = SqlString.format(
           "SELECT ?? FROM ?? WHERE floor_id = ? and room_name = ? and hotel_id = ?",
           [
             this.primaryKey1,
             this.table,
-            data.floor_id,
-            data.room_name,
-            data.hotel_id,
+            others.floor_id,
+            others.room_name,
+            others.hotel_id,
           ]
         );
 
@@ -39,17 +51,51 @@ class RoomService {
           );
         }
 
+        /**
+         * Đầu tiên thì mình phải lưu ảnh cái phòng.
+         */
         sql = SqlString.format("INSERT INTO ?? SET ?", [
           this.table,
-          { ...data },
+          {
+            ...others,
+            room_thumb: room_thumb[0].path,
+            file_name_img: room_thumb[0].filename,
+          },
         ]);
 
-        const [result] = await pool.query(sql);
+        await pool.query(sql);
 
-        const id = result.insertId;
+        /**
+         * Sau khi tao phòng thành công thì lúc này
+         * Tạo danh sách ảnh của phòng
+         * listImgs[] = [id, room_id, value, filename]
+         */
+        const listImgs = r_image_value.map((img) => [
+          createUUID(),
+          others.room_id,
+          img.path,
+          img.filename,
+        ]);
 
-        resolve(await this.getById(id));
+        await roomImageService.create(listImgs);
+
+        /**
+         * Lưu lại giá của phòng sau khi đã thực hiện các bước trên
+         */
+
+        const dataPrice = {
+          floor_id: others.floor_id,
+          room_id: others.room_id,
+          price: price,
+          discount: discount === "true" ? 1 : 0,
+          percent_discount: percent_discount,
+        };
+
+        await roomPriceService.create(dataPrice);
+
+        resolve(await this.getById(others.room_id));
       } catch (error) {
+        console.log("error:::", error);
         reject(error);
       }
     });
@@ -58,12 +104,41 @@ class RoomService {
   update(id, data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("UPDATE ?? SET ? WHERE ?? = ?", [
+        let {
+          room_thumb,
+          r_image_value,
+          img_delete,
+          discount,
+          percent_discount,
+          price,
+          date_time,
+          ...others
+        } = data;
+
+        /**
+         * Nếu tồn tại room_thumb
+         * Thì xoá ảnh cũ trên cloudinary
+         * Xong rồi cập nhật lại ảnh mới vào table rooms.
+         * file_name_img là data được truyền lên
+         */
+
+        if (room_thumb && room_thumb.length > 0) {
+          await cloudinaryV2.uploader.destroy(others.file_name_img);
+
+          others = {
+            ...others,
+            room_thumb: room_thumb[0].path,
+            file_name_img: room_thumb[0].filename,
+          };
+        }
+
+        let q = SqlString.format("UPDATE ?? SET ? WHERE ?? = ?", [
           this.table,
-          data,
+          others,
           this.primaryKey1,
           id,
         ]);
+
         const [result] = await pool.query(q);
 
         if (result.affectedRows === 0) {
@@ -75,6 +150,54 @@ class RoomService {
           );
         }
 
+        /**
+         * Nếu tồn tại img_delete[] thì xoá ảnh trong database => table room_images.
+         * Đồng thời xoá ảnh trên cloudinary.
+         */
+        if (img_delete && img_delete.length > 0) {
+          const imgs_id = [...img_delete].map((i) => i.id);
+
+          await Promise.all(
+            img_delete.map((i) => cloudinaryV2.uploader.destroy(i.file_name))
+          );
+
+          q = SqlString.format(
+            "DELETE FROM `room_images` WHERE r_image_id IN (?)",
+            [imgs_id]
+          );
+
+          await pool.query(q);
+        }
+
+        /**
+         * Nếu tồn tại r_image_value[] thì
+         * Đây là mảng được thêm vào.
+         * Trường r_image_value cũng được thêm vào khi tạo rooms
+         * Thêm mới ảnh vào database => table room_images.
+         * tạo ra 1 mảng listImgs[] = [[id, room_id, value, filename]]
+         */
+        if (r_image_value && r_image_value.length > 0) {
+          const listImgs = r_image_value.map((img) => [
+            createUUID(),
+            id,
+            img.path,
+            img.filename,
+          ]);
+
+          await roomImageService.create(listImgs);
+        }
+
+        const dataPrice = {
+          price: price,
+          discount: discount === "true" ? 1 : 0,
+          percent_discount: discount === "false" ? 0 : percent_discount,
+        };
+
+        await roomPriceService.update(
+          { floorId: others.floor_id, roomId: others.room_id },
+          dataPrice
+        );
+
         resolve(await this.getById(id));
       } catch (error) {
         reject(error);
@@ -85,10 +208,11 @@ class RoomService {
   getById(id) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format(
-          "SELECT ??, s.value status FROM ?? r JOIN room_types rt on r.rt_id = rt.rt_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE ??=?",
-          [this.select, this.table, this.primaryKey1, id]
-        );
+        let q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+          this.table,
+          this.primaryKey1,
+          id,
+        ]);
 
         const [result] = await pool.query(q);
 
@@ -96,7 +220,28 @@ class RoomService {
           return reject(new APIError(404, "Get by id not found"));
         }
 
-        resolve(result[0]);
+        q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+          "room_images",
+          "room_id",
+          id,
+        ]);
+
+        const [images] = await pool.query(q);
+
+        q = SqlString.format("SELECT * FROM ?? WHERE ??=?", [
+          "room_prices",
+          "room_id",
+          id,
+        ]);
+
+        const [price] = await pool.query(q);
+
+        resolve({
+          ...result[0],
+          images: [...images],
+          ...price[0],
+          discount: Number(price[0].discount) === 1 ? true : false,
+        });
       } catch (error) {
         reject(error);
       }
@@ -113,8 +258,8 @@ class RoomService {
         const order = filters?.order; // hotel_name,desc
 
         let q = SqlString.format(
-          "SELECT ??, s.value status FROM ?? r JOIN room_types rt on r.rt_id = rt.rt_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id LIMIT ? OFFSET ?",
-          [this.select, this.table, limit, offset]
+          "SELECT r.*, hotel_name, rt_name, value as status, floor_name, price, percent_discount FROM `rooms` r JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN room_types rt ON r.rt_id = rt.rt_id LIMIT ? OFFSET ?",
+          [limit, offset]
         );
 
         let qTotalRow = SqlString.format(
@@ -124,26 +269,26 @@ class RoomService {
 
         if (search && !order) {
           q = SqlString.format(
-            "SELECT ??, s.value status FROM ?? r JOIN room_types rt on r.rt_id = rt.rt_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE emp_username LIKE ? LIMIT ? OFFSET ?",
-            [this.select, this.table, `%${search}%`, limit, offset]
+            "SELECT r.*, hotel_name, rt_name, value as status, floor_name, price, percent_discount FROM `rooms` r JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN room_types rt ON r.rt_id = rt.rt_id WHERE room_name LIKE ? LIMIT ? OFFSET ?",
+            [`%${search}%`, limit, offset]
           );
         } else if (order && !search) {
           const orderBy = order.split(",").join(" "); // => [hotel_name, desc]; => ? hotel_name desc : hotel_name
 
           q = SqlString.format(
-            "SELECT ??, s.value status FROM ?? r JOIN room_types rt on r.rt_id = rt.rt_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id ORDER BY " +
+            "SELECT r.*, hotel_name, rt_name, value as status, floor_name, price, percent_discount FROM `rooms` r JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN room_types rt ON r.rt_id = rt.rt_id ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
-            [this.select, this.table, limit, offset]
+            [limit, offset]
           );
         } else if (search && order) {
           const orderBy = order.split(",").join(" ");
 
           q = SqlString.format(
-            "SELECT ??, s.value status FROM ?? r JOIN room_types rt on r.rt_id = rt.rt_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE hotel_name LIKE ? ORDER BY " +
+            "SELECT r.*, hotel_name, rt_name, value as status, floor_name, price, percent_discount FROM `rooms` r JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id JOIN hotels h ON r.hotel_id = h.hotel_id JOIN room_types rt ON r.rt_id = rt.rt_id WHERE room_name LIKE ? ORDER BY " +
               orderBy +
               " LIMIT ? OFFSET ?",
-            [this.select, this.table, `%${search}%`, limit, offset]
+            [`%${search}%`, limit, offset]
           );
         }
 
@@ -167,6 +312,26 @@ class RoomService {
   deleteById(id) {
     return new Promise(async (resolve, reject) => {
       try {
+        /**
+         * - Trước khi xoá hotel thì phải select by id
+         * - Để có thể lấy danh sách ảnh của hotel này
+         * và để xoá ảnh trên cloudinary.
+         * - Vì để xoá được ảnh trên cloudinary thì
+         * bắt buộc phải có filename.
+         */
+        const response = await this.getById(id);
+
+        await Promise.all(
+          response.images.map((i) => cloudinaryV2.uploader.destroy(i.file_name))
+        );
+
+        /**
+         * Sau đó mình sẽ xoá ảnh tiêu đề của khách sạn
+         * trên cloudinary.
+         */
+
+        await cloudinaryV2.uploader.destroy(response.file_name_img);
+
         const q = SqlString.format("DELETE FROM ?? WHERE ??=?", [
           this.table,
           this.primaryKey1,
@@ -176,15 +341,6 @@ class RoomService {
 
         resolve(result);
       } catch (error) {
-        if (error?.code && error?.code === "ER_ROW_IS_REFERENCED_2") {
-          reject(
-            new APIError(
-              400,
-              "You cannot delete because id was exist children table."
-            )
-          );
-        }
-
         reject(error);
       }
     });

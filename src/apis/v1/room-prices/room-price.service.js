@@ -13,8 +13,8 @@ class RoomPriceService {
     return new Promise(async (resolve, reject) => {
       try {
         let sql = SqlString.format(
-          "SELECT * FROM ?? WHERE floor_id = ? and room_id = ? and time_id = ? and price = ?",
-          [this.table, data.floor_id, data.room_id, data.time_id, data.price]
+          "SELECT * FROM ?? WHERE floor_id = ? and room_id = ? and price = ?",
+          [this.table, data.floor_id, data.room_id, data.price]
         );
 
         const [findPrice] = await pool.query(sql);
@@ -30,29 +30,24 @@ class RoomPriceService {
 
         const [result] = await pool.query(sql);
 
-        resolve(await this.getById(data.floor_id, data.room_id, data.time_id));
+        resolve(true);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  update({ floorId, roomId, timeId }, data) {
+  update({ floorId, roomId }, data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format(
-          "UPDATE ?? SET ? WHERE ??=? and ??=? and ??=?",
-          [
-            this.table,
-            data,
-            this.primaryKey1,
-            floorId,
-            this.primaryKey2,
-            roomId,
-            this.primaryKey3,
-            timeId,
-          ]
-        );
+        const q = SqlString.format("UPDATE ?? SET ? WHERE ??=? and ??=?", [
+          this.table,
+          data,
+          this.primaryKey1,
+          floorId,
+          this.primaryKey2,
+          roomId,
+        ]);
         const [result] = await pool.query(q);
 
         if (result.affectedRows === 0) {
@@ -64,7 +59,7 @@ class RoomPriceService {
           );
         }
 
-        resolve(await this.getById(floorId, roomId, timeId));
+        resolve(true);
       } catch (error) {
         reject(error);
       }

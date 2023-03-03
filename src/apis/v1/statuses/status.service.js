@@ -1,6 +1,7 @@
 import SqlString from "sqlstring";
 import { pool } from "../../../database/index.js";
 import { APIError } from "../../../utils/index.js";
+import _ from "lodash";
 
 class StatusService {
   table = "statuses";
@@ -60,6 +61,14 @@ class StatusService {
         const offset = limit * (page - 1);
         const search = filters?.search;
         const order = filters?.order; // hotel_name,desc
+        const where = filters?.where?.split(","); // where=type,ABC
+        let whereBy =
+          where && where.length > 0
+            ? {
+                key: where[0],
+                value: where[1],
+              }
+            : null;
 
         let q = SqlString.format("SELECT * FROM `statuses` LIMIT ? OFFSET ?", [
           limit,
@@ -94,6 +103,11 @@ class StatusService {
               " LIMIT ? OFFSET ?",
             [`%${search}%`, limit, offset]
           );
+        } else if (!_.isEmpty(whereBy)) {
+          q = SqlString.format("SELECT * FROM `statuses` WHERE ?? LIKE ? ", [
+            whereBy.key,
+            `%${whereBy.value}%`,
+          ]);
         }
 
         const [result] = await pool.query(q);
