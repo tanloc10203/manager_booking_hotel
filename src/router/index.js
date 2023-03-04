@@ -21,6 +21,8 @@ import {
   useServiceRouter,
 } from "../apis/v1/index.js";
 
+import areaRouter from "../apis/v1/areas/area.route.js";
+
 function initRouteApi(app) {
   app.use("/api/v1/statuses", statusRouter);
   app.use("/api/v1/hotels", hotelRouter);
@@ -42,6 +44,7 @@ function initRouteApi(app) {
   app.use("/api/v1/bill-details", billDetailRouter);
   app.use("/api/v1/use-services", useServiceRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/areas", areaRouter);
 }
 
 export default initRouteApi;

@@ -258,3 +258,10 @@ CREATE TABLE IF NOT EXISTS `hotel_tags` (
   FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (`tag_id`)
 ) ENGINE = InnoDB
+/**
+ 
+ -- SELECT hotel_name, MATCH(`district_name`,`provice_name`,`ward_name`) AGAINST('+Vung') as score FROM `hotels` WHERE MATCH(`district_name`,`provice_name`,`ward_name`) AGAINST('+Vung')
+ -- SHOW VARIABLES LIKE 'ft%'
+ -- REPAIR TABLE hotels QUICK
+ 
+ */

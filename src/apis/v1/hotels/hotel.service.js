@@ -359,6 +359,39 @@ class HotelService {
       }
     });
   }
+
+  countProvince() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let q = SqlString.format(
+          "SELECT provice_name, provice_code, count(provice_name) as total FROM `hotels` GROUP BY provice_name, provice_code"
+        );
+
+        const [result] = await pool.query(q);
+
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  findListHotel({ destination, totalPeople }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let q = SqlString.format(
+          "SELECT h.*, r.room_desc, rp.price, rp.discount, rp.percent_discount FROM `hotels` h JOIN rooms r ON h.hotel_id = r.hotel_id JOIN room_prices rp ON r.room_id = rp.room_id WHERE h.provice_name LIKE ? AND r.avaiable = 1 AND r.max_people = ?",
+          [`%${destination}%`, totalPeople]
+        );
+
+        const [result] = await pool.query(q);
+
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }
 
 export default new HotelService();

@@ -205,6 +205,47 @@ class HotelController {
       return next(new APIError(500, error.message));
     }
   }
+
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
+  async countProvince(req, res, next) {
+    try {
+      res.json({
+        message: "Get countProvince success.",
+        data: await hotelService.countProvince(),
+      });
+    } catch (error) {
+      return next(new APIError(500, error.message));
+    }
+  }
+
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
+  async findListHotel(req, res, next) {
+    try {
+      const { destination, total_people } = req.query;
+
+      res.json({
+        message: "Get countProvince success.",
+        data: await hotelService.findListHotel({
+          destination,
+          totalPeople: total_people,
+        }),
+      });
+    } catch (error) {
+      return next(new APIError(500, error.message));
+    }
+  }
 }
 
 export default new HotelController();

@@ -17,6 +17,8 @@ router
   .get(HotelController.getAll);
 
 router.route("/options").get(HotelController.getOptions);
+router.route("/counts-province").get(HotelController.countProvince);
+router.route("/list-hotel").get(HotelController.findListHotel);
 
 router
   .route("/:id")
