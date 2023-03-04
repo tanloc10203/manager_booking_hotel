@@ -44,6 +44,23 @@ function Hotel() {
     setOpen(false);
   }, []);
 
+  const handleOnPageChange = useCallback(
+    (page) => {
+      dispatch(hotelActions.setFilter({ ...filters, page }));
+    },
+    [filters]
+  );
+
+  const handleSearchNameFloor = (value) => {
+    dispatch(
+      hotelActions.setDebounceName({
+        ...filters,
+        search: value,
+        page: 1,
+      })
+    );
+  };
+
   return (
     <>
       {!_.isEmpty(selectedDelete) && (
@@ -61,6 +78,9 @@ function Hotel() {
         named="Khách sạn"
         linkToAdd="/manager/hotel/add"
         loading={isLoading}
+        pagination={paginations}
+        onPageChange={handleOnPageChange}
+        onInputSearchChange={handleSearchNameFloor}
       >
         {data && data.length ? (
           data.map((row, index) => (
@@ -77,9 +97,16 @@ function Hotel() {
               </TableCell>
               <TableCell align="right">{row.hotel_name}</TableCell>
               <TableCell align="right">{row.provice_name}</TableCell>
-              <TableCell align="center">{row.hotel_rating}</TableCell>
+              <TableCell align="right">{row.hotel_rating}</TableCell>
               <TableCell align="right">
-                <TextTrucate text={row.hotel_desc} width={300} />
+                <TextTrucate
+                  text={row.hotel_desc}
+                  width={300}
+                  sx={{
+                    maxWidth: "100%",
+                    ml: "auto",
+                  }}
+                />
               </TableCell>
               <TableCell align="right">
                 <Button
@@ -103,7 +130,7 @@ function Hotel() {
           ))
         ) : (
           <TableRow>
-            <TableCell>Đang tải ...</TableCell>
+            <TableCell>Không có dữ liệu!</TableCell>
           </TableRow>
         )}
       </PageLayoutWithTable>

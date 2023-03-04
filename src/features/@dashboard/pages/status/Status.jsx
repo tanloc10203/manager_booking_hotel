@@ -95,8 +95,8 @@ function Status(props) {
               <TableCell align="right">
                 <TextTrucate text={row.desc} />
               </TableCell>
-              <TableCell align="center">{row.key}</TableCell>
-              <TableCell align="center">{row.value}</TableCell>
+              <TableCell align="right">{row.key}</TableCell>
+              <TableCell align="right">{row.value}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

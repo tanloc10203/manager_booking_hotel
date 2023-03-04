@@ -22,6 +22,7 @@ const ChangePwd = Loadable(
 );
 const User = Loadable(lazy(() => import("./pages/User")));
 const Home = Loadable(lazy(() => import("./pages/Home")));
+const List = Loadable(lazy(() => import("./pages/List")));
 
 // Manager hotel
 const HotelManagePage = Loadable(
@@ -184,8 +185,12 @@ export default function Router() {
       element: <LogoOnlyLayout />,
       children: [
         {
-          path: "/",
+          path: "",
           element: <Home />,
+        },
+        {
+          path: "hotels",
+          element: <List />,
         },
         { path: "change-password", element: <ChangePwd /> },
         { path: "sign-up", element: <Register /> },

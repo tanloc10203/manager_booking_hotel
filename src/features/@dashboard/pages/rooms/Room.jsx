@@ -102,21 +102,21 @@ function Room(props) {
               <TableCell align="right">{row.room_name}</TableCell>
               <TableCell align="right">{row.rt_name}</TableCell>
 
-              <TableCell align="center">{row.hotel_name}</TableCell>
-              <TableCell align="center">{row.max_people}</TableCell>
-              <TableCell align="center">
+              <TableCell align="right">{row.hotel_name}</TableCell>
+              <TableCell align="right">{row.max_people}</TableCell>
+              <TableCell align="right">
                 <Chip
                   label={row.status}
                   color={row.status === "SHOW" ? "success" : "default"}
                 />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="right">
                 <Chip
                   label={row?.avaiable === 1 ? "Chưa" : "Rồi"}
                   color={row?.avaiable === 0 ? "success" : "error"}
                 />
               </TableCell>
-              <TableCell align="center">{fPrice(row.price)}</TableCell>
+              <TableCell align="right">{fPrice(row.price)}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

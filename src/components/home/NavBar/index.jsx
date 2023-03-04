@@ -25,14 +25,15 @@ export default function NavBar() {
       <WrapperStyle position="static" sx={{ background: "#003580" }}>
         <Container maxWidth="lg">
           <Toolbar>
-            <Typography
-              variant="h4"
-              component="div"
-              fontWeight={700}
-              sx={{ flexGrow: 1 }}
+            <Link
+              sx={{ flexGrow: 1, textDecoration: "none", color: "#fff" }}
+              component={RouterLink}
+              to="/"
             >
-              Endcool.booking
-            </Typography>
+              <Typography variant="h4" component="div" fontWeight={700}>
+                Endcool.booking
+              </Typography>
+            </Link>
 
             <Link
               component={RouterLink}

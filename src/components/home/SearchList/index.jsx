@@ -19,6 +19,8 @@ import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { format } from "date-fns";
 import vi from "date-fns/locale/vi";
 import ButtonOptions from "./ButtonOptions";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const WrapperStyle = styled("div")(({ theme }) => ({
   // color: "#fff",
@@ -93,6 +95,7 @@ const PaperStyle = styled(Paper)(({ theme }) => ({
 }));
 
 function SearchList(props) {
+  const [destination, setDestination] = useState("");
   const [openDate, setOpenDate] = useState(false);
   const [counter, setCounter] = useState(0);
   const [openOptions, setOpenOptions] = useState(false);
@@ -103,6 +106,7 @@ function SearchList(props) {
   });
 
   const dateRef = useRef(null);
+  const navigate = useNavigate();
 
   useOutsideAlerter(dateRef, () => {
     setOpenDate(false);
@@ -123,6 +127,15 @@ function SearchList(props) {
         [name]: operation === "i" ? options[name] + 1 : options[name] - 1,
       };
     });
+  };
+
+  const handleSearch = () => {
+    if (!destination) {
+      toast.error("Vui lòng nhập nơi bạn muốn đến!");
+      return;
+    }
+
+    navigate("/hotels", { state: { destination, date, options } });
   };
 
   const optionsList = useMemo(() => {
@@ -190,6 +203,7 @@ function SearchList(props) {
                   id="outlined-basic"
                   placeholder="Bạn muốn đến đâu?"
                   color=""
+                  onChange={(e) => setDestination(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -259,6 +273,7 @@ function SearchList(props) {
                 fullWidth
                 variant="contained"
                 color="primary"
+                onClick={handleSearch}
               >
                 Tìm
               </Button>

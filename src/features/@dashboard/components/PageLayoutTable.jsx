@@ -106,7 +106,7 @@ function LayoutPageWithTable(props) {
                         return <TableCell key={index}>{item}</TableCell>;
 
                       return (
-                        <TableCell align="center" key={index}>
+                        <TableCell align="right" key={index}>
                           {item}
                         </TableCell>
                       );

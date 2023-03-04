@@ -93,12 +93,12 @@ function Device(props) {
               </TableCell>
               <TableCell align="right">{row.dt_name}</TableCell>
               <TableCell align="right">
-                <TextTrucate text={row.dt_desc} />
+                <TextTrucate text={row.dt_desc} sx={{ ml: "auto" }} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="right">
                 {row.first_name + " " + row.last_name}
               </TableCell>
-              <TableCell align="center">{row.role}</TableCell>
+              <TableCell align="right">{row.role}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { getBlobImg, getSlug } from "~/utils";
 import OverviewImg from "../OverviewImg";
 import Provice from "../Provice";
+import options from "./option";
 
 const ContainedImageStyle = styled(Stack)(({ theme }) => ({
   border: "1px dotted #ddd",
@@ -113,19 +114,6 @@ function FormAddEdit(props) {
       onSubmit(newValues);
     },
   });
-
-  const top100Films = [
-    { title: "Bếp" },
-    { title: "Nhìn ra thành phố" },
-    { title: "Sân vườn" },
-    { title: "Hồ bơi" },
-    { title: "Tiện nghi BBQ" },
-    { title: "Máy giặt" },
-    { title: "Wi-Fi miễn phí" },
-    { title: "Sân hiên" },
-    { title: "Ban công" },
-    { title: "Bồn tắm" },
-  ];
 
   const {
     errors,
@@ -348,7 +336,7 @@ function FormAddEdit(props) {
                   id="size-small-filled"
                   multiple
                   value={[...tags]}
-                  options={top100Films}
+                  options={options}
                   getOptionLabel={(option) => option.title}
                   isOptionEqualToValue={(option, value) =>
                     option.title === value.title

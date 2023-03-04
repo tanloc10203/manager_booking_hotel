@@ -72,6 +72,16 @@ const hotelAPI = {
   deleteById: (id) => {
     return instance.delete(`${host}/${id}`);
   },
+
+  countProvince: () => {
+    return instance.get(host + "/counts-province");
+  },
+
+  findListHotel: (data) => {
+    return instance.get(host + "/list-hotel", {
+      params: data,
+    });
+  },
 };
 
 export default hotelAPI;

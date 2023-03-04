@@ -1,6 +1,6 @@
 import { MenuItem, TextField } from "@mui/material";
 import PropTypes from "prop-types";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { proviceActions, proviceState } from "~/features/provices/proviceSlice";
 import SelectForm from "./forms/SelectForm";
@@ -15,10 +15,17 @@ function Provice({
 }) {
   const { provices, districts, wards } = useSelector(proviceState);
   const dispatch = useDispatch();
+  const [value, setValue] = useState({});
 
   useEffect(() => {
     dispatch(proviceActions.getProvicesStart());
   }, []);
+
+  useEffect(() => {
+    if (!provices || !provices.length) return;
+
+    setValue(provices[0]);
+  }, [provices]);
 
   const handleChange = useCallback(async (event) => {
     const name = event.target.name;

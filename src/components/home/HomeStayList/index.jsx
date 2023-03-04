@@ -4,8 +4,6 @@ import { Box, Grid, Stack, Typography } from "@mui/material";
 import LazyLoadImage from "~/components/LazyLoadImage";
 
 function HomeStayList(props) {
-  console.log(props);
-
   return (
     <Box mt={5}>
       <Typography variant="h4">Tìm theo loại chỗ nghỉ</Typography>

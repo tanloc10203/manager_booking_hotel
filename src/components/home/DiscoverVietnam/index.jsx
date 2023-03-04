@@ -1,8 +1,13 @@
 import { Box, Grid, Typography } from "@mui/material";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { dataAreaCountSelect, hotelState } from "~/features/hotels/hotelSlice";
+import { getImageArea } from "~/utils";
 import LazyLoadImage from "../../LazyLoadImage";
 
 function DiscoverVietnam(props) {
+  const { data, isLoading } = useSelector(dataAreaCountSelect);
+
   return (
     <Box mt={5}>
       <Typography variant="h4">Khám phá Việt Nam</Typography>
@@ -11,26 +16,27 @@ function DiscoverVietnam(props) {
       </Typography>
 
       <Grid container mt={3} spacing={1}>
-        {itemData.map((item, index) => (
-          <Grid item xs={6} md={2} key={index}>
-            <LazyLoadImage
-              src={item.img}
-              alt={item.title}
-              component={Link}
-              to="#"
-              sx={{
-                borderRadius: "4px",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Typography fontWeight={700} mt={1}>
-                Vũng Tàu
-              </Typography>
-              <Typography variant="caption">1.825 chỗ nghỉ</Typography>
-            </LazyLoadImage>
-          </Grid>
-        ))}
+        {data?.length &&
+          data.map((item, index) => (
+            <Grid item xs={6} md={2} key={index}>
+              <LazyLoadImage
+                src={getImageArea(item.provice_code)}
+                alt={item.provice_name}
+                component={Link}
+                to="#"
+                sx={{
+                  borderRadius: "4px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography fontWeight={700} mt={1}>
+                  {item.provice_name}
+                </Typography>
+                <Typography variant="caption">{`${item.total} chỗ nghỉ`}</Typography>
+              </LazyLoadImage>
+            </Grid>
+          ))}
       </Grid>
     </Box>
   );

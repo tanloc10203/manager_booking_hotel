@@ -5,6 +5,13 @@ const initialState = {
   isLoading: false,
   data: [],
   dataOptions: [],
+  counts: {
+    areas: {
+      data: [],
+      isLoading: false,
+      error: "",
+    },
+  },
   error: "",
   filters: {
     page: 1,
@@ -74,14 +81,50 @@ const hotelSlice = createSlice({
       toast.success("Xoá khách sạn thành công.");
       state.isLoading = false;
     },
+
+    // * COUNT AREA
+    countAreaStart: (state) => {
+      state.counts.areas.isLoading = true;
+    },
+    countAreaSucceed: (state, { payload }) => {
+      state.counts.areas.isLoading = true;
+      state.counts.areas.data = payload;
+    },
+    countAreaFailed: (state, { payload }) => {
+      state.counts.areas.isLoading = false;
+      state.counts.areas.error = payload;
+      toast.error(payload);
+    },
+
+    // * FIND HOTELE.
+    findHotelsStart: (state, actions) => {
+      state.isLoading = true;
+    },
+    findHotelsSucceed: (state, { payload }) => {
+      state.isLoading = false;
+      state.data = payload;
+    },
+
+    // * SET FILTER
+    setFilter: (state, { payload }) => {
+      state.filters = {
+        ...state.filters,
+        ...payload,
+      };
+    },
+
+    // * Use debounce search name
+    setDebounceName: (state, actions) => {},
   },
 });
 
 const hotelState = (state) => state.hotel;
 
+const dataAreaCountSelect = (state) => state.hotel.counts.areas;
+
 const hotelActions = hotelSlice.actions;
 
 const hotelReducer = hotelSlice.reducer;
 
-export { hotelActions, hotelState };
+export { hotelActions, hotelState, dataAreaCountSelect };
 export default hotelReducer;

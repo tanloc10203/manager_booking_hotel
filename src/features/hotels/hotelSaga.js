@@ -1,4 +1,4 @@
-import { all, call, put, takeLatest } from "redux-saga/effects";
+import { all, call, debounce, put, takeLatest } from "redux-saga/effects";
 import { hotelAPI } from "~/apis";
 import { history } from "~/utils";
 import { appActions } from "../app/appSlice";
@@ -118,6 +118,61 @@ function* watchFetchDelete() {
   yield takeLatest(hotelActions.deleteStart.type, fetchDelete);
 }
 
+// * COUNT AREA
+function* fetchCountArea() {
+  try {
+    const response = yield call(hotelAPI.countProvince);
+
+    if (response) {
+      yield put(hotelActions.countAreaSucceed(response.data));
+    }
+  } catch (error) {
+    if (error.response) {
+      yield put(hotelActions.countAreaFailed(error.response.data.message));
+    } else {
+      yield put(hotelActions.countAreaFailed(error.message));
+    }
+  }
+}
+
+function* watchFetchCountArea() {
+  yield takeLatest(hotelActions.countAreaStart.type, fetchCountArea);
+}
+
+// * FIND hotels
+function* fetchFindHotels({ payload }) {
+  try {
+    const response = yield call(hotelAPI.findListHotel, payload);
+
+    if (response) {
+      yield put(hotelActions.findHotelsSucceed(response.data));
+    }
+  } catch (error) {
+    if (error.response) {
+      yield put(hotelActions.failed(error.response.data.message));
+    } else {
+      yield put(hotelActions.failed(error.message));
+    }
+  }
+}
+
+function* watchFetchFindHotels() {
+  yield takeLatest(hotelActions.findHotelsStart.type, fetchFindHotels);
+}
+
+// * use debounce
+function* handleSearchWithDebounce({ payload }) {
+  yield put(hotelActions.setFilter(payload));
+}
+
+function* watchSetFilterWithDebounce() {
+  yield debounce(
+    500,
+    hotelActions.setDebounceName.type,
+    handleSearchWithDebounce
+  );
+}
+
 function* hotelSaga() {
   yield all([
     watchFetchGetAll(),
@@ -125,6 +180,9 @@ function* hotelSaga() {
     watchFetchUpdate(),
     watchFetchDelete(),
     watchFetchGetAllOptions(),
+    watchFetchCountArea(),
+    watchSetFilterWithDebounce(),
+    watchFetchFindHotels(),
   ]);
 }
 

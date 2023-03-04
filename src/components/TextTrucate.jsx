@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Typography } from "@mui/material";
 
-function TextTrucate({ text, lineShow, width }) {
+function TextTrucate({ text, lineShow, width, sx }) {
   return (
     <Typography
       sx={{
@@ -13,6 +13,7 @@ function TextTrucate({ text, lineShow, width }) {
         textOverflow: "ellipsis",
         wordBreak: "break-word",
         width: width || 300,
+        ...sx,
       }}
     >
       {text}
@@ -24,6 +25,7 @@ TextTrucate.propTypes = {
   text: PropTypes.string.isRequired,
   lineShow: PropTypes.number,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  sx: PropTypes.object,
 };
 
 export default TextTrucate;

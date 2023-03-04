@@ -351,6 +351,12 @@ function FormAddEditRoom(props) {
                     ))}
                 </SelectForm>
 
+                {!optionFloor.length && (
+                  <Typography fontStyle="italic" color="error">
+                    * Vui lòng thêm tầng trước khi thêm phòng
+                  </Typography>
+                )}
+
                 <TextField
                   fullWidth
                   type="number"

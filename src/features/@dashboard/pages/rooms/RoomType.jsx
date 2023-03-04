@@ -94,7 +94,7 @@ function RoomType(props) {
               </TableCell>
               <TableCell align="right">{row.rt_name}</TableCell>
               <TableCell align="right">{row.rt_type}</TableCell>
-              <TableCell align="center">{row.rt_desc}</TableCell>
+              <TableCell align="right">{row.rt_desc}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

@@ -92,7 +92,7 @@ function Floor(props) {
               </TableCell>
               <TableCell align="right">{row.floor_id}</TableCell>
               <TableCell align="right">{row.floor_name}</TableCell>
-              <TableCell align="center">{row.floor_type}</TableCell>
+              <TableCell align="right">{row.floor_type}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

@@ -1,5 +1,6 @@
 import { Container } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   Header,
   NavBar,
@@ -11,8 +12,15 @@ import {
   MailList,
 } from "~/components/home";
 import Page from "~/components/Page";
+import { hotelActions } from "~/features/hotels/hotelSlice";
 
 function Home() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(hotelActions.countAreaStart());
+  }, []);
+
   return (
     <Page title="Trang chủ">
       <NavBar />
