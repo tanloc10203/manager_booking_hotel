@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import Page from "~/components/Page";
-import { Footer, Header, MailList, NavBar } from "~/components/home";
-import { Container } from "@mui/material";
-import { useLocation } from "react-router-dom";
-import ListHotelSearch from "~/components/list/ListHotelSearch";
+import _ from "lodash";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { Footer, Header, MailList, NavBar } from "~/components/home";
+import ListHotelSearch from "~/components/list/ListHotelSearch";
+import Page from "~/components/Page";
+import { appActions } from "~/features/app/appSlice";
 import { hotelActions } from "~/features/hotels/hotelSlice";
+import { proviceActions } from "~/features/provices/proviceSlice";
 
 function List(props) {
   const location = useLocation();
@@ -25,13 +26,19 @@ function List(props) {
     )
       return;
 
-    dispatch(
-      hotelActions.findHotelsStart({
-        destination: location.state.destination,
-        total_people:
-          +location.state.options.adult + +location.state.options.children,
-      })
-    );
+    dispatch(appActions.setOpenOverlay(true));
+
+    const timer = setTimeout(() => {
+      dispatch(
+        hotelActions.findHotelsStart({
+          destination: location.state.destination,
+          total_people:
+            +location.state.options.adult + +location.state.options.children,
+        })
+      );
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [location.state]);
 
   const handleOption = (name, operation) => {
@@ -47,6 +54,39 @@ function List(props) {
     setDate((pre) => [dates.selection]);
   };
 
+  useEffect(() => {
+    dispatch(proviceActions.getProvicesStart());
+  }, []);
+
+  const handleChangeDestination = (event, value) => {
+    if (!value) {
+      setDestination("");
+      return;
+    }
+    setDestination(value.province_name);
+  };
+
+  const handleOnInputChangeDestination = useCallback((event, value, reason) => {
+    if (reason === "reset") return;
+
+    setDestination(value);
+  }, []);
+
+  const handleSearchHotel = useCallback(() => {
+    if (!destination || !date || _.isEmpty(options)) return;
+
+    dispatch(appActions.setOpenOverlay(true));
+
+    setTimeout(() => {
+      dispatch(
+        hotelActions.findHotelsStart({
+          destination: destination,
+          total_people: +options.adult + +options.children,
+        })
+      );
+    }, 500);
+  }, [destination, date, options]);
+
   return (
     <Page title={`Khách sạn ở ${destination}`}>
       <NavBar />
@@ -59,6 +99,10 @@ function List(props) {
         destination={destination}
         onClickFunc={handleOption}
         onChangeDate={handleChangeDate}
+        onChangeDestination={handleChangeDestination}
+        onSearchHotel={handleSearchHotel}
+        onInputChangeDestination={handleOnInputChangeDestination}
+        defaultValue={location.state.destination}
       />
 
       <MailList />

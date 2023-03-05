@@ -12,6 +12,7 @@ function Overlay() {
       open={openOverlay}
     >
       <CircularProgress color="inherit" />
+      &nbsp; Đang tải...
     </Backdrop>
   );
 }

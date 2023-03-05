@@ -146,8 +146,10 @@ function* fetchFindHotels({ payload }) {
 
     if (response) {
       yield put(hotelActions.findHotelsSucceed(response.data));
+      yield put(appActions.setOpenOverlay(false));
     }
   } catch (error) {
+    yield put(appActions.setOpenOverlay(false));
     if (error.response) {
       yield put(hotelActions.failed(error.response.data.message));
     } else {

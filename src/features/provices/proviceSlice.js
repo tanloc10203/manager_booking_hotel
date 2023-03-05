@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   provices: [],
@@ -53,5 +53,33 @@ const proviceActions = proviceSlice.actions;
 
 const proviceReducer = proviceSlice.reducer;
 
-export { proviceActions, proviceState };
+const selectProvinceOptions = createSelector(proviceState, ({ provices }) => {
+  const c = {
+    province: "Tỉnh ".length,
+    city: "Thành phố ".length,
+  };
+
+  if (provices.length) {
+    return provices.map((item) => {
+      const findCutString = item.province_name?.search("Thành phố");
+      let cutString = c.province;
+
+      if (findCutString !== -1) {
+        cutString = c.city;
+      }
+
+      return {
+        ...item,
+        province_name: item?.province_name.substring(
+          cutString,
+          item?.province_name.length
+        ),
+      };
+    });
+  }
+
+  return [];
+});
+
+export { proviceActions, proviceState, selectProvinceOptions };
 export default proviceReducer;

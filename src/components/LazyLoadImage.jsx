@@ -39,12 +39,16 @@ function LazyLoadImage({ src, alt, component, sx, children, ...others }) {
   useEffect(() => {
     const img = imgRef.current;
 
+    let timer;
+
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         img && img.setAttribute("src", src);
         img && img.classList.add("active");
         img && img.classList.add("active");
-        img && boxRef.current.classList.add("active");
+        timer = setTimeout(() => {
+          img && boxRef.current.classList.add("active");
+        }, 300);
       }
     });
 
@@ -53,6 +57,7 @@ function LazyLoadImage({ src, alt, component, sx, children, ...others }) {
     }
 
     return () => {
+      clearTimeout(timer);
       if (img) observer.unobserve(img);
     };
   }, [src]);

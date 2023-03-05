@@ -1,6 +1,7 @@
 import BedIcon from "@mui/icons-material/Bed";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import {
+  Autocomplete,
   Box,
   Button,
   Container,
@@ -21,6 +22,13 @@ import vi from "date-fns/locale/vi";
 import ButtonOptions from "./ButtonOptions";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  proviceActions,
+  proviceState,
+  selectProvinceOptions,
+} from "~/features/provices/proviceSlice";
+import LoadingInputSearch from "./LoadingInputSearch";
 
 const WrapperStyle = styled("div")(({ theme }) => ({
   // color: "#fff",
@@ -107,6 +115,12 @@ function SearchList(props) {
 
   const dateRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const provices = useSelector(selectProvinceOptions);
+
+  useEffect(() => {
+    dispatch(proviceActions.getProvicesStart());
+  }, []);
 
   useOutsideAlerter(dateRef, () => {
     setOpenDate(false);
@@ -131,7 +145,7 @@ function SearchList(props) {
 
   const handleSearch = () => {
     if (!destination) {
-      toast.error("Vui lòng nhập nơi bạn muốn đến!");
+      toast.error("Vui lòng chọn nơi bạn muốn đến!");
       return;
     }
 
@@ -182,6 +196,10 @@ function SearchList(props) {
     }
   }, [counter, openDate]);
 
+  const handleChangeDestination = (event, value) => {
+    setDestination(value?.province_name);
+  };
+
   return (
     <Box sx={{ background: "#003580" }}>
       <Container maxWidth="lg" style={{ position: "relative" }}>
@@ -197,24 +215,37 @@ function SearchList(props) {
         <WrapperStyle>
           <GridStyle direction={{ lg: "row", xs: "column" }} spacing={"4px"}>
             <GridItemStyle>
-              <div>
-                <TextField
-                  type="search"
-                  id="outlined-basic"
-                  placeholder="Bạn muốn đến đâu?"
-                  color=""
-                  onChange={(e) => setDestination(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <BedIcon />
-                      </InputAdornment>
-                    ),
+              {provices?.length ? (
+                <Autocomplete
+                  sx={{
+                    minWidth: {
+                      md: 200,
+                    },
                   }}
-                  variant="standard"
-                  fullWidth
+                  disablePortal
+                  options={provices}
+                  getOptionLabel={(option) => option.province_name}
+                  onChange={handleChangeDestination}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Bạn muốn đến đâu?"
+                      variant="standard"
+                      fullWidth
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <BedIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
                 />
-              </div>
+              ) : (
+                <LoadingInputSearch />
+              )}
             </GridItemStyle>
             <GridItemStyle>
               <Box ref={dateRef}>

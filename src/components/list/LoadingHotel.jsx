@@ -12,6 +12,7 @@ function LoadingHotel(props) {
       }}
       direction={{ md: "row", xs: "column" }}
       spacing={2}
+      my="16px"
       width="100%"
     >
       <Skeleton
