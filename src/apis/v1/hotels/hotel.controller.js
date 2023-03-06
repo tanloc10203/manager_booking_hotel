@@ -246,6 +246,28 @@ class HotelController {
       return next(new APIError(500, error.message));
     }
   }
+
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   * @returns
+   */
+  async getHotelBySlug(req, res, next) {
+    try {
+      const { hotelSlug } = req.params;
+
+      res.json({
+        message: "Get getHotelBySlug success.",
+        data: await hotelService.getHotelBySlug({
+          slug: hotelSlug,
+        }),
+      });
+    } catch (error) {
+      return next(new APIError(500, error.message));
+    }
+  }
 }
 
 export default new HotelController();

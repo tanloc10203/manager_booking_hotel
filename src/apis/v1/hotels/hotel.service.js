@@ -380,13 +380,70 @@ class HotelService {
     return new Promise(async (resolve, reject) => {
       try {
         let q = SqlString.format(
-          "SELECT h.*, r.room_desc, rp.price, rp.discount, rp.percent_discount FROM `hotels` h JOIN rooms r ON h.hotel_id = r.hotel_id JOIN room_prices rp ON r.room_id = rp.room_id WHERE h.provice_name LIKE ? AND r.avaiable = 1 AND r.max_people = ?",
+          "SELECT h.*, r.room_desc, rp.price, rp.discount, rp.percent_discount FROM `hotels` h JOIN rooms r ON h.hotel_id = r.hotel_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN statuses s ON r.status_id = s.status_id WHERE h.provice_name LIKE ? AND r.avaiable = 1 AND r.max_people >= ? AND s.value='SHOW'",
           [`%${destination}%`, totalPeople]
         );
 
         const [result] = await pool.query(q);
 
         resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getHotelBySlug({ slug }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * Đầu  tiên select hotel sau đó
+         * Lấy hotel_id select roooms
+         * Response => hotel and roooms
+         */
+        let q = SqlString.format(
+          "SELECT `hotel_id`,`hotel_name`,`hotel_desc`,`hotel_address`,`hotel_image`,`district_name`,`provice_name`,`ward_name`,`hotel_rating` FROM `hotels` WHERE slug=?",
+          [slug]
+        );
+
+        // * SELECT HOTEL
+        const [hotels] = await pool.query(q);
+
+        if (!hotels.length) {
+          return reject(new APIError(404, "Cannot found hotel by slug!"));
+        }
+
+        q = SqlString.format(
+          "SELECT r.room_id,`room_name`,`room_desc`, `max_people`, `room_quantity`, `room_booking`, rt.rt_name, rt.rt_desc, rp.price, rp.discount, rp.percent_discount, f.floor_name FROM `rooms` r JOIN room_types rt ON r.rt_id = rt.rt_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE r.hotel_id=? AND r.room_quantity != r.room_booking AND s.value='SHOW';",
+          [hotels[0].hotel_id]
+        );
+
+        // * SELECT ROOMS
+        const [rooms] = await pool.query(q);
+
+        if (rooms.length) {
+          const roomIds = rooms.map((room) => [room.room_id]);
+
+          q = SqlString.format(
+            "SELECT `r_image_value` FROM `room_images` WHERE `room_id` IN (?)",
+            [roomIds]
+          );
+
+          // * SELECT IMAGE ROOM
+          const [images] = await pool.query(q);
+
+          return resolve({
+            hotel: hotels[0],
+            rooms,
+            images: images,
+          });
+        }
+
+        resolve({
+          hotel: hotels[0],
+          rooms: [],
+          images: [],
+        });
       } catch (error) {
         reject(error);
       }
