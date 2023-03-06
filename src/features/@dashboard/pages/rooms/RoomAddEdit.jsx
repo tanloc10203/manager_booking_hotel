@@ -33,6 +33,7 @@ function RoomAddEdit(props) {
     price: 0,
     discount: false,
     percent_discount: 0,
+    room_quantity: 0,
     ...selected,
   };
 

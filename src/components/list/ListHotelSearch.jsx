@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { appState } from "~/features/app/appSlice";
 import { hotelState } from "~/features/hotels/hotelSlice";
 import { selectProvinceOptions } from "~/features/provices/proviceSlice";
+import { caclPriceDiscounct } from "~/utils";
 import { fPrice } from "~/utils/formatNumber";
 import DatePicker from "../home/date-picker/DatePicker";
 import ButtonOptions from "../home/SearchList/ButtonOptions";
@@ -95,7 +96,7 @@ function ListHotelSearch({
   }, [date]);
 
   const handleClickNaviga = (hotel) => {
-    navigation(`/hotels/${hotel.hotel_id}`);
+    navigation(`/hotels/${hotel.slug}`);
   };
 
   return (
@@ -456,10 +457,10 @@ function ListHotelSearch({
                             <Typography fontSize={20} fontWeight={700} mt="5px">
                               {item.discount === 1
                                 ? fPrice(
-                                    (+item.price -
-                                      +item.price *
-                                        (+item.percent_discount / 100)) *
-                                      resultCountDate
+                                    caclPriceDiscounct({
+                                      price: item.price,
+                                      persent_discount: item.persent_discount,
+                                    }) * resultCountDate
                                   )
                                 : fPrice(+item.price * resultCountDate)}
                             </Typography>
@@ -487,12 +488,13 @@ function ListHotelSearch({
                     </Stack>
                   </Stack>
 
-                  <Pagination count={10} />
+                  {/* <Pagination count={10} /> */}
                 </div>
               ))
             : null}
 
           {/* Pagination */}
+          <Pagination count={10} />
         </Grid>
       </Grid>
     </Container>

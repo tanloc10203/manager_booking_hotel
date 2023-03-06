@@ -194,7 +194,7 @@ export default function Router() {
           element: <List />,
         },
         {
-          path: "hotels/:hotelId",
+          path: "hotels/:hotelSlug",
           element: <Hotel />,
         },
         { path: "change-password", element: <ChangePwd /> },

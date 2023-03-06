@@ -5,6 +5,11 @@ const initialState = {
   isLoading: false,
   data: [],
   dataOptions: [],
+  hotel: {
+    data: {},
+    rooms: {},
+    images: [],
+  },
   counts: {
     areas: {
       data: [],
@@ -96,13 +101,24 @@ const hotelSlice = createSlice({
       toast.error(payload);
     },
 
-    // * FIND HOTELE.
+    // * FIND HOTEL.
     findHotelsStart: (state, actions) => {
       state.isLoading = true;
     },
     findHotelsSucceed: (state, { payload }) => {
       state.isLoading = false;
       state.data = payload;
+    },
+
+    // * FIND HOTEL BY SLUG.
+    getHotelBySlugStart: (state, actions) => {
+      state.isLoading = true;
+    },
+    getHotelBySlugSucceed: (state, { payload }) => {
+      state.isLoading = false;
+      state.hotel.data = payload.hotel;
+      state.hotel.rooms = payload.rooms;
+      state.hotel.images = payload.images;
     },
 
     // * SET FILTER
@@ -121,10 +137,11 @@ const hotelSlice = createSlice({
 const hotelState = (state) => state.hotel;
 
 const dataAreaCountSelect = (state) => state.hotel.counts.areas;
+const hotelSelect = (state) => state.hotel.hotel;
 
 const hotelActions = hotelSlice.actions;
 
 const hotelReducer = hotelSlice.reducer;
 
-export { hotelActions, hotelState, dataAreaCountSelect };
+export { hotelActions, hotelState, dataAreaCountSelect, hotelSelect };
 export default hotelReducer;

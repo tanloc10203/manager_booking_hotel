@@ -82,6 +82,10 @@ const hotelAPI = {
       params: data,
     });
   },
+
+  getHotelBySlug: (slug) => {
+    return instance.get(host + "/slug/" + slug);
+  },
 };
 
 export default hotelAPI;

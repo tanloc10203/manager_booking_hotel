@@ -23,10 +23,11 @@ function Room(props) {
     "Tên phòng",
     "Loại phòng",
     "Thuộc khách sạn",
-    "Số lượng người",
-    "Trạng thái",
-    "Đã đặt",
     "Giá",
+    "Số lượng người",
+    "SL Phòng",
+    "Đã đặt",
+    "Trạng thái",
     "Hành động",
   ];
 
@@ -103,20 +104,24 @@ function Room(props) {
               <TableCell align="right">{row.rt_name}</TableCell>
 
               <TableCell align="right">{row.hotel_name}</TableCell>
+              <TableCell align="right">{fPrice(row.price)}</TableCell>
               <TableCell align="right">{row.max_people}</TableCell>
+              <TableCell align="right">{row.room_quantity}</TableCell>
+              <TableCell align="right">
+                <Chip
+                  label={row.room_booking}
+                  color={
+                    row.room_booking !== row.room_quantity ? "success" : "error"
+                  }
+                />
+              </TableCell>
+
               <TableCell align="right">
                 <Chip
                   label={row.status}
                   color={row.status === "SHOW" ? "success" : "default"}
                 />
               </TableCell>
-              <TableCell align="right">
-                <Chip
-                  label={row?.avaiable === 1 ? "Chưa" : "Rồi"}
-                  color={row?.avaiable === 0 ? "success" : "error"}
-                />
-              </TableCell>
-              <TableCell align="right">{fPrice(row.price)}</TableCell>
               <TableCell align="right">
                 <Button
                   component={RouterLink}

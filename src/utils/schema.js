@@ -66,6 +66,9 @@ export const roomAddSchema = Yup.object().shape({
     .max(50, "Nhiều nhất 50 kí tự!")
     .required("Vui lòng không bỏ trống!"),
   room_desc: Yup.string().required("Vui lòng không bỏ trống!"),
+  room_quantity: Yup.number()
+    .min(1, "Ít nhất 1 phòng")
+    .required("Vui lòng không bỏ trống!"),
   max_people: Yup.number()
     .min(1, "Ít nhất 1 người!")
     .max(6, "Nhiều nhất 6 người!")

@@ -335,6 +335,14 @@ function FormAddEditRoom(props) {
           <Grid item xs={12} sm={12} md={4}>
             <Card>
               <CardContent>
+                <TextField
+                  fullWidth
+                  label="Số lượng phòng"
+                  {...getFieldProps("room_quantity")}
+                  error={Boolean(touched.room_quantity && errors.room_quantity)}
+                  helperText={touched.room_quantity && errors.room_quantity}
+                  margin="normal"
+                />
                 <SelectForm
                   value={values.hotel_id}
                   error={Boolean(touched.hotel_id && errors.hotel_id)}
@@ -351,7 +359,7 @@ function FormAddEditRoom(props) {
                     ))}
                 </SelectForm>
 
-                {!optionFloor.length && (
+                {values?.hotel_id && !optionFloor.length && (
                   <Typography fontStyle="italic" color="error">
                     * Vui lòng thêm tầng trước khi thêm phòng
                   </Typography>

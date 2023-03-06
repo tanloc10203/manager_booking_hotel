@@ -162,6 +162,29 @@ function* watchFetchFindHotels() {
   yield takeLatest(hotelActions.findHotelsStart.type, fetchFindHotels);
 }
 
+// * FIND hotels
+function* fetchGetHotelById({ payload }) {
+  try {
+    const response = yield call(hotelAPI.getHotelBySlug, payload);
+
+    if (response) {
+      yield put(hotelActions.getHotelBySlugSucceed(response.data));
+      yield put(appActions.setOpenOverlay(false));
+    }
+  } catch (error) {
+    yield put(appActions.setOpenOverlay(false));
+    if (error.response) {
+      yield put(hotelActions.failed(error.response.data.message));
+    } else {
+      yield put(hotelActions.failed(error.message));
+    }
+  }
+}
+
+function* watchFetchGetHotelById() {
+  yield takeLatest(hotelActions.getHotelBySlugStart.type, fetchGetHotelById);
+}
+
 // * use debounce
 function* handleSearchWithDebounce({ payload }) {
   yield put(hotelActions.setFilter(payload));
@@ -185,6 +208,7 @@ function* hotelSaga() {
     watchFetchCountArea(),
     watchSetFilterWithDebounce(),
     watchFetchFindHotels(),
+    watchFetchGetHotelById(),
   ]);
 }
 

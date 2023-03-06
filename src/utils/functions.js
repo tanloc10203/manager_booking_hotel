@@ -25,3 +25,8 @@ export const getImageArea = (code) => {
   const listImageArea = dataImageJson.data;
   return listImageArea[code] ? listImageArea[code] : listImageArea["any"];
 };
+
+export const caclPriceDiscounct = ({ price = 0, persent_discount = 0 }) => {
+  const result = price - price * (persent_discount / 100);
+  return result;
+};
