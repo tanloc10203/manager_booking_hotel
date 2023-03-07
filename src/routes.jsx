@@ -24,6 +24,7 @@ const User = Loadable(lazy(() => import("./pages/User")));
 const Home = Loadable(lazy(() => import("./pages/Home")));
 const List = Loadable(lazy(() => import("./pages/List")));
 const Hotel = Loadable(lazy(() => import("./pages/Hotel")));
+const Booking = Loadable(lazy(() => import("./pages/Booking")));
 
 // Manager hotel
 const HotelManagePage = Loadable(
@@ -196,6 +197,10 @@ export default function Router() {
         {
           path: "hotels/:hotelSlug",
           element: <Hotel />,
+        },
+        {
+          path: "booking",
+          element: <Booking />,
         },
         { path: "change-password", element: <ChangePwd /> },
         { path: "sign-up", element: <Register /> },

@@ -12,9 +12,10 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Footer, Header, MailList, NavBar } from "~/components/home";
 import ListImage from "~/components/hotels/ListImage";
@@ -22,7 +23,7 @@ import LoadingHotelDetail from "~/components/hotels/LoadingHotelDetail";
 import Page from "~/components/Page";
 import { appActions, appState } from "~/features/app/appSlice";
 import { hotelActions, hotelSelect } from "~/features/hotels/hotelSlice";
-import { caclPriceDiscounct } from "~/utils";
+import { calcPriceDiscount } from "~/utils";
 import { fPrice } from "~/utils/formatNumber";
 
 function Hotel(props) {
@@ -33,7 +34,8 @@ function Hotel(props) {
   const dispach = useDispatch();
   const [selected, setSelected] = useState({});
   const [selectedRooms, setSelectedRooms] = useState({});
-  const [disabled, setDisabled] = useState(false);
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
   useEffect(() => {
     if (!hotelSlug) return;
@@ -47,15 +49,31 @@ function Hotel(props) {
     return () => clearTimeout(timer);
   }, [hotelSlug]);
 
-  const handleOnClick = () => {
+  const handleOnClick = useCallback(() => {
     if (!boxRef.current) return;
-    boxRef.current?.scrollIntoView({ behavior: "smooth" });
-    toast.info("Vui lòng chọn phòng.");
-  };
+    if (_.isEmpty(selected)) {
+      boxRef.current?.scrollIntoView({ behavior: "smooth" });
+      toast.info("Vui lòng chọn phòng.");
+    } else {
+      let array = [];
+
+      Object.keys(selectedRooms).forEach((key) => {
+        array = [...array, selectedRooms[key]];
+      });
+
+      // Save localStorge.
+      const save = {
+        hotel: data,
+        booking: array,
+      };
+
+      navigate("/booking", { state: { save, ...state } });
+
+      // localStorage.setItem("booking", JSON.stringify(save));
+    }
+  }, [selectedRooms, boxRef]);
 
   const handleChangeSelect = (event, room) => {
-    console.log(event.target.value, room);
-
     setSelected((pre) => ({ ...pre, [room.room_id]: event.target.value }));
   };
 
@@ -71,13 +89,11 @@ function Hotel(props) {
 
       if (room.discount === 1) {
         price =
-          caclPriceDiscounct({
+          calcPriceDiscount({
             price: room.price,
             persent_discount: room.percent_discount,
           }) * selected[room.room_id];
       }
-
-      setDisabled(true);
 
       setSelectedRooms((pre) => ({
         ...pre,
@@ -102,8 +118,6 @@ function Hotel(props) {
         return { ...pre };
       });
 
-      setDisabled(false);
-
       setSelectedRooms((pre) => {
         delete pre[room.room_id];
         return { ...pre };
@@ -111,8 +125,6 @@ function Hotel(props) {
     },
     [selected]
   );
-
-  console.log(selectedRooms);
 
   return (
     <Page title={data.hotel_name}>
@@ -288,7 +300,7 @@ function Hotel(props) {
                             <Typography fontWeight={700}>
                               {room.discount === 1
                                 ? fPrice(
-                                    caclPriceDiscounct({
+                                    calcPriceDiscount({
                                       price: room.price,
                                       persent_discount: room.percent_discount,
                                     })
@@ -374,7 +386,7 @@ function Hotel(props) {
                                       (
                                       {room.discount === 1
                                         ? fPrice(
-                                            caclPriceDiscounct({
+                                            calcPriceDiscount({
                                               price: room.price,
                                               persent_discount:
                                                 room.percent_discount,
@@ -397,7 +409,7 @@ function Hotel(props) {
                             <Button
                               disabled={
                                 selectedRooms[room.room_id]?.room_id ===
-                                  room.room_id && disabled
+                                room.room_id
                               }
                               variant="contained"
                               fullWidth
