@@ -1,7 +1,4 @@
-import React, { useEffect } from "react";
-import PropTypes from "prop-types";
-import Page from "~/components/Page";
-import { Footer, Header, MailList, NavBar } from "~/components/home";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {
   Box,
   Button,
@@ -13,26 +10,30 @@ import {
   Paper,
   Select,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import ListImage from "~/components/hotels/ListImage";
-import { fPrice } from "~/utils/formatNumber";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { hotelActions, hotelSelect } from "~/features/hotels/hotelSlice";
 import { useParams } from "react-router-dom";
-import { appActions, appState } from "~/features/app/appSlice";
+import { toast } from "react-toastify";
+import { Footer, Header, MailList, NavBar } from "~/components/home";
+import ListImage from "~/components/hotels/ListImage";
 import LoadingHotelDetail from "~/components/hotels/LoadingHotelDetail";
+import Page from "~/components/Page";
+import { appActions, appState } from "~/features/app/appSlice";
+import { hotelActions, hotelSelect } from "~/features/hotels/hotelSlice";
 import { caclPriceDiscounct } from "~/utils";
+import { fPrice } from "~/utils/formatNumber";
 
 function Hotel(props) {
   const { data, rooms, images } = useSelector(hotelSelect);
   const { openOverlay: loading } = useSelector(appState);
   const { hotelSlug } = useParams();
+  const boxRef = useRef();
   const dispach = useDispatch();
-
-  console.log(hotelSlug);
+  const [selected, setSelected] = useState({});
+  const [selectedRooms, setSelectedRooms] = useState({});
+  const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {
     if (!hotelSlug) return;
@@ -45,6 +46,73 @@ function Hotel(props) {
 
     return () => clearTimeout(timer);
   }, [hotelSlug]);
+
+  const handleOnClick = () => {
+    if (!boxRef.current) return;
+    boxRef.current?.scrollIntoView({ behavior: "smooth" });
+    toast.info("Vui lòng chọn phòng.");
+  };
+
+  const handleChangeSelect = (event, room) => {
+    console.log(event.target.value, room);
+
+    setSelected((pre) => ({ ...pre, [room.room_id]: event.target.value }));
+  };
+
+  const handleSelectedRooms = useCallback(
+    (room) => {
+      if (!selected[room.room_id]) {
+        toast.error("Vui lòng chọn số lượng phòng.");
+        return;
+      }
+
+      // * price * quantity_room.
+      let price = +room.price * +selected[room.room_id];
+
+      if (room.discount === 1) {
+        price =
+          caclPriceDiscounct({
+            price: room.price,
+            persent_discount: room.percent_discount,
+          }) * selected[room.room_id];
+      }
+
+      setDisabled(true);
+
+      setSelectedRooms((pre) => ({
+        ...pre,
+        [room.room_id]: {
+          ...room,
+          booking_price: price,
+          room_quantity: selected[room.room_id],
+        },
+      }));
+    },
+    [selected]
+  );
+
+  const handleCancle = useCallback(
+    (room) => {
+      if (!selected[room.room_id]) {
+        return;
+      }
+
+      setSelected((pre) => {
+        delete pre[room.room_id];
+        return { ...pre };
+      });
+
+      setDisabled(false);
+
+      setSelectedRooms((pre) => {
+        delete pre[room.room_id];
+        return { ...pre };
+      });
+    },
+    [selected]
+  );
+
+  console.log(selectedRooms);
 
   return (
     <Page title={data.hotel_name}>
@@ -90,12 +158,16 @@ function Hotel(props) {
                 mt={3}
                 spacing={2}
                 mb={4}
+                height="100%"
               >
                 <Box
                   sx={{
                     flexBasis: { md: "66.66667%", xs: "100%" },
                     width: { md: "66.66667%", xs: "100%" },
                     maxWidth: { md: "66.66667%", xs: "100%" },
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexDirection: "column",
                   }}
                 >
                   <Typography fontSize={14} textAlign="justify">
@@ -146,6 +218,7 @@ function Hotel(props) {
                       fullWidth
                       variant="contained"
                       sx={{ mt: 2, borderRadius: "2px", mb: 3 }}
+                      onClick={handleOnClick}
                     >
                       Đặt ngay
                     </Button>
@@ -155,8 +228,15 @@ function Hotel(props) {
 
               <hr style={{ borderTop: "1px solid #e7e7e7" }} />
 
-              <Box mt={4}>
+              <Box mt={4} ref={boxRef}>
                 <Typography variant="h4">Phòng trống</Typography>
+                <Button
+                  variant="contained"
+                  sx={{ mt: 2, borderRadius: "2px" }}
+                  onClick={handleOnClick}
+                >
+                  Đặt ngay
+                </Button>
 
                 <Grid container mt={4} spacing={1}>
                   {rooms?.length &&
@@ -170,6 +250,10 @@ function Hotel(props) {
                             "&:hover": {
                               boxShadow: "0 0 9px 1px #4c76b2",
                             },
+                            height: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexDirection: "column",
                           }}
                         >
                           <Typography
@@ -199,7 +283,7 @@ function Hotel(props) {
 
                           <Stack direction="row" spacing={1} mt={2}>
                             <Typography fontWeight={600}>
-                              Giá hôm nay:{" "}
+                              Giá hôm nay:
                             </Typography>
                             <Typography fontWeight={700}>
                               {room.discount === 1
@@ -272,16 +356,16 @@ function Hotel(props) {
                               Số lượng phòng
                             </InputLabel>
                             <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
                               label="Số lượng phòng"
+                              value={selected[room.room_id] || ""}
+                              onChange={(e) => handleChangeSelect(e, room)}
                             >
                               {[
                                 ...Array(
                                   room.room_quantity - room.room_booking
                                 ),
                               ].map((i, index) => (
-                                <MenuItem value={10} key={index}>
+                                <MenuItem value={index + 1} key={index}>
                                   <Stack direction="row" spacing={1}>
                                     <Typography>{`${
                                       index + 1
@@ -305,10 +389,34 @@ function Hotel(props) {
                               ))}
                             </Select>
                           </FormControl>
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            spacing={1}
+                          >
+                            <Button
+                              disabled={
+                                selectedRooms[room.room_id]?.room_id ===
+                                  room.room_id && disabled
+                              }
+                              variant="contained"
+                              fullWidth
+                              sx={{ borderRadius: "2px" }}
+                              onClick={() => handleSelectedRooms(room)}
+                            >
+                              Chọn
+                            </Button>
 
-                          <Button variant="contained" sx={{ mt: 2 }} fullWidth>
-                            Đặt phòng ngay
-                          </Button>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              color="error"
+                              sx={{ borderRadius: "2px" }}
+                              onClick={() => handleCancle(room)}
+                            >
+                              Huỷ
+                            </Button>
+                          </Stack>
                         </Paper>
                       </Grid>
                     ))}
