@@ -69,7 +69,10 @@ function* getCurrentUser({ payload }) {
     const response = yield authAPI.getCurrentUser(payload.accessToken);
 
     if (response) {
-      if (payload.location && payload.location === config.app.key.manageAdmin) {
+      if (
+        payload?.location &&
+        payload.location === config.app.key.manageAdmin
+      ) {
         if (response.data.role !== config.user.role.ADMIN) {
           return history.push("/");
         }

@@ -133,4 +133,4 @@ Provice.propTypes = {
   setFieldValue: PropTypes.func,
 };
 
-export default memo(Provice);
+export default memo(Provice, (preProps, nextProps) => true);

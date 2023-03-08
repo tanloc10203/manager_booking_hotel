@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { alpha } from "@mui/material/styles";
@@ -19,18 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { authActions, authState } from "~/features/authentication/authSlice";
 import { appActions } from "~/features/app/appSlice";
 import _ from "lodash";
-
-// ----------------------------------------------------------------------
-
-const MENU_OPTIONS = [
-  {
-    label: "Profile",
-    icon: "eva:person-fill",
-    linkTo: "#",
-  },
-];
-
-// ----------------------------------------------------------------------
+import config from "~/configs";
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
@@ -54,12 +43,54 @@ export default function AccountPopover() {
       if (_.isElement(user)) return;
 
       dispatch(appActions.setOpenOverlay(true));
+
       setTimeout(() => {
         dispatch(authActions.signOutStart({ user_id: user.user_id }));
         resolve(true);
       }, 300);
     });
   };
+
+  const MENU_OPTIONS = useMemo(() => {
+    if (_.isEmpty(user)) return [];
+
+    if (user.role === config.user.role.ADMIN)
+      return [
+        {
+          label: "Hồ sơ",
+          icon: "eva:person-fill",
+          linkTo: "#",
+        },
+        {
+          label: "Quản trị hệ thống (ADMIN)",
+          icon: "eva:person-fill",
+          linkTo: "/manager/app",
+        },
+      ];
+
+    if (user.role === config.user.role.HOTEL) {
+      return [
+        {
+          label: "Hồ sơ",
+          icon: "eva:person-fill",
+          linkTo: "#",
+        },
+        {
+          label: "Quản lý khách sạn",
+          icon: "eva:person-fill",
+          linkTo: "/manager/app",
+        },
+      ];
+    }
+
+    return [
+      {
+        label: "Hồ sơ",
+        icon: "eva:person-fill",
+        linkTo: "#",
+      },
+    ];
+  }, [user]);
 
   return (
     <>
@@ -127,7 +158,7 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: "dashed" }} />
 
         <MenuItem onClick={handleSignOut} sx={{ m: 1 }}>
-          Logout
+          Đăng xuất
         </MenuItem>
       </MenuPopover>
     </>

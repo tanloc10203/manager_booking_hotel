@@ -6,13 +6,16 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
+import AccountPopover from "~/layouts/dashboard/AccountPopover";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { authActions, authState } from "~/features/authentication/authSlice";
 
 const WrapperStyle = styled(AppBar)(({ theme }) => ({
   [theme.breakpoints.down(400)]: {
     padding: 0,
 
     "&>div>div>button": {
-      // padding:
       fontSize: 12,
       opacity: 0.7,
     },
@@ -20,6 +23,15 @@ const WrapperStyle = styled(AppBar)(({ theme }) => ({
 }));
 
 export default function NavBar() {
+  const dispach = useDispatch();
+  const { accessToken } = useSelector(authState);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    dispach(authActions.getCurrentUserStart({ accessToken }));
+  }, [accessToken]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <WrapperStyle position="static" sx={{ background: "#003580" }}>
@@ -35,24 +47,31 @@ export default function NavBar() {
               </Typography>
             </Link>
 
-            <Link
-              component={RouterLink}
-              to="/sign-in"
-              sx={{ color: "inherit", textDecoration: "none" }}
-            >
-              <Button color="inherit" sx={{ mr: 1 }}>
-                Đăng nhập
-              </Button>
-            </Link>
-            <Link
-              component={RouterLink}
-              to="/sign-up"
-              sx={{ color: "inherit", textDecoration: "none" }}
-            >
-              <Button color="inherit" sx={{ mr: 1 }}>
-                Đăng ký
-              </Button>
-            </Link>
+            <AccountPopover />
+
+            {!accessToken && (
+              <>
+                {" "}
+                <Link
+                  component={RouterLink}
+                  to="/sign-in"
+                  sx={{ color: "inherit", textDecoration: "none" }}
+                >
+                  <Button color="inherit" sx={{ mr: 1 }}>
+                    Đăng nhập
+                  </Button>
+                </Link>
+                <Link
+                  component={RouterLink}
+                  to="/sign-up"
+                  sx={{ color: "inherit", textDecoration: "none" }}
+                >
+                  <Button color="inherit" sx={{ mr: 1 }}>
+                    Đăng ký
+                  </Button>
+                </Link>
+              </>
+            )}
           </Toolbar>
         </Container>
       </WrapperStyle>

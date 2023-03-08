@@ -15,10 +15,11 @@ function SelectForm({
   error,
   helperText,
   onChange,
+  sx,
   ...others
 }) {
   return (
-    <FormControl fullWidth margin="normal" error={error}>
+    <FormControl fullWidth sx={{ ...sx }} margin="normal" error={error}>
       <InputLabel id={getSlug(label)}>{label}</InputLabel>
 
       <Select
@@ -29,7 +30,7 @@ function SelectForm({
         onChange={onChange}
       >
         <MenuItem disabled value="">
-          <em>None</em>
+          <em>Vui lòng chọn</em>
         </MenuItem>
         {children}
       </Select>
@@ -47,4 +48,4 @@ SelectForm.propTypes = {
   onChange: PropTypes.func,
 };
 
-export default memo(SelectForm);
+export default memo(SelectForm, (preProps, nextProps) => true);

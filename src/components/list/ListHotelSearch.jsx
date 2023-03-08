@@ -519,4 +519,4 @@ ListHotelSearch.propTypes = {
   defaultValue: PropTypes.string,
 };
 
-export default memo(ListHotelSearch);
+export default memo(ListHotelSearch, (preProps, nextProps) => true);
