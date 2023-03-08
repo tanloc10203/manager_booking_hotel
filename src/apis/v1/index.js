@@ -18,3 +18,4 @@ export * from "./bills/index.js";
 export * from "./bill-details/index.js";
 export * from "./use-services/index.js";
 export * from "./auth/index.js";
+export * from "./vn-pay/index.js";

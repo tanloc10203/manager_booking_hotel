@@ -4,3 +4,4 @@ export * from "./password.js";
 export * from "./json-web-token.js";
 export * from "./otp.js";
 export * from "./teamplateHTML.js";
+export * from "./functions.js";

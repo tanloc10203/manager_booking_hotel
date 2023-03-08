@@ -19,6 +19,7 @@ import {
   timeRouter,
   userRouter,
   useServiceRouter,
+  vnPayRouter,
 } from "../apis/v1/index.js";
 
 import areaRouter from "../apis/v1/areas/area.route.js";
@@ -45,6 +46,7 @@ function initRouteApi(app) {
   app.use("/api/v1/use-services", useServiceRouter);
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/areas", areaRouter);
+  app.use("/api/v1/vn-pay", vnPayRouter);
 }
 
 export default initRouteApi;
