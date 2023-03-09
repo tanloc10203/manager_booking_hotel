@@ -39,4 +39,4 @@ BoxContent.propTypes = {
   fontWeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
-export default memo(BoxContent, (preProps, nextProps) => true);
+export default memo(BoxContent);

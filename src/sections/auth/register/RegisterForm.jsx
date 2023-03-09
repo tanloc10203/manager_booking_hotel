@@ -1,15 +1,14 @@
-import * as Yup from "yup";
+import { Form, FormikProvider, useFormik } from "formik";
 import { useState } from "react";
-import { useFormik, Form, FormikProvider } from "formik";
-import { useNavigate } from "react-router-dom";
 // material
-import { Stack, TextField, IconButton, InputAdornment } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { IconButton, InputAdornment, Stack, TextField } from "@mui/material";
 // component
-import Iconify from "../../../components/Iconify";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions, authState } from "~/features/authentication/authSlice";
 import { appActions } from "~/features/app/appSlice";
+import { authActions, authState } from "~/features/authentication/authSlice";
+import { RegisterSchema } from "~/utils";
+import Iconify from "../../../components/Iconify";
 
 // ----------------------------------------------------------------------
 
@@ -21,27 +20,6 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
-
-  const phoneRegExp = /(03|05|07|08|09|02|04|06|01[2|6|8|9])+([0-9]{8})\b/;
-
-  const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string()
-      .min(2, "Quá ngắn!")
-      .max(50, "Quá dài!")
-      .required("Họ là trường bắt buộc"),
-    lastName: Yup.string()
-      .min(2, "Quá ngắn!")
-      .max(50, "Quá dài!")
-      .required("Tên là trường bắt buộc"),
-    email: Yup.string()
-      .email("E-mail phải là một địa chỉ email hợp lệ")
-      .required("E-mail là trường bắt buộc"),
-    password: Yup.string().required("Mật khẩu là trường bắt buộc"),
-    username: Yup.string().required("Tài khoản là trường bắt buộc"),
-    phone: Yup.string()
-      .matches(phoneRegExp, "Số điện thoại không hợp lệ.")
-      .required("Số điện thoại là trường bắt buộc"),
-  });
 
   const formik = useFormik({
     initialValues: {

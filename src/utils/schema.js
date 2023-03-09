@@ -1,5 +1,7 @@
 import * as Yup from "yup";
 
+const phoneRegExp = /(03|05|07|08|09|02|04|06|01[2|6|8|9])+([0-9]{8})\b/;
+
 export const hotetAddSchema = Yup.object().shape({
   hotel_name: Yup.string()
     .min(2, "Quá ngắn!")
@@ -60,6 +62,25 @@ export const statusAddSchema = Yup.object().shape({
     .required("Vui lòng không bỏ trống!"),
 });
 
+export const RegisterSchema = Yup.object().shape({
+  firstName: Yup.string()
+    .min(2, "Quá ngắn!")
+    .max(50, "Quá dài!")
+    .required("Họ là trường bắt buộc"),
+  lastName: Yup.string()
+    .min(2, "Quá ngắn!")
+    .max(50, "Quá dài!")
+    .required("Tên là trường bắt buộc"),
+  email: Yup.string()
+    .email("E-mail phải là một địa chỉ email hợp lệ")
+    .required("E-mail là trường bắt buộc"),
+  password: Yup.string().required("Mật khẩu là trường bắt buộc"),
+  username: Yup.string().required("Tài khoản là trường bắt buộc"),
+  phone: Yup.string()
+    .matches(phoneRegExp, "Số điện thoại không hợp lệ.")
+    .required("Số điện thoại là trường bắt buộc"),
+});
+
 export const roomAddSchema = Yup.object().shape({
   room_name: Yup.string()
     .min(2, "Ít nhất 2 kí tự!")
@@ -90,4 +111,25 @@ export const roomAddSchema = Yup.object().shape({
         .required("Vui lòng nhập phần trăm giảm giá"),
     otherwise: (schema) => schema.notRequired(),
   }),
+});
+
+export const schemaBooking = Yup.object().shape({
+  first_name: Yup.string()
+    .min(2, "Quá ngắn!")
+    .max(50, "Quá dài!")
+    .required("Họ là trường bắt buộc"),
+  last_name: Yup.string()
+    .min(2, "Quá ngắn!")
+    .max(50, "Quá dài!")
+    .required("Tên là trường bắt buộc"),
+  email: Yup.string()
+    .email("E-mail phải là một địa chỉ email hợp lệ")
+    .required("E-mail là trường bắt buộc"),
+  phone: Yup.string()
+    .matches(phoneRegExp, "Số điện thoại không hợp lệ.")
+    .required("Số điện thoại là trường bắt buộc"),
+  time_destination: Yup.string().notRequired(),
+  note: Yup.string().notRequired(),
+  voucher: Yup.string().notRequired(),
+  payment: Yup.string(),
 });

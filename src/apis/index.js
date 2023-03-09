@@ -5,4 +5,5 @@ export { default as deviceAPI } from "./device";
 export { default as roomTypeAPI } from "./roomType";
 export { default as statusAPI } from "./status";
 export { default as roomAPI } from "./room";
+export { default as vnPayAPI } from "./vnPay";
 export * from "./provice";

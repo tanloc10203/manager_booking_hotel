@@ -48,4 +48,4 @@ SelectForm.propTypes = {
   onChange: PropTypes.func,
 };
 
-export default memo(SelectForm, (preProps, nextProps) => true);
+export default memo(SelectForm);

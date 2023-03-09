@@ -37,15 +37,21 @@ export default function NavBar() {
       <WrapperStyle position="static" sx={{ background: "#003580" }}>
         <Container maxWidth="lg">
           <Toolbar>
-            <Link
-              sx={{ flexGrow: 1, textDecoration: "none", color: "#fff" }}
-              component={RouterLink}
-              to="/"
-            >
-              <Typography variant="h4" component="div" fontWeight={700}>
-                Endcool.booking
-              </Typography>
-            </Link>
+            <Box sx={{ flexGrow: 1 }}>
+              <Link
+                sx={{
+                  textDecoration: "none",
+                  color: "#fff",
+                  display: "inline-block",
+                }}
+                component={RouterLink}
+                to="/"
+              >
+                <Typography variant="h4" component="div" fontWeight={700}>
+                  Endcool.booking
+                </Typography>
+              </Link>
+            </Box>
 
             <AccountPopover />
 

@@ -12,10 +12,12 @@ function TextAndPrice({
   content,
   fontWeight = 500,
   sxText,
+  ...others
 }) {
   return (
     <Stack
       mt={mt}
+      {...others}
       sx={{ ...sx }}
       direction="row"
       justifyContent="space-between"

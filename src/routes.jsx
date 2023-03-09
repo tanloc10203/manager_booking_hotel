@@ -25,6 +25,7 @@ const Home = Loadable(lazy(() => import("./pages/Home")));
 const List = Loadable(lazy(() => import("./pages/List")));
 const Hotel = Loadable(lazy(() => import("./pages/Hotel")));
 const Booking = Loadable(lazy(() => import("./pages/Booking")));
+const VNPayReturn = Loadable(lazy(() => import("./pages/VNPayReturn")));
 
 // Manager hotel
 const HotelManagePage = Loadable(
@@ -189,6 +190,10 @@ export default function Router() {
         {
           path: "",
           element: <Home />,
+        },
+        {
+          path: "return",
+          element: <VNPayReturn />,
         },
         {
           path: "hotels",
