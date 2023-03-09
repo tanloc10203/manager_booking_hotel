@@ -379,14 +379,18 @@ class HotelService {
   findListHotel({ destination, totalPeople }) {
     return new Promise(async (resolve, reject) => {
       try {
+        /**
+         * SELECT PRICE MIN
+         * SELECT HOTEL AND PRICe
+         */
         let q = SqlString.format(
-          "SELECT h.*, r.room_desc, rp.price, rp.discount, rp.percent_discount FROM `hotels` h JOIN rooms r ON h.hotel_id = r.hotel_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN statuses s ON r.status_id = s.status_id WHERE h.provice_name LIKE ? AND r.avaiable = 1 AND r.max_people >= ? AND s.value='SHOW'",
-          [`%${destination}%`, totalPeople]
+          "SELECT /*+ RESULT_CACHE */ h.hotel_id, h.hotel_name, h.hotel_desc, h.hotel_image, h.hotel_rating, h.slug, SUBSTRING(h.provice_name, LENGTH(h.provice_name) - LENGTH(?) - 2, LENGTH(h.provice_name)) provice_name, r.room_desc, rp.discount, rp.percent_discount, rp.price price FROM `rooms` r JOIN room_prices rp ON r.room_id = rp.room_id  JOIN hotels h ON r.hotel_id = h.hotel_id WHERE rp.price IN (SELECT min(rp.price) FROM rooms r JOIN hotels h ON r.hotel_id = h.hotel_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN statuses s ON r.status_id = s.status_id WHERE h.provice_name LIKE ? AND s.value = 'SHOW' AND r.avaiable = 1 AND r.max_people >= ? GROUP BY r.hotel_id) GROUP BY h.hotel_id",
+          [destination, `%${destination}%`, totalPeople]
         );
 
-        const [result] = await pool.query(q);
+        const [hotels] = await pool.query(q); // * => hotels = []
 
-        resolve(result);
+        resolve(hotels);
       } catch (error) {
         reject(error);
       }
@@ -414,7 +418,7 @@ class HotelService {
         }
 
         q = SqlString.format(
-          "SELECT r.room_id,`room_name`,`room_desc`, `max_people`, `room_quantity`, `room_booking`, rt.rt_name, rt.rt_desc, rp.price, rp.discount, rp.percent_discount, f.floor_name FROM `rooms` r JOIN room_types rt ON r.rt_id = rt.rt_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE r.hotel_id=? AND r.room_quantity != r.room_booking AND s.value='SHOW';",
+          "SELECT r.room_id,`room_name`,`room_desc`, `max_people`, `room_quantity`, `room_booking`, f.floor_id, rt.rt_name, rt.rt_desc, rp.price, rp.discount, rp.percent_discount, f.floor_name FROM `rooms` r JOIN room_types rt ON r.rt_id = rt.rt_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE r.hotel_id=? AND r.room_quantity != r.room_booking AND s.value='SHOW' ORDER BY rp.price;",
           [hotels[0].hotel_id]
         );
 

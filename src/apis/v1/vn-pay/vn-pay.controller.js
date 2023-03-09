@@ -1,3 +1,4 @@
+import config from "../../../config/index.js";
 import { APIError } from "../../../utils/index.js";
 import VNPayService from "./vn-pay.service.js";
 
@@ -18,19 +19,42 @@ class VNPayController {
 
       const { amount, bankCode } = req.body;
 
-      if (!amount || !bankCode) {
-        return next(new APIError(404, "Missing amount or bankCode!"));
+      console.log(req.body);
+
+      if (!amount) {
+        return next(new APIError(404, "Missing amount!"));
       }
 
       const response = VNPayService.handleCreatePaymentUrl({
         ipAddr,
         amount,
         bankCode,
+        user_id: req.body.user_id,
       });
 
-      return res.json({
-        response,
-      });
+      // console.log(vnpUrl);
+
+      return res.send(response.vnpUrl);
+    } catch (error) {
+      return next(new APIError(error.statusCode || 500, error.message));
+    }
+  };
+
+  /**
+   *
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   * @param {import("express").NextFunction} next
+   */
+  vnpayReturn = async (req, res, next) => {
+    try {
+      const URL_REDIRECT_RETURN = `${config.app.clientURL}/vnpay_retrun`;
+      const vnpParams = req.query;
+      console.log("vnpParams", vnpParams);
+      const response = VNPayService.handleVnpayReturn({ vnpParams });
+
+      res.cookie("vnp_return", response.code);
+      return res.redirect(URL_REDIRECT_RETURN);
     } catch (error) {
       return next(new APIError(error.statusCode || 500, error.message));
     }

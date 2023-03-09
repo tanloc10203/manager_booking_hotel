@@ -9,6 +9,17 @@ class BillService {
   create(data = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        /**
+         * 1. Kiểm tra xem bill có tồn tại chưa.
+         *  - Nếu bill tồn tại hay không tồn tại vẫn tạo bill mới.
+         *    + Xét trạng thái bill ['UNPAID', 'PAID', 'OTHER', 'STARTED_USE', 'ENDED_USE']
+         *  - Mặt đinh trạng thái sẽ là UNPAID
+         *  - (chưa thanh toán => có nghĩa là người này sẽ thanh toán trong kì nghỉ)
+         * 2. Tạo bill
+         * 3. Tạo bill detail.
+         */
+        const { user_id, bill_id } = data;
+
         let sql = SqlString.format(
           "SELECT * FROM ?? WHERE customer_id = ? and status_id = ?",
           [this.table, data.customer_id, data.status_id]

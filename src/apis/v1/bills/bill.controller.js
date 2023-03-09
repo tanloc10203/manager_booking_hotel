@@ -1,19 +1,21 @@
-import { APIError } from "../../../utils/index.js";
+import { APIError, createUUID } from "../../../utils/index.js";
 import billService from "./bill.service.js";
 
 class BillController {
   async create(req, res, next) {
     try {
       const body = req.body;
+      const bill_id = createUUID();
 
-      if (!body.emp_id || !body.customer_id || !body.status_id) {
+      if (!body.user_id || !body.price || !body.payment || !body.rooms) {
         return next(
-          new APIError(404, "Missing emp_id, customer_id, status_id!")
+          new APIError(404, "Missing user_id, price, payment, rooms!")
         );
       }
 
       const response = await billService.create({
         ...body,
+        bill_id,
       });
 
       return res.status(201).json({
