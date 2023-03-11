@@ -20,10 +20,12 @@ import { differenceInDays } from "date-fns";
 import { Form, FormikProvider, useFormik } from "formik";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { vnPayAPI } from "~/apis";
 import SelectForm from "~/features/@dashboard/components/forms/SelectForm";
+import { appActions } from "~/features/app/appSlice";
 import { authState } from "~/features/authentication/authSlice";
+import { billActions } from "~/features/bill/billSlice";
 import { calcPriceDiscount, schemaBooking, getFieldOfObject } from "~/utils";
 import LazyLoadImage from "../LazyLoadImage";
 import BoxContent from "./BoxContent";
@@ -41,9 +43,11 @@ function DetailGuessBooking({
   rooms,
   hotel,
 }) {
-  const [value, setValue] = useState("offline");
+  const [value, setValue] = useState("OFFLINE");
+  const [bookingFor, setBookingFor] = useState("ME");
   const { user } = useSelector(authState);
   const [timeDestination, setTimeDestination] = useState("");
+  const dispatch = useDispatch();
 
   const initialValues = useMemo(
     () => ({
@@ -52,6 +56,9 @@ function DetailGuessBooking({
       time_destination: "",
       voucher: "",
       payment: "",
+      bookingFor: "",
+      customer_fullname: "",
+      customer_email: "",
     }),
     [user]
   );
@@ -66,10 +73,10 @@ function DetailGuessBooking({
       const priceTemp =
         value.discount === 1
           ? calcPriceDiscount({
-              price: value.price * value.room_quantity,
+              price: value.price * value.booking_room,
               persent_discount: value.percent_discount,
             })
-          : value.price * value.room_quantity;
+          : value.price * value.booking_room;
 
       // * Thuế 10%
       const tax = priceTemp * (10 / 100);
@@ -95,44 +102,64 @@ function DetailGuessBooking({
         ...values,
         amount: newToal,
         bankCode: values.payment,
-        price: newToal,
+        total_price: newToal,
         rooms,
       };
 
-      if (values.payment !== "offline") {
-        const newTotal = ("" + total).split(".")[0];
-        const data = {
-          ...values,
-          amount: +newTotal,
-          bankCode: values.payment,
-        };
+      return new Promise((resolve, reject) => {
+        if (values.payment === "ONLINE") {
+          const newTotal = ("" + total).split(".")[0];
+          const data = {
+            ...values,
+            amount: +newTotal,
+            bankCode: values.payment,
+          };
 
-        console.log("check values", data);
-        console.log("Chuyển hướng sang thanh toán");
+          // console.log("check values", data);
+          console.log("Chuyển hướng sang thanh toán");
 
-        const response = await vnPayAPI.createPaymentUrl(data);
-        console.log(response);
-        window.location.href = response;
-      } else {
-        const data = getFieldOfObject({
-          fileds: [
-            "user_id",
-            "price",
-            "payment",
-            "note",
-            "email",
-            "first_name",
-            "last_name",
-            "phone",
-            "rooms",
-            "time_destination",
-            "voucher",
-          ],
-          object: newValues,
-        });
-        console.log({ data, hotel });
-        console.log("Đặt lịch thành công");
-      }
+          // const response = await vnPayAPI.createPaymentUrl(data);
+          // console.log(response);
+          // window.location.href = response;
+        } else {
+          let data = getFieldOfObject({
+            fileds: [
+              "user_id",
+              "total_price",
+              "payment",
+              "note",
+              "email",
+              "first_name",
+              "last_name",
+              "phone",
+              "rooms",
+              "time_destination",
+              "voucher",
+              "customer_fullname",
+              "customer_email",
+            ],
+            object: newValues,
+          });
+
+          data = {
+            ...data,
+            ...hotel,
+            booking_for: values.bookingFor,
+            totalNight: resultCountDate,
+            startDate: date[0].startDate,
+            endDate: date[0].endDate,
+          };
+
+          console.log(data);
+
+          dispatch(appActions.setOpenOverlay(true));
+          dispatch(appActions.setText("Đang đặt phòng..."));
+          setTimeout(() => {
+            dispatch(billActions.createStart(data));
+            resolve(true);
+          }, 200);
+        }
+      });
     },
   });
 
@@ -146,8 +173,16 @@ function DetailGuessBooking({
     getFieldProps,
   } = formik;
 
-  const handleChange = async (event) => {
+  const handleChange = (event) => {
     setValue(event.target.value);
+  };
+
+  const handleChangeBookingFor = async (event) => {
+    setBookingFor(event.target.value);
+    if (event.target.value === "ME") {
+      await setFieldValue("customer_fullname", "");
+      await setFieldValue("customer_email", "");
+    }
   };
 
   useEffect(() => {
@@ -155,6 +190,12 @@ function DetailGuessBooking({
       await setFieldValue("payment", value);
     })();
   }, [value]);
+
+  useEffect(() => {
+    (async () => {
+      await setFieldValue("bookingFor", bookingFor);
+    })();
+  }, [bookingFor]);
 
   const handleOnChangeTimeDestination = async (event) => {
     if (!event.target.value) return;
@@ -220,7 +261,7 @@ function DetailGuessBooking({
                     key={index}
                     fontWeight={700}
                     text={room.room_name}
-                    content={`x ${room.room_quantity} phòng`}
+                    content={`x ${room.booking_room} phòng`}
                   />
                 ))}
               </Stack>
@@ -257,7 +298,7 @@ function DetailGuessBooking({
                   <TextAndPrice
                     sx={{ mb: 2 }}
                     text="Số lượng phòng"
-                    content={`${room.room_quantity} phòng`}
+                    content={`${room.booking_room} phòng`}
                   />
                 </Box>
               ))}
@@ -443,51 +484,113 @@ function DetailGuessBooking({
             </BoxContent>
 
             {active === 2 && (
-              <BoxContent
-                sx={{ background: "#ebf3ff" }}
-                title="Chọn hình thức thanh toán"
-              >
-                <Box mt={2}>
-                  <Typography fontSize={14} color="red" fontStyle="italic">
-                    * Bạn có thể thay đổi lựa chọn
-                  </Typography>
-                  <FormControl>
-                    <RadioGroup
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue="female"
-                      name="radio-buttons-group"
-                      value={value}
-                      onChange={handleChange}
-                    >
-                      <FormControlLabel
-                        value=""
-                        control={<Radio />}
-                        label="Cổng thanh toán VNPAYQR"
-                      />
-                      {/* <FormControlLabel
-                        value="VNPAYQR"
-                        control={<Radio />}
-                        label="Thanh toán qua ứng dụng hỗ trợ VNPAYQR"
-                      />
-                      <FormControlLabel
-                        value="VNBANK"
-                        control={<Radio />}
-                        label="Thanh toán qua ATM-Tài khoản ngân hàng nội địa"
-                      />
-                      <FormControlLabel
-                        value="INTCARD"
-                        control={<Radio />}
-                        label="Thanh toán qua thẻ quốc tế"
-                      /> */}
-                      <FormControlLabel
-                        value="offline"
-                        control={<Radio />}
-                        label="Thanh toán trong kỉ nghỉ"
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                </Box>
-              </BoxContent>
+              <>
+                <BoxContent
+                  sx={{ background: "#ebf3ff" }}
+                  title="Bạn đặt cho ai"
+                >
+                  <Box mt={2}>
+                    <FormControl>
+                      <RadioGroup
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        defaultValue="female"
+                        name="radio-buttons-group"
+                        value={bookingFor}
+                        onChange={handleChangeBookingFor}
+                      >
+                        <FormControlLabel
+                          value="ME"
+                          control={<Radio />}
+                          label="Đặt cho chính bạn"
+                        />
+                        <FormControlLabel
+                          value="CUSTOMER"
+                          control={<Radio />}
+                          label="Đặt cho người khác"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </Box>
+
+                  {bookingFor === "CUSTOMER" && (
+                    <Grid container width="100%" spacing={2}>
+                      <Grid item lg={6} md={6} xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Họ và tên khách hàng (*)"
+                          {...getFieldProps("customer_fullname")}
+                          error={Boolean(
+                            touched.customer_fullname &&
+                              errors.customer_fullname
+                          )}
+                          helperText={
+                            touched.customer_fullname &&
+                            errors.customer_fullname
+                          }
+                          sx={{
+                            "& > div": {
+                              borderRadius: "2px",
+                              background: "#fff",
+                            },
+                          }}
+                        />
+                      </Grid>
+                      <Grid item lg={6} md={6} xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Địa chỉ email khách hàng (*)"
+                          {...getFieldProps("customer_email")}
+                          error={Boolean(
+                            touched.customer_email && errors.customer_email
+                          )}
+                          helperText={
+                            touched.customer_email && errors.customer_email
+                          }
+                          sx={{
+                            "& > div": {
+                              borderRadius: "2px",
+                              background: "#fff",
+                            },
+                          }}
+                        />
+                        <Typography fontSize={12} mt={1}>
+                          Email xác nhận đặt phòng sẽ được gửi đến địa chỉ này
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                </BoxContent>
+                <BoxContent
+                  sx={{ background: "#ebf3ff" }}
+                  title="Chọn hình thức thanh toán"
+                >
+                  <Box mt={2}>
+                    <Typography fontSize={14} color="red" fontStyle="italic">
+                      * Bạn có thể thay đổi lựa chọn
+                    </Typography>
+                    <FormControl>
+                      <RadioGroup
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        defaultValue="female"
+                        name="radio-buttons-group"
+                        value={value}
+                        onChange={handleChange}
+                      >
+                        <FormControlLabel
+                          value="ONLINE"
+                          control={<Radio />}
+                          label="Cổng thanh toán VNPAYQR"
+                        />
+                        <FormControlLabel
+                          value="OFFLINE"
+                          control={<Radio />}
+                          label="Thanh toán trong kỉ nghỉ"
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </Box>
+                </BoxContent>
+              </>
             )}
 
             {active === 1 && (

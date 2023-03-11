@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   openOverlay: false,
+  text: "",
 };
 
 const appSlice = createSlice({
@@ -10,6 +11,9 @@ const appSlice = createSlice({
   reducers: {
     setOpenOverlay: (state, { payload }) => {
       state.openOverlay = payload;
+    },
+    setText: (state, { payload }) => {
+      state.text = payload;
     },
   },
 });

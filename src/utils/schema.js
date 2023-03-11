@@ -130,6 +130,23 @@ export const schemaBooking = Yup.object().shape({
     .required("Số điện thoại là trường bắt buộc"),
   time_destination: Yup.string().notRequired(),
   note: Yup.string().notRequired(),
-  voucher: Yup.string().notRequired(),
+  bookingFor: Yup.string(),
+  customer_fullname: Yup.string().when("bookingFor", {
+    is: "CUSTOMER",
+    then: (schema) =>
+      schema
+        .min(2, "Quá ngắn!")
+        .max(50, "Quá dài!")
+        .required("Họ là trường bắt buộc"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  customer_email: Yup.string().when("bookingFor", {
+    is: "CUSTOMER",
+    then: (schema) =>
+      schema
+        .email("E-mail phải là một địa chỉ email hợp lệ")
+        .required("E-mail là trường bắt buộc"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   payment: Yup.string(),
 });

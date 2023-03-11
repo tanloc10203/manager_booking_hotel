@@ -1,4 +1,5 @@
 import { all } from "redux-saga/effects";
+import billSaga from "~/features/bill/billSaga";
 import deviceSaga from "~/features/devices/deviceSaga";
 import floorSaga from "~/features/floors/floorSaga";
 import hotelSaga from "~/features/hotels/hotelSaga";
@@ -18,6 +19,7 @@ function* rootSaga() {
     roomTypeSaga(),
     statusSaga(),
     roomSaga(),
+    billSaga(),
   ]);
 }
 

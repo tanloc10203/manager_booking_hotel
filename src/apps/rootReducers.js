@@ -1,6 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import appReducer from "~/features/app/appSlice";
 import authReducer from "~/features/authentication/authSlice";
+import billReducer from "~/features/bill/billSlice";
 import deviceReducer from "~/features/devices/deviceSlice";
 import floorReducer from "~/features/floors/floorSlice";
 import hotelReducer from "~/features/hotels/hotelSlice";
@@ -19,6 +20,7 @@ const rootReducers = combineReducers({
   roomType: roomTypeReducer,
   status: statusReducer,
   room: roomReducer,
+  bill: billReducer,
 });
 
 export default rootReducers;

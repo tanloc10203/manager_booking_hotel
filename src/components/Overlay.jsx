@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { appState } from "~/features/app/appSlice";
 
 function Overlay() {
-  const { openOverlay } = useSelector(appState);
+  const { openOverlay, text } = useSelector(appState);
 
   return (
     <Backdrop
@@ -12,7 +12,7 @@ function Overlay() {
       open={openOverlay}
     >
       <CircularProgress color="inherit" />
-      &nbsp; Đang tải...
+      &nbsp; {text || "Đang tải..."}
     </Backdrop>
   );
 }

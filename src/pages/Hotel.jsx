@@ -100,7 +100,7 @@ function Hotel(props) {
         [room.room_id]: {
           ...room,
           booking_price: price,
-          room_quantity: selected[room.room_id],
+          booking_room: selected[room.room_id],
         },
       }));
     },

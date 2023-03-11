@@ -57,91 +57,14 @@ function VNPayReturn(props) {
                 <Typography mt={2} variant="h3">
                   Đặt phòng thành công
                 </Typography>
+
                 <Typography mt={2}>Chúc bạn có một kì nghỉ vui vẻ</Typography>
               </Stack>
-              <Stack sx={{ p: 2 }}>
-                <Stack
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Khách hàng: </Typography>
-                  <TextTrucate
-                    text="Phan Tấn Lộc"
-                    sx={{ fontWeight: 700, fontStyle: "italic" }}
-                  />
-                </Stack>
 
-                <Stack
-                  mt={1.5}
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Khách sạn: </Typography>
-                  <Tooltip
-                    arrow
-                    title="Maison Vui Homestay, Maison Vui Homestay, Maison Vui Homestay, Maison Vui Homestay"
-                  >
-                    <div>
-                      <TextTrucate
-                        text="Maison Vui Homestay, Maison Vui Homestay, Maison Vui Homestay, Maison Vui Homestay"
-                        sx={{ fontWeight: 700 }}
-                      />
-                    </div>
-                  </Tooltip>
-                </Stack>
-
-                <Stack
-                  mt={1.5}
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Số phòng đã đặt: </Typography>
-                  <TextTrucate text="1 phòng" sx={{ fontWeight: 700 }} />
-                </Stack>
-
-                <Stack
-                  mt={1.5}
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Ngày nhận phòng: </Typography>
-                  <TextTrucate
-                    text={`${format(new Date(), "E P", {
-                      locale: vi,
-                    })} `}
-                    sx={{ fontWeight: 700 }}
-                  />
-                </Stack>
-
-                <Stack
-                  mt={1.5}
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Ngày trả phòng: </Typography>
-                  <TextTrucate
-                    text={`${format(new Date(), "E P", {
-                      locale: vi,
-                    })} `}
-                    sx={{ fontWeight: 700 }}
-                  />
-                </Stack>
-
-                <Stack
-                  mt={1.5}
-                  justifyContent="space-between"
-                  direction={{ md: "row", xs: "column" }}
-                >
-                  <Typography>Tổng giá: </Typography>
-                  <TextTrucate text={fPrice(400000)} sx={{ fontWeight: 700 }} />
-                </Stack>
-
-                <Typography mt={1.5} fontStyle="italic" color="error">
+              <Stack justifyContent="center" mt={2} alignItems="center" mb={2}>
+                <Typography mb={1.5} fontStyle="italic" color="error">
                   * Vui lòng kiểm tra email để xem chi tiết hoá đơn
                 </Typography>
-              </Stack>
-
-              <Stack justifyContent="center" alignItems="center" mb={2}>
                 <Button
                   component={Link}
                   to="/"
