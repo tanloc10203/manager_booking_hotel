@@ -1,8 +1,9 @@
 import SqlString from "sqlstring";
+import DBModel from "../../../database/DBModel.js";
 import { pool } from "../../../database/index.js";
 import { APIError, hashPassword } from "../../../utils/index.js";
 
-class UserService {
+class UserService extends DBModel {
   table = "users";
   primaryKey = "user_id";
   select = [
@@ -83,14 +84,16 @@ class UserService {
   getById(id) {
     return new Promise(async (resolve, reject) => {
       try {
-        const q = SqlString.format("SELECT ?? FROM ?? WHERE ??=?", [
-          this.select,
-          this.table,
-          this.primaryKey,
-          id,
-        ]);
-        const [result] = await pool.query(q);
-        resolve(result[0]);
+        const response = await this.find({
+          conditions: { [this.primaryKey]: id },
+          select: this.select,
+        });
+
+        if (!response) {
+          return reject(new APIError("404", `User id = ${id} not found!`));
+        }
+
+        resolve(response);
       } catch (error) {
         reject(error);
       }
@@ -187,4 +190,4 @@ class UserService {
   }
 }
 
-export default new UserService();
+export default new UserService("users");

@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 function sortObject(obj) {
   let sorted = {};
   let str = [];
@@ -18,4 +20,28 @@ function sortObject(obj) {
   return sorted;
 }
 
-export { sortObject };
+const getFieldOfObject = ({ fileds = [], object = {} }) => {
+  if (_.isEmpty(object)) return {};
+
+  return _.pick(object, fileds);
+};
+
+const deleteKeyObjectOrNullOrUndefinedOrEmpty = (obj) => {
+  let newObj = {};
+
+  Object.keys(obj).forEach((key) => {
+    if (!obj[key]) {
+      delete obj[key];
+    } else {
+      newObj = { ...newObj, [key]: obj[key] };
+    }
+  });
+
+  return newObj;
+};
+
+export {
+  sortObject,
+  getFieldOfObject,
+  deleteKeyObjectOrNullOrUndefinedOrEmpty,
+};

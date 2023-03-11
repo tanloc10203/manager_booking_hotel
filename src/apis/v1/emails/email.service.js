@@ -47,21 +47,23 @@ class EmailService {
           resovle(true);
         }
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
   }
 
-  static async validationEmail(email) {
+  static async validationEmail(
+    email,
+    message = "Vui lòng cung cấp một địa chỉ email hợp lệ"
+  ) {
     try {
       const response = await validate(email);
 
       const { valid, reason, validators } = response;
 
       if (!valid && reason && !validators[reason].valid) {
-        return Promise.reject(
-          new APIError(400, "Vui lòng cung cấp một địa chỉ email hợp lệ")
-        );
+        return Promise.reject(new APIError(400, message));
       }
 
       return valid;

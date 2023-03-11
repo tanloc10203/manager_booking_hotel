@@ -418,7 +418,7 @@ class HotelService {
         }
 
         q = SqlString.format(
-          "SELECT r.room_id,`room_name`,`room_desc`, `max_people`, `room_quantity`, `room_booking`, f.floor_id, rt.rt_name, rt.rt_desc, rp.price, rp.discount, rp.percent_discount, f.floor_name FROM `rooms` r JOIN room_types rt ON r.rt_id = rt.rt_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE r.hotel_id=? AND r.room_quantity != r.room_booking AND s.value='SHOW' ORDER BY rp.price;",
+          "SELECT r.room_id,`room_name`,`room_desc`, `max_people`, `room_quantity`, `room_booking`, f.floor_id, rt.rt_name, rt.rt_desc, rp.price, rp.discount, rp.percent_discount, f.floor_name FROM `rooms` r JOIN room_types rt ON r.rt_id = rt.rt_id JOIN room_prices rp ON r.room_id = rp.room_id JOIN floors f ON r.floor_id = f.floor_id JOIN statuses s ON r.status_id = s.status_id WHERE r.hotel_id=? AND r.room_quantity != r.room_booking AND r.avaiable = 1 AND s.value='SHOW' ORDER BY rp.price;",
           [hotels[0].hotel_id]
         );
 

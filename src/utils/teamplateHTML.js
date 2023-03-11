@@ -1,3 +1,12 @@
+import { format } from "date-fns";
+import vi from "date-fns/locale/vi/index.js";
+
+function formatDateVN(date) {
+  return format(new Date(date), "E P", {
+    locale: vi,
+  });
+}
+
 function ressetPassword({ lastName, REDIRECT_URL }) {
   return `
   <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:37.5em;background-color:#ffffff;border:1px solid #f0f0f0;padding:45px">
@@ -24,4 +33,180 @@ function ressetPassword({ lastName, REDIRECT_URL }) {
   `;
 }
 
-export { ressetPassword };
+function fPrice(number) {
+  return number.toLocaleString("it-IT", { style: "currency", currency: "VND" });
+}
+
+function billHTML({
+  data = [],
+  hotel = {},
+  customer = "",
+  note = "",
+  payment = "OFFLINE",
+  bookingFor = "ME",
+  userBooking = "",
+  billId = "",
+  totalNight = 1,
+  time_destination = "",
+  startDate,
+  endDate,
+}) {
+  return `
+  <!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html lang="en">
+
+  <head>
+  <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+  </head>
+  <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">
+  Get your order summary, estimated delivery date and more<div> ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿</div>
+  </div>
+
+  <body
+  style="background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&quot;Helvetica Neue&quot;,sans-serif">
+  <table align="center" role="presentation" cellSpacing="0" cellPadding="0" border="0" width="100%"
+    style="max-width:37.5em;margin:10px auto;width:600px;border:1px solid #E5E5E5">
+    <tr style="width:100%">
+      <td>
+        <table style="padding:22px 40px;background-color:#F7F7F7" align="center" border="0" cellPadding="0"
+          cellSpacing="0" role="presentation" width="100%">
+          <tbody>
+            <tr>
+              <td>
+                <table width="100%" align="center" role="presentation" cellSpacing="0" cellPadding="0" border="0">
+                  <tbody style="width:100%">
+                    <tr style="width:100%">
+                      <td>
+                        <p style="font-size:14px;line-height:2;margin:0;font-weight:bold">Mã số hóa đơn</p>
+                        <p style="font-size:14px;line-height:1.4;margin:12px 0 0 0;font-weight:500;color:#6F6F6F">${billId}</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+        <table style="padding:40px 74px;text-align:center" align="center" border="0" cellPadding="0" cellSpacing="0"
+          role="presentation" width="100%">
+          <tbody>
+            <tr>
+              <td><img alt="Nike" src="https://react-email-demo-5x1tg9zg2-resend.vercel.app/static/nike-logo.png"
+                  width="66" height="22"
+                  style="display:block;outline:none;border:none;text-decoration:none;margin:auto" />
+                <h1 style="font-size:32px;line-height:1.3;font-weight:700;text-align:center;letter-spacing:-1px">Chi
+                  tiết về đặt phòng</h1>
+                <p style="font-size:14px;line-height:2;margin:0;color:#747474;font-weight:500">Cảm ơn bạn đã đặt phòng
+                </p>
+                <p style="font-size:14px;line-height:2;margin:0;color:#747474;font-weight:500;margin-top:24px">Chúng tôi
+                  gửi e-mail này bởi vì bạn đã đặt phòng trên hệ thống booking.endcool của chúng tôi</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+        <table style="padding-left:40px;padding-right:40px;padding-top:22px;padding-bottom:22px" align="center"
+          border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
+          <tbody>
+            <tr>
+              <td>
+                <p style="font-size:15px;line-height:2;margin:0;">Người đặt: <strong>${userBooking}</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Đặt cho: <strong>${
+                  bookingFor !== "ME" ? "Người khác" : "Chính bạn"
+                }</strong></p>
+                ${
+                  customer &&
+                  `<p style="font-size:15px;line-height:2;margin:0;">Khách hàng: <strong>${customer}</strong></p>`
+                }
+                <p style="font-size:15px;line-height:2;margin:0;">Khách sạn: <strong>${
+                  hotel.hotel_name
+                }</strong></p>
+                <p style="font-size:14px;line-height:2;margin:0;color:#747474;font-weight:500">${
+                  hotel.hotel_address
+                }</p>
+
+                <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+
+                <p style="font-size:15px;line-height:2;margin:0;">Số đêm nghỉ:<strong>${totalNight} đêm</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Ngày nhận phòng:<strong>${formatDateVN(
+                  startDate
+                )}</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Ngày trả phòng:<strong>${formatDateVN(
+                  endDate
+                )}</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Thời gian nhận phòng:<strong>${
+                  time_destination || "13:00 – 14:00"
+                }
+                    giờ</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Tổng giá: <strong>${fPrice(
+                  hotel.total_price
+                )}</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;">Hình thức thanh toán: <strong>${
+                  payment === "OFFLINE" ? "Tại kì nghỉ" : "Hình thức online"
+                }</strong></p>
+                <p style="font-size:15px;line-height:2;margin:0;font-style:italic;color:red;">${
+                  payment === "OFFLINE" ? "Chưa thanh toán" : "Đã thanh toán"
+                }</p>
+                <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+                <p style="font-size:15px;line-height:2;margin:0;">Ghi chú: <strong>${
+                  note || "Không có ghi chú"
+                }</strong></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+        <table style="padding-left:40px;padding-right:40px;padding-top:40px;padding-bottom:40px" align="center"
+          border="0" cellPadding="0" cellSpacing="0" role="presentation" width="100%">
+          <tbody>
+            <tr>
+              <td>
+                <table width="100%" align="center" role="presentation" cellSpacing="0" cellPadding="0" border="0">
+                  <tbody style="width:100%">
+                   ${data
+                     .map(
+                       (item, index) =>
+                         `
+                       <tr style="width:100%">
+                         <td style="vertical-align:top;padding-left:12px">
+                           <p style="font-size:14px;line-height:2;margin:0;font-weight:500">
+                             Mã phòng: <strong>${item.room_id}</strong>
+                           </p>
+                           <p style="font-size:14px;line-height:2;margin:0;font-weight:500">
+                             Tên phòng: <strong>${item.room_name}</strong>
+                           </p>
+                           <p style="font-size:14px;line-height:2;margin:0;font-weight:500">
+                             Số lượng phòng đã đặt: <strong>${
+                               item.booking_room
+                             }</strong>
+                           </p>
+                           <p style="font-size:14px;line-height:2;margin:0;font-weight:500">
+                             Giá: <strong>${fPrice(item.booking_price)}</strong>
+                           </p>
+                         </td>
+                       </tr>
+                       `
+                     )
+                     .join("")}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#E5E5E5;margin:0" />
+  </body>
+
+  </html>
+  `;
+}
+
+export { ressetPassword, billHTML, fPrice };

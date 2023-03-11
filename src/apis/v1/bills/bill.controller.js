@@ -7,9 +7,9 @@ class BillController {
       const body = req.body;
       const bill_id = createUUID();
 
-      if (!body.user_id || !body.price || !body.payment || !body.rooms) {
+      if (!body.user_id || !body.total_price || !body.payment || !body.rooms) {
         return next(
-          new APIError(404, "Missing user_id, price, payment, rooms!")
+          new APIError(404, "Missing user_id, total_price, payment, rooms!")
         );
       }
 
@@ -19,8 +19,8 @@ class BillController {
       });
 
       return res.status(201).json({
-        message: "Create success.",
-        data: response,
+        message: "Booking success.",
+        response,
       });
     } catch (error) {
       return next(new APIError(error.statusCode || 500, error.message));
